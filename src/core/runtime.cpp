@@ -399,23 +399,6 @@ void ekg::runtime::render() {
   if (ekg::viewport.redraw) {
     ekg::viewport.redraw = false;
 
-    /**
-     * The allocator starts here, the GPU data instance
-     * and geometry resources are clear/reseted here.
-     **/
-    this->gpu_allocator.invoke();
-
-  ekg::draw::scissor(0.0f, 0.0f, ekg::viewport.w, ekg::viewport.h);
-  ekg::draw::rect({20.0f, 20.0f, 200.0f, 200.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, ekg::draw_mode::filled);
-
-  this->draw_fr_normal.blit(
-    "meow",
-    20.0f + ekg::pixel + ekg::pixel,
-    20.0f + ekg::pixel + ekg::pixel,
-    {1.0f, 0.0f, 0.0f, 1.0f}
-  );
-
-
     for (ekg::ui::abstract *&p_widgets : this->context_widget_list) {
       if (p_widgets != nullptr && p_widgets->properties.is_alive && p_widgets->properties.is_visible) {
         /**
