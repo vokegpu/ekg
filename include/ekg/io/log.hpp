@@ -15,12 +15,10 @@ namespace ekg {
   public:
     static void flush() {
       if (ekg::log::buffered) {
-        std::string p_log {ekg::log::buffer.str()};
-
-        #if defined(__ANDROID__)
-        __android_log_print(ANDROID_LOG_VERBOSE, "EKG", "%s", p_log.c_str());
+        #ifdef __ANDROID__
+        __android_log_print(ANDROID_LOG_VERBOSE, "EKG", "%s", ekg::log::buffer.str().c_str());
         #else
-        std::cout << p_log;
+        std::cout << ekg::log::buffer.str();
         #endif
 
         ekg::log::buffer = std::ostringstream {};
@@ -57,8 +55,8 @@ namespace ekg {
     ~log() {
       ekg::log::buffer << '\n';
       #ifdef EKG_LOG_DEBUG
-      ekg::log::buffered = true;
       ekg::log::flush();
+      std::cout << std::endl;
       #endif
     }
 

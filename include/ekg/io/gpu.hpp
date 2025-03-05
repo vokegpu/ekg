@@ -39,6 +39,7 @@ namespace ekg {
     uint32_t channel {};
     uint32_t gl_id {};
     int8_t gl_protected_active_index {-1};
+    bool is_protected {};
   };
 
   ekg::flags_t gpu_allocate_sampler(

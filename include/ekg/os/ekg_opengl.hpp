@@ -40,7 +40,6 @@
 
 #include "ekg/gpu/api.hpp"
 
-#define ekg_is_sampler_protected(sampler_protected_index) (sampler_protected_index > -1)
 #define EKG_DISABLE_TEXTURE 0
 #define EKG_ENABLE_TEXTURE_PROTECTED 1
 #define EKG_ENABLE_TEXTURE 2
@@ -87,8 +86,7 @@ namespace ekg {
     void re_alloc_geometry_resources(const float *p_data, uint64_t size) override;
     
     void draw(
-      ekg::io::gpu_data_t *p_gpu_data,
-      uint64_t loaded_gpu_data_size
+      std::vector<ekg::io::gpu_data_t> &loaded_gpu_data_list
     ) override;
 
     ekg::flags_t allocate_sampler(

@@ -303,7 +303,6 @@ void ekg::draw::font_renderer::reload() {
   FT_Face ft_face {};
 
   ekg::io::font_face_t *p_font_face_picked {};
-
   for (char32_t &char32 : this->loaded_sampler_generate_list) {
     switch (char32 < 256 || !emojis_font_face.was_loaded) {
       case true: {

@@ -48,8 +48,11 @@ void ekg::gpu::allocator::invoke() {
   this->push_back_geometry(1.0f, 0.0f, 1.0f, 0.0f);
   this->push_back_geometry(1.0f, 1.0f, 1.0f, 1.0f);
 
-  this->clear_current_data();
-  this->data_list.at(this->data_instance_index).begin_stride = this->end_stride_count;
+  if (this->data_instance_index >= this->data_list.size()) {
+    this->data_list.emplace_back();
+  }
+
+  //this->data_list.at(this->data_instance_index).begin_stride = this->end_stride_count;
   this->begin_stride_count += this->end_stride_count;
   this->end_stride_count = 0;
 }
@@ -106,7 +109,7 @@ void ekg::gpu::allocator::dispatch() {
     p_data->begin_stride = this->simple_shape_index;
     p_data->end_stride = 4; // simple shape contains 4 vertices.
     this->end_stride_count = 0;
-  } else {
+  } else {    
     p_data->begin_stride = this->begin_stride_count;
     p_data->end_stride = this->end_stride_count;
   }
@@ -123,7 +126,6 @@ void ekg::gpu::allocator::dispatch() {
   this->end_stride_count = 0;
 
   this->data_instance_index++;
-  this->clear_current_data();
 }
 
 void ekg::gpu::allocator::revoke() {
@@ -189,8 +191,7 @@ void ekg::gpu::allocator::on_update() {
 
 void ekg::gpu::allocator::draw() {
   ekg::p_core->p_gpu_api->draw(
-    this->data_list.data(),
-    this->data_list.size()
+    this->data_list
   );
 }
 
@@ -212,6 +213,7 @@ void ekg::gpu::allocator::clear_current_data() {
 }
 
 ekg::io::gpu_data_t &ekg::gpu::allocator::bind_current_data() {
+  this->clear_current_data();
   return this->data_list.at(this->data_instance_index);
 }
 

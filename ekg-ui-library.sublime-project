@@ -10,11 +10,12 @@
 		"tab_size": 2,
 		"LSP":
 		{
+				"binary": "clang++",
     		"clangd":
     		{
       		"initializationOptions":
       		{
-      			"clangd.compile-commands-dir": "cd $folder && ./cmake-build",
+      			"clangd.compile-commands-dir": "$folder/cmake-build",
       		},
 			},
 		},

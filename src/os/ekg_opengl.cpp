@@ -342,6 +342,10 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
       faces[it]
     };
 
+    if (p_font_face == nullptr) {
+      continue;
+    }
+
     square = (
       p_font_face->highest_glyph_size.x
       *
@@ -501,7 +505,9 @@ ekg::flags_t ekg::opengl::bind_sampler(ekg::sampler_t *p_sampler) {
     }
   }
 
-  if (ekg_is_sampler_protected(p_sampler->gl_protected_active_index)) {
+  if (
+      (p_sampler->is_protected = p_sampler->gl_protected_active_index > -1)
+    ) {
     p_sampler->gl_protected_active_index = this->protected_texture_active_index++;
   }
 
@@ -510,8 +516,7 @@ ekg::flags_t ekg::opengl::bind_sampler(ekg::sampler_t *p_sampler) {
 }
 
 void ekg::opengl::draw(
-  ekg::io::gpu_data_t *p_gpu_data,
-  uint64_t loaded_gpu_data_size
+  std::vector<ekg::io::gpu_data_t> &loaded_gpu_data_list
 ) {
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
@@ -527,7 +532,7 @@ void ekg::opengl::draw(
    * when THIS is a protected sampler.
    **/
   for (ekg::sampler_t *&p_sampler : this->bound_sampler_list) {
-    if (p_sampler->gl_protected_active_index == -1) continue;
+    if (!p_sampler->is_protected) continue;
 
     glActiveTexture(
       GL_TEXTURE0 + p_sampler->gl_protected_active_index
@@ -538,11 +543,10 @@ void ekg::opengl::draw(
 
   glActiveTexture(GL_TEXTURE0 + this->protected_texture_active_index);
 
-  int32_t previous_sampler_bound {};
+  int32_t previous_sampler_bound {INT32_MAX};
   bool sampler_going_on {};
 
-  for (uint64_t it {}; it < loaded_gpu_data_size-1; it++) {
-    ekg::io::gpu_data_t &data {p_gpu_data[it]};
+  for (ekg::io::gpu_data_t &data : loaded_gpu_data_list) {
     sampler_going_on = data.sampler_index > -1;
 
     if (
@@ -551,7 +555,7 @@ void ekg::opengl::draw(
         (
           previous_sampler_bound != data.sampler_index
           ||
-          !ekg_is_sampler_protected(this->bound_sampler_list.at(data.sampler_index)->gl_protected_active_index)
+          !this->bound_sampler_list.at(data.sampler_index)->is_protected
         )
       ) {
 
@@ -559,13 +563,13 @@ void ekg::opengl::draw(
         this->bound_sampler_list.at(data.sampler_index)
       };
 
-      if (ekg_is_sampler_protected(p_sampler->gl_protected_active_index)) {
+      if (p_sampler->is_protected) {
         glUniform1i(this->uniform_active_tex_slot, p_sampler->gl_protected_active_index);
         glUniform1i(this->uniform_active_texture, EKG_ENABLE_TEXTURE_PROTECTED);
       } else {
         glBindTexture(GL_TEXTURE_2D, p_sampler->gl_id);
         glUniform1i(this->uniform_active_tex_slot, this->protected_texture_active_index);
-        glUniform1i(this->uniform_active_texture, EKG_ENABLE_TEXTURE);
+        glUniform1i(this->uniform_active_texture, EKG_ENABLE_TEXTURE);        
       }
 
       previous_sampler_bound = data.sampler_index;

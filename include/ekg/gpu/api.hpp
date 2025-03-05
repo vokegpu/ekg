@@ -64,8 +64,7 @@ namespace ekg::gpu {
     ) {};
 
     virtual void draw(
-      ekg::io::gpu_data_t *p_gpu_data,
-      uint64_t loaded_gpu_data_size
+      std::vector<ekg::io::gpu_data_t> &loaded_gpu_data_list
     ) {};
 
     virtual ekg::flags_t gen_font_atlas_and_map_glyph(

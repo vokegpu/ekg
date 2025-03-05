@@ -1,6 +1,7 @@
 #include "ekg/core/runtime.hpp"
 #include "ekg/layout/scale.hpp"
 #include "ekg/core/context.hpp"
+#include "ekg/draw/shape.hpp"
 
 void ekg::runtime::init() {
   this->service_handler.init();
@@ -199,8 +200,8 @@ void ekg::runtime::init() {
   this->service_input.init();
 
   ekg::log() << "Doing font-rendering tweaks, and pre-setting viewport scale...";
-  this->draw_fr_small.atlas_texture_sampler.gl_protected_active_index = true;
 
+  this->draw_fr_small.atlas_texture_sampler.gl_protected_active_index = true;
   this->draw_fr_small.set_size(16);
   this->draw_fr_small.bind_allocator(&this->gpu_allocator);
 
@@ -403,6 +404,17 @@ void ekg::runtime::render() {
      * and geometry resources are clear/reseted here.
      **/
     this->gpu_allocator.invoke();
+
+  ekg::draw::scissor(0.0f, 0.0f, ekg::viewport.w, ekg::viewport.h);
+  ekg::draw::rect({20.0f, 20.0f, 200.0f, 200.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, ekg::draw_mode::filled);
+
+  this->draw_fr_normal.blit(
+    "meow",
+    20.0f + ekg::pixel + ekg::pixel,
+    20.0f + ekg::pixel + ekg::pixel,
+    {1.0f, 0.0f, 0.0f, 1.0f}
+  );
+
 
     for (ekg::ui::abstract *&p_widgets : this->context_widget_list) {
       if (p_widgets != nullptr && p_widgets->properties.is_alive && p_widgets->properties.is_visible) {

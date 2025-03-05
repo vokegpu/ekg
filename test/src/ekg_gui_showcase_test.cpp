@@ -2,13 +2,11 @@
 
 #include "application.hpp"
 #include <ekg/os/ekg_opengl.hpp>
+#include <ekg/draw/shape.hpp>
 
 application_t app {};
 
 int32_t main(int32_t, char**) {
-  ekg::log("blalblla");
-  ekg::log(2);
-
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -43,22 +41,30 @@ int32_t main(int32_t, char**) {
   ekg::runtime ekg_runtime {};
   ekg::init(&ekg_runtime, &ekg_runtime_property);
 
+  ekg::viewport.redraw = true;
+
   while (app.is_running) {
     while (SDL_PollEvent(&sdl_event)) {
       if (sdl_event.type == SDL_QUIT) {
         app.is_running = false;
       }
 
-      //ekg::sdl_poll_event(sdl_event);
+      ekg::sdl_poll_event(sdl_event);
     }
+
+    ekg::update();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
     glViewport(0.0f, 0.0f, ekg::viewport.w, ekg::viewport.h);
 
+    ekg::viewport.dt = 0.016f;
+    ekg::render();
+
     SDL_GL_SwapWindow(app.p_sdl_win);
+
     if (app.vsync) {
-      SDL_Delay(6);
+      SDL_Delay(16);
     }
   }
 
