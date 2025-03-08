@@ -79,6 +79,8 @@ namespace ekg {
       return static_cast<t*>(this->p_widget);
     }
   };
+
+  typedef ekg::properties_t* top_level_t;
 }
 
 #endif

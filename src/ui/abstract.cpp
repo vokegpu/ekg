@@ -20,16 +20,8 @@ void ekg::ui::abstract::on_reload() {
 
 }
 
-void ekg::ui::abstract::on_pre_event() {
-
-}
-
-void ekg::ui::abstract::on_event() {
-
-}
-
-void ekg::ui::abstract::on_post_event() {
-
+void ekg::ui::abstract::on_event(ekg::io::stage stage) {
+  
 }
 
 void ekg::ui::abstract::on_update() {

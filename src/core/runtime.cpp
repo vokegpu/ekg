@@ -236,8 +236,8 @@ void ekg::runtime::poll_events() {
       (this->p_abs_activity_widget->states.is_absolute || is_on_scrolling_timeout)
     ) {
 
-    this->p_abs_activity_widget->on_pre_event();
-    this->p_abs_activity_widget->on_event();
+    this->p_abs_activity_widget->on_event(ekg::io::stage::pre);
+    this->p_abs_activity_widget->on_event(ekg::io::stage::process);
 
     if (
         this->p_abs_activity_widget->states.is_scrolling.x
@@ -247,7 +247,7 @@ void ekg::runtime::poll_events() {
       ekg::reset(&input.ui_scrolling_timing);
     }
 
-    this->p_abs_activity_widget->on_post_event();
+    this->p_abs_activity_widget->on_event(ekg::io::stage::post);
     return;
   }
 
@@ -267,7 +267,7 @@ void ekg::runtime::poll_events() {
       continue;
     }
 
-    p_widgets->on_pre_event();
+    p_widgets->on_event(ekg::io::stage::pre);
 
     /**
      * Text input like textbox and keyboard events should not update stack, only mouse events.
@@ -318,10 +318,10 @@ void ekg::runtime::poll_events() {
       first_absolute = true;
     }
 
-    p_widgets->on_post_event();
+    p_widgets->on_event(ekg::io::stage::post);
     if (!hovered && !p_widgets->states.is_absolute) {
       p_widgets->states.is_hover = false;
-      p_widgets->on_event();
+      p_widgets->on_event(ekg::io::stage::process);
     }
   }
 
@@ -331,9 +331,9 @@ void ekg::runtime::poll_events() {
     p_widget_focused->states.is_absolute && (this->p_abs_activity_widget = p_widget_focused);
     ekg::current.type = p_widget_focused->properties.type;
 
-    p_widget_focused->on_pre_event();
-    p_widget_focused->on_event();
-    p_widget_focused->on_post_event();
+    p_widget_focused->on_event(ekg::io::stage::pre);
+    p_widget_focused->on_event(ekg::io::stage::process);
+    p_widget_focused->on_event(ekg::io::stage::post);
   }
 
   if (input.was_pressed) {

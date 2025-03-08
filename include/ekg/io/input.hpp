@@ -62,6 +62,12 @@ namespace ekg {
 }
 
 namespace ekg::io {
+  enum class stage {
+    pre,
+    process,
+    post
+  };
+
   enum class input_event_type {
     none,
     text_input,

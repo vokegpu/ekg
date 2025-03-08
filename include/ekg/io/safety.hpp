@@ -93,11 +93,14 @@ namespace ekg::io {
         };
 
         p_frame->descriptor = frame;
+        p_frame->descriptor.__unsafe_p_properties = p_frame->properties;
+
         p_created_widget = p_frame;
 
         properties.descriptor = &p_frame->descriptor;
         properties.p_widget = &p_frame;
         properties.dock = frame.dock;
+        properties.is_docknizable = true;
 
         break;
       }

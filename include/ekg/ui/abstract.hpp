@@ -27,6 +27,7 @@
 
 #include "ekg/ui/properties.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/io/input.hpp"
 
 namespace ekg::ui {
   struct states_t {
@@ -69,9 +70,7 @@ namespace ekg::ui {
     virtual void on_create();
     virtual void on_destroy();
     virtual void on_reload();
-    virtual void on_pre_event();
-    virtual void on_event();
-    virtual void on_post_event();
+    virtual void on_event(ekg::io::stage stage);
     virtual void on_update();
     virtual void on_draw();
   };
