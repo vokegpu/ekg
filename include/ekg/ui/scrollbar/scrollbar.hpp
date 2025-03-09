@@ -8,7 +8,7 @@ namespace ekg {
   public:
     ekg::vec4_t<float> background {};
     ekg::vec4_t<float> outline {};
-    ekg::vec4_t<float> activity {};
+    ekg::vec4_t<float> bar {};
     ekg::vec4_t<float> highlight {};
     int32_t pixel_thickness {};
     float min_bar_size {};

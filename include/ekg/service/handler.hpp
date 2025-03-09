@@ -30,6 +30,7 @@
 #include <queue>
 #include <map>
 #include <unordered_map>
+#include <cstdint>
 
 #include "ekg/io/task.hpp"
 

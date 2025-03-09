@@ -18,6 +18,18 @@ bool ekg::reset(ekg::timing_t *p_timing) {
   return true;
 }
 
+bool ekg::reset_if_reach(ekg::timing_t *p_timing, int64_t ms) {
+  p_timing->ticks_going_on = ekg::timing_t::ticks;
+  p_timing->current_ticks = p_timing->ticks_going_on - p_timing->elapsed_ticks;
+  
+  if (p_timing->current_ticks > ms) {
+    p_timing->elapsed_ticks = p_timing->ticks_going_on;
+    return true;
+  }
+
+  return false;
+}
+
 bool ekg::extend(ekg::timing_t *p_timing, int64_t ms) {
   p_timing->elapsed_ticks = p_timing->ticks_going_on - ms;
   return true;

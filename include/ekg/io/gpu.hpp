@@ -5,6 +5,13 @@
 #include "ekg/math/geometry.hpp"
 
 namespace ekg {
+  enum class layer {
+    background,
+    background2,
+    highlight,
+    active
+  };
+
   enum class gpu_api {
     vulkan,
     opengl,

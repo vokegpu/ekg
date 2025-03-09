@@ -89,6 +89,11 @@ namespace ekg {
     int64_t ms
   );
 
+  bool reset_if_reach(
+    ekg::timing_t *p_timing,
+    int64_t ms
+  );
+
   bool reset(
     ekg::timing_t *p_timing
   );

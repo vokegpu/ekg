@@ -53,6 +53,11 @@ namespace ekg {
   }
 
   template<typename t>
+  constexpr ekg::flags_t &put(ekg::flags_t &bits, t bit) {
+    return (bits |= bit);
+  }
+
+  template<typename t>
   class value {
   protected:
     t cache {};

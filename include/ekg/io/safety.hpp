@@ -39,15 +39,6 @@ namespace ekg::io {
 
   template<typename t>
   ekg::ui::abstract *ekg::make(t descriptor) {
-    ekg::stack_t *p_stack {
-      ekg::core->get_current_stack()
-    };
-
-    if (p_stack == nullptr) {
-      ekg::log(ekg::log::error) << "Failed failed to create a widget instance, the current stack instance is null";
-      return nullptr;
-    }
-
     ekg::ui::abstract *p_created_widget {
       nullptr
     };

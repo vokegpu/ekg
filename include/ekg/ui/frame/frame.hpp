@@ -10,18 +10,19 @@ namespace ekg {
     ekg::vec4_t<float> background {};
     ekg::vec4_t<float> border {};
     ekg::vec4_t<float> outline {};
-    int32_t activity_offset {};
+    float margin_actions_offset {};
   };
 
   struct frame_t {
   public:
     std::string tag {};
+    ekg::rect_t<float> rect {};
     ekg::flags_t dock {};
     ekg::flags_t drag_dock {};
     ekg::flags_t resize_dock {};
     ekg::type type {ekg::type::frame};
-    ekg::rect_t<float> rect {};
     ekg::top_level_t top_level {};
+    ekg::level level {ekg::level::bottom}; // wtfffffffffffffffff
     ekg::frame_theme_t theme {};
   public:
     ekg::properties_t *__unsafe_p_properties {};

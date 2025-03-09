@@ -27,8 +27,11 @@
 
 #include "ekg/io/memory.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/io/task.hpp"
+#include "ekg/io/gpu.hpp"
 
 #include <string>
+#include <array>
 #include <vector>
 
 namespace ekg {
@@ -47,12 +50,18 @@ namespace ekg {
     textbox
   };
 
+  enum class level {
+    top,
+    bottom
+  };
+
   struct properties_t {
   public:
     std::string tag {};
     ekg::flags_t dock {};
     ekg::type type {};
     ekg::id_t unique_id {};
+    ekg::level level {};
     ekg::rect_t<float> rect {};
 
     void *p_descriptor {};
@@ -62,6 +71,8 @@ namespace ekg {
     ekg::properties_t *p_abs_parent {};
     ekg::properties_t *p_parent {};
     std::vector<ekg::properties_t*> children {};
+    std::array<ekg::task_t*, 7> actions {};
+    std::array<ekg::sampler_t*, 7> layer {};
 
     bool is_enabled {};
     bool is_alive {};

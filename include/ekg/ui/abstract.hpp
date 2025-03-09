@@ -54,18 +54,26 @@ namespace ekg::ui {
   class abstract {
   public:
     ekg::rect_t<float> _blank_parent_rect {};
+    ekg::rect_t<float> _blank_parent_scissor_rect {};    
     ekg::vec4_t<float> _blank_scroll_vec {};
   public:
     ekg::properties_t properties {};
     ekg::ui::states_t states {};
 
     ekg::rect_t<float> rect {};
+    ekg::rect_t<float> scissor {};
+    ekg::vec2_t<float> min_size {};
+
     ekg::vec4_t<float> *p_scroll_vec {};
     ekg::rect_t<float> *p_parent_rect {};
-
-    ekg::vec2_t<float> min_size {};
+    ekg::rect_t<float> *p_parent_scissor_rect {};
   public:
     ekg::rect_t<float> &get_abs_rect();
+
+    void action(
+      bool must_trigger,
+      ekg::action action
+    );
   public:
     virtual void on_create();
     virtual void on_destroy();

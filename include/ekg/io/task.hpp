@@ -1,7 +1,6 @@
 #ifndef EKG_IO_TASK_HPP
 #define EKG_IO_TASK_HPP
 
-#include "ekg/ui/properties.hpp"
 #include <functional>
 #include <string_view>
 
@@ -9,7 +8,7 @@ namespace ekg {
   struct info_t {
   public:
     std::string_view tag {};
-    ekg::properties_t *p_properties {};
+    void *p_properties {};
     void *p_data {};
   };
 
@@ -30,6 +29,16 @@ namespace ekg {
       p_instance->unsafe_is_heap_memory_type = true;
       return p_instance;
     }
+  };
+
+  enum class action {
+    motion,
+    press,
+    release,
+    active,
+    focus,
+    drag,
+    resize
   };
 }
 

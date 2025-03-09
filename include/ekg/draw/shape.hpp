@@ -31,7 +31,11 @@
 #include "ekg/math/geometry.hpp"
 #include "ekg/gpu/api.hpp"
 
-#define ekg_draw_assert_scissor() if (ekg::gpu::allocator::is_out_of_scissor) { return;  }
+/**
+ * The exception:
+ * ASSERT
+ **/
+#define EKG_ASSERT_SCISSOR() if (ekg::gpu::allocator::is_out_of_scissor) { return;  }
 
 namespace ekg {
   enum draw_mode {

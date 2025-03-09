@@ -15,6 +15,7 @@ namespace ekg {
     float h {};
 
     float dt {};
+    float minimum_possible_size {10.0f};
 
     bool auto_scale {true};
     ekg::rect_t<float> scale {0.0f, 0.0f, 1920.0f, 1080.0f};

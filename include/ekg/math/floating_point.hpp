@@ -5,9 +5,9 @@
 #include <cmath>
 
 namespace ekg {
-  constexpr float pi {3.141592653589793238462643383279502884f};
-  constexpr float pixel {1.000000f};
-  constexpr float pixel_div_2 {0.500000f};
+  constexpr float pi {3.1415927f};
+  constexpr float pixel {1.0000000f};
+  constexpr float pixel_div_2 {0.5000000f};
 
   constexpr bool fequalsf(float compare, float compared) {
     return (

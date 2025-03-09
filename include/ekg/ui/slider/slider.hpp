@@ -10,8 +10,8 @@ namespace ekg {
     ekg::vec4_t<float> bar_background {};
     ekg::vec4_t<float> string {};
     ekg::vec4_t<float> outline {};
-    ekg::vec4_t<float> activity {};
-    ekg::vec4_t<float> activity_bar {};
+    ekg::vec4_t<float> active {};
+    ekg::vec4_t<float> bar {};
     ekg::vec4_t<float> bar_outline {};
     ekg::vec4_t<float> highlight {};
     int32_t bar_thickness {};

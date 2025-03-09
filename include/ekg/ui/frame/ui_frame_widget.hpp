@@ -39,7 +39,7 @@ namespace ekg::ui {
     ekg::docker docker_activity_drag {};
     ekg::docker docker_activity_resize {};
     ekg::rect rect_delta {};
-    ekg::rect old_rect {};
+    ekg::rect rect_click {};
 
     float ui_theme_activity_offset {};
   public:

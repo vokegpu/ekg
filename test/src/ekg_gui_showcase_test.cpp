@@ -42,6 +42,19 @@ int32_t main(int32_t, char**) {
   ekg::init(&ekg_runtime, &ekg_runtime_property);
 
   ekg::viewport.redraw = true;
+  ekg::flags_t resize {
+    ekg::dock::left | ekg::dock::bottom | ekg::dock::right
+  };
+
+  ekg::stack_t bla {
+    .tag = "idk",
+    .children = {
+      ekg::make<ekg::frame_t>(
+        {.tag = "bla", .rect = {20.0f, 20.0f, 200.0f, 200.0f}, .resize_dock = resize, .drag = ekg::dock::top}
+      )
+    }
+  };
+  
 
   while (app.is_running) {
     while (SDL_PollEvent(&sdl_event)) {

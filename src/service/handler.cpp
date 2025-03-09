@@ -57,9 +57,9 @@ void ekg::service::handler::dispatch_pre_allocated_task(uint64_t index) {
 
 void ekg::service::handler::on_update() {
   while (!this->task_queue.empty()) {
-    ekg::task_t *p_ekg_event {this->task_queue.front()};
-    p_ekg_event->function(p_ekg_event->info);
-    p_ekg_event->was_dispatched = false;
+    ekg::task_t *p_task {this->task_queue.front()};
+    p_task->function(p_task->info);
+    p_task->was_dispatched = false;
     this->task_queue.pop();
   }
 }

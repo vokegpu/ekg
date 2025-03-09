@@ -29,6 +29,7 @@
 
 #include "ekg/core/context.hpp"
 #include "ekg/core/runtime.hpp"
+#include "ekg/io/safety.hpp"
 
 namespace ekg {
   constexpr std::string_view version_id {"2.0.0"};

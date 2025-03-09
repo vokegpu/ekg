@@ -110,24 +110,30 @@ void ekg::service::input::init() {
 
   ekg::log() << "Registering default user-input bindings";
 
-  this->insert_input_bind("frame-drag-activity", "mouse-1");
-  this->insert_input_bind("frame-drag-activity", "finger-click");
-  this->insert_input_bind("frame-resize-activity", "mouse-1");
-  this->insert_input_bind("frame-resize-activity", "finger-click");
+  /**
+   * https://github.com/vokegpu/ekg-docs/blob/master/model/input-binding-tag-style.md
+   * 
+   * Need some ref here.
+   **/
 
-  this->insert_input_bind("button-activity", "mouse-1");
-  this->insert_input_bind("button-activity", "finger-click");
+  this->insert_input_bind("frame-drag", "mouse-1");
+  this->insert_input_bind("frame-drag", "finger-click");
+  this->insert_input_bind("frame-resize", "mouse-1");
+  this->insert_input_bind("frame-resize", "finger-click");
 
-  this->insert_input_bind("checkbox-activity", "mouse-1");
-  this->insert_input_bind("checkbox-activity", "finger-click");
+  this->insert_input_bind("button-active", "mouse-1");
+  this->insert_input_bind("button-active", "finger-click");
 
-  this->insert_input_bind("popup-activity", "mouse-1");
-  this->insert_input_bind("popup-activity", "finger-click");
+  this->insert_input_bind("checkbox-active", "mouse-1");
+  this->insert_input_bind("checkbox-active", "finger-click");
 
-  this->insert_input_bind("textbox-activity", "mouse-1");
-  this->insert_input_bind("textbox-activity", "finger-click");
-  this->insert_input_bind("textbox-action-activity", "return");
-  this->insert_input_bind("textbox-action-activity", "keypad enter");
+  this->insert_input_bind("popup-active", "mouse-1");
+  this->insert_input_bind("popup-active", "finger-click");
+
+  this->insert_input_bind("textbox-focus", "mouse-1");
+  this->insert_input_bind("textbox-focus", "finger-click");
+  this->insert_input_bind("textbox-action-break", "return");
+  this->insert_input_bind("textbox-action-break", "keypad enter");
 
   this->insert_input_bind("textbox-action-select-all", "lctrl+a");
   this->insert_input_bind("textbox-action-select-all", "rctrl+a");
@@ -164,16 +170,16 @@ void ekg::service::input::init() {
   this->insert_input_bind("clipboard-cut", "rctrl+x");
   this->insert_input_bind("clipboard-cut", "cut");
 
-  this->insert_input_bind("listbox-activity-open", "mouse-1-double");
-  this->insert_input_bind("listbox-activity-open", "finger-hold");
+  this->insert_input_bind("listbox-action-open", "mouse-1-double");
+  this->insert_input_bind("listbox-action-open", "finger-hold");
 
-  this->insert_input_bind("listbox-activity-select", "mouse-1");
-  this->insert_input_bind("listbox-activity-select", "finger-click");
-  this->insert_input_bind("listbox-activity-select-many", "lctrl+mouse-1");
-  this->insert_input_bind("listbox-activity-select-many", "rctrl+mouse-1");
+  this->insert_input_bind("listbox-active", "mouse-1");
+  this->insert_input_bind("listbox-action-select", "finger-click");
+  this->insert_input_bind("listbox-action-select-many", "lctrl+mouse-1");
+  this->insert_input_bind("listbox-action-select-many", "rctrl+mouse-1");
 
-  this->insert_input_bind("slider-drag-activity", "mouse-1");
-  this->insert_input_bind("slider-drag-activity", "finger-click");
+  this->insert_input_bind("slider-drag", "mouse-1");
+  this->insert_input_bind("slider-drag", "finger-click");
   this->insert_input_bind("slider-bar-increase", "mouse-wheel-up");
   this->insert_input_bind("slider-bar-decrease", "mouse-wheel-down");
   this->insert_input_bind("slider-bar-modifier", "lctrl");
@@ -461,11 +467,8 @@ void ekg::service::input::on_event() {
 }
 
 void ekg::service::input::on_update() {
-  (
-    ekg::reach(&this->input.ui_timing, 1000)
-    &&
-    ekg::reset(&this->input.ui_timing)
-  );
+  ekg::reset_if_reach(&this->input.ui_timing, 1000);
+  ekg::timing_t::second = this->input.ui_timing.elapsed_ticks;
 
   if (this->input.was_wheel) {
     this->set_input_state("mouse-wheel", false);
