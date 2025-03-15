@@ -137,6 +137,8 @@ namespace ekg {
     p_created_widget->on_create();
     return p_created_widget;
   }
+
+  void pop(ekg::properties_t *p_properties = nullptr);
 }
 
 #endif

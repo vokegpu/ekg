@@ -250,3 +250,4 @@
 -- Added new reload, layout docknization, and scale update runtime operation tasks. 
 -- Properties has a visible absolute rect to user-programmer.
 -- Unsafe properties linked to the descriptor also.
+-- Frame widget moved to new memory-model.

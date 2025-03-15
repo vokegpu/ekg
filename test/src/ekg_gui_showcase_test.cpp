@@ -55,6 +55,17 @@ int32_t main(int32_t, char**) {
     }
   );
 
+  ekg::pop();
+
+  ekg::make(
+    ekg::frame_t {
+      .tag = "bla",
+      .rect = {20.0f, 20.0f, 200.0f, 200.0f},
+      .resize_dock = resize,
+      .drag_dock = ekg::dock::top
+    }
+  );
+
   /*
   ekg::stack_t bla {
     .tag = "idk",
