@@ -24,7 +24,7 @@
 
 #include "ekg/ui/textbox/ui_textbox_widget.hpp"
 #include "ekg/ui/textbox/ui_textbox.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/draw/draw.hpp"
 #include "ekg/util/geometry.hpp"
 #include "ekg/util/text.hpp"

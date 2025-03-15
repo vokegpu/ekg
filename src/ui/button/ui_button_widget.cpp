@@ -24,7 +24,7 @@
 
 #include "ekg/ui/button/ui_button_widget.hpp"
 #include "ekg/ui/button/ui_button.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/draw/draw.hpp"
 
 void ekg::ui::button_widget::on_reload() {

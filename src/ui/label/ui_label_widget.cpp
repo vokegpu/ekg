@@ -23,7 +23,7 @@
  */
 
 #include "ekg/ui/label/ui_label_widget.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/draw/draw.hpp"
 
 void ekg::ui::label_widget::on_reload() {

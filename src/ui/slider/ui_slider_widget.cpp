@@ -24,7 +24,7 @@
 
 #include "ekg/ui/slider/ui_slider_widget.hpp"
 #include "ekg/ui/slider/ui_slider.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/draw/draw.hpp"
 
 void ekg::ui::slider_widget::on_reload() {

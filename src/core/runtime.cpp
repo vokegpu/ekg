@@ -3,6 +3,8 @@
 #include "ekg/core/context.hpp"
 #include "ekg/draw/shape.hpp"
 
+ekg::runtime *ekg::p_core {};
+
 void ekg::runtime::init() {
   this->service_handler.init();
 
@@ -100,6 +102,7 @@ void ekg::runtime::init() {
       }
 
       this->reload_widget_list.clear();
+      ekg::viewport.redraw = true;
     }
   };
 
@@ -399,6 +402,12 @@ void ekg::runtime::render() {
   if (ekg::viewport.redraw) {
     ekg::viewport.redraw = false;
 
+    /**
+     * The allocator starts here, the GPU data instance
+     * and geometry resources are clear/reseted here.
+     **/
+    this->gpu_allocator.invoke();
+
     for (ekg::ui::abstract *&p_widgets : this->context_widget_list) {
       if (p_widgets != nullptr && p_widgets->properties.is_alive && p_widgets->properties.is_visible) {
         /**
@@ -450,12 +459,19 @@ void ekg::runtime::render() {
   this->gpu_allocator.draw();
 }
 
+ekg::properties_t *ekg::runtime::get_current_parent_properties() {
+  return this->p_current_parent_properties;
+}
+
 ekg::ui::abstract *ekg::runtime::emplace_back_new_widget_safety(
   ekg::ui::abstract *p_widget
 ) {
-  return this->loaded_widget_list.emplace_back(
-    std::unique_ptr<ekg::ui::abstract>(p_widget)
-  ).get();
+  return this->context_widget_list.emplace_back() =
+  (
+    this->loaded_widget_list.emplace_back(
+      std::unique_ptr<ekg::ui::abstract>(p_widget)
+    ).get()
+  );
 }
 
 ekg::id_t ekg::runtime::generate_unique_id() {

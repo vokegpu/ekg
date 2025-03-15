@@ -1,5 +1,5 @@
 #include "ekg/layout/dimension.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 float ekg::layout::estimate_docknizable_height(
   ekg::ui::abstract *p_parent_widget

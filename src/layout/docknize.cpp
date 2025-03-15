@@ -1,5 +1,5 @@
 #include "ekg/layout/docknize.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/layout/extentnize.hpp"
 
 void ekg::layout::mask::preset(

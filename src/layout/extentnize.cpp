@@ -1,5 +1,5 @@
 #include "ekg/layout/extentnize.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 ekg::layout::extent_t ekg::layout::extent_t::v_widget {};
 ekg::layout::extent_t ekg::layout::extent_t::h_widget {};

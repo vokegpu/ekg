@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/ui/textbox/ui_textbox.hpp"
 #include "ekg/ui/textbox/ui_textbox_widget.hpp"
 

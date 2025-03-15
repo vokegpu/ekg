@@ -1,5 +1,5 @@
 #include "ekg/ui/abstract.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 ekg::rect_t<float> &ekg::ui::abstract::get_abs_rect() {
   return (
@@ -32,7 +32,6 @@ void ekg::ui::abstract::action(
 
 void ekg::ui::abstract::on_create() {
   this->p_parent_rect = &this->_blank_parent_rect;
-  this->p_parent_scissor_rect = &this->_blank_parent_scissor_rect;
   this->p_scroll_vec = &this->_blank_scroll_vec;
 }
 

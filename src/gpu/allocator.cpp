@@ -23,7 +23,7 @@
  */
 
 #include "ekg/gpu/allocator.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 // TODO: add capacity mapped-gbuffer
 

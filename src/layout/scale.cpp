@@ -1,4 +1,5 @@
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
+#include "ekg/core/context.hpp"
 #include "ekg/layout/scale.hpp"
 
 void ekg::layout::scale_calculate() {

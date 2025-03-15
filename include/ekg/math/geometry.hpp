@@ -3,6 +3,7 @@
 
 #include "ekg/io/memory.hpp"
 #include <cstdint>
+#include <string>
 
 namespace ekg {
   enum dock {
@@ -254,6 +255,18 @@ namespace ekg {
         this->w + static_cast<t>(expect_number),
         this->h + static_cast<t>(expect_number)
       );
+    }
+
+    operator std::string() {
+      std::string content {};
+      content += std::to_string(this->x);
+      content += ' ';
+      content += std::to_string(this->y);
+      content += ' ';
+      content += std::to_string(this->w);
+      content += ' ';
+      content += std::to_string(this->h);
+      return content;
     }
   };
 

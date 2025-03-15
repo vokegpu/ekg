@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 bool ekg::operator==(const ekg::rect &l, const ekg::rect &r) {
   return ekg_equals_float(l.x, r.x) && ekg_equals_float(l.y, r.y) && ekg_equals_float(l.w, r.w) &&

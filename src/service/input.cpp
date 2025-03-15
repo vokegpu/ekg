@@ -27,11 +27,7 @@
 #include "ekg/service/input.hpp"
 #include <algorithm>
 #include "ekg/core/context.hpp"
-#include "ekg/ekg.hpp"
-
-ekg::input_t &ekg::input() {
-  return ekg::p_core->service_input.input;
-}
+#include "ekg/core/runtime.hpp"
 
 void ekg::service::input::init() {
   ekg::log() << "Initialising input-service binding system-based";

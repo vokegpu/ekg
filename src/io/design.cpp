@@ -1,5 +1,5 @@
 #include "ekg/io/design.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 std::map<std::string_view, ekg::theme_t> &ekg::themes() {
   return ekg::p_core->service_theme.get_theme_map();

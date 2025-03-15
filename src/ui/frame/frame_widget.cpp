@@ -1,9 +1,10 @@
 #include "ekg/ui/frame/frame_widget.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
+#include "ekg/core/context.hpp"
 #include "ekg/draw/shape.hpp"
 
 void ekg::ui::frame::on_create() {
-
+  ekg::ui::abstract::on_create();
 }
 
 void ekg::ui::frame::on_destroy() {

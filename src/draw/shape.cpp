@@ -23,7 +23,7 @@
  */
 
 #include "ekg/draw/shape.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 void ekg::draw::rect(
   const ekg::rect_t<float> &rect,
@@ -31,7 +31,12 @@ void ekg::draw::rect(
   int32_t line_thickness,
   ekg::sampler_t *p_sampler
 ) {
-  ekg::draw::rect(rect.x, rect.y, rect.w, rect.h, color, line_thickness, p_sampler);
+  ekg::draw::rect(
+    rect.x, rect.y, rect.w, rect.h,
+    color,
+    line_thickness,
+    p_sampler
+  );
 }
 
 void ekg::draw::rect(

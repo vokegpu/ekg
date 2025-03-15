@@ -1,6 +1,6 @@
 #include "ekg/os/ekg_opengl.hpp"
 #include "ekg/gpu/opengl_pipeline_template.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/gpu/api.hpp"
 #include "ekg/io/gpu.hpp"
 

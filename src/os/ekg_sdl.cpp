@@ -26,7 +26,8 @@
 #include <iostream>
 #include <fstream>
 
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
+#include "ekg/core/context.hpp"
 #include "ekg/os/ekg_sdl.hpp"
 
 ekg::sdl::sdl(

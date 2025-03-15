@@ -24,7 +24,8 @@
 
 #include "ekg/draw/font_renderer.hpp"
 #include "ekg/io/text.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
+#include "ekg/core/context.hpp"
 
 ekg::sampler_t *ekg::draw::font_renderer::get_atlas_texture_sampler() {
   return &this->atlas_texture_sampler;

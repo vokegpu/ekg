@@ -1,5 +1,6 @@
 #include "ekg/os/ekg_glfw.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/context.hpp"
+#include "ekg/core/runtime.hpp"
 
 ekg::glfw::glfw(
   GLFWwindow *p_glfw_win,

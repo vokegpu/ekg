@@ -25,7 +25,7 @@
 #include "ekg/ui/frame/ui_frame.hpp"
 #include "ekg/util/gui.hpp"
 #include "ekg/ui/frame/ui_frame_widget.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 ekg::ui::frame *ekg::ui::frame::set_place(ekg::flags _dock) {
   if (this->dock_flags != _dock) {

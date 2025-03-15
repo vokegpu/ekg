@@ -1,4 +1,4 @@
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 ekg::flags_t ekg::gpu_allocate_sampler(
   ekg::sampler_allocate_info_t *p_sampler_allocate_info,

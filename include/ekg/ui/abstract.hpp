@@ -54,7 +54,6 @@ namespace ekg::ui {
   class abstract {
   public:
     ekg::rect_t<float> _blank_parent_rect {};
-    ekg::rect_t<float> _blank_parent_scissor_rect {};    
     ekg::vec4_t<float> _blank_scroll_vec {};
   public:
     ekg::properties_t properties {};

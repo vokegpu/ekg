@@ -25,10 +25,10 @@ namespace ekg {
     ekg::level level {ekg::level::bottom}; // wtfffffffffffffffff
     ekg::frame_theme_t theme {};
   public:
-    ekg::properties_t *__unsafe_p_properties {};
+    ekg::properties_t *p_properties {};
   public:
     operator ekg::top_level_t() {
-      return this->__unsafe_p_properties;
+      return this->p_properties;
     }
   };
 }

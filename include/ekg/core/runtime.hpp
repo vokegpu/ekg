@@ -45,7 +45,10 @@ namespace ekg {
     ekg::os::platform *p_os_platform {};
   };
 
-  class runtime {
+  /**
+   * The main core of EKG.
+   **/
+  extern class runtime {
   private:
     /**
      * TODO: answer questions about this part specifically until second `:` statment.
@@ -60,6 +63,8 @@ namespace ekg {
 
     ekg::ui::abstract *p_abs_activity_widget {};
     ekg::io::target_collector_t swap_target_collector {};
+
+    ekg::properties_t *p_current_parent_properties {};
   public:
     ekg::service::handler service_handler {};
     ekg::service::theme service_theme {};
@@ -86,13 +91,15 @@ namespace ekg {
       ekg::ui::abstract *p_widget,
       ekg::io::operation op
     );
+
+    ekg::properties_t *get_current_parent_properties();
   public:
     void init();
     void quit();
     void update();
     void render();
     void poll_events();
-  };
+  } *p_core;
 }
 
 #endif

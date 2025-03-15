@@ -24,7 +24,7 @@
 
 #include "ekg/ui/popup/ui_popup_widget.hpp"
 #include "ekg/ui/popup/ui_popup.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/draw/draw.hpp"
 
 void ekg::ui::popup_widget::get_popup_path(std::string &path) {

@@ -25,8 +25,6 @@
 #include "ekg/ekg.hpp"
 #include "ekg/os/platform.hpp"
 
-ekg::runtime *ekg::p_core {};
-
 void ekg::init(
   ekg::runtime *p_ekg_runtime,
   ekg::runtime_property_t *p_ekg_runtime_property

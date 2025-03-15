@@ -46,6 +46,16 @@ int32_t main(int32_t, char**) {
     ekg::dock::left | ekg::dock::bottom | ekg::dock::right
   };
 
+  ekg::make(
+    ekg::frame_t {
+      .tag = "bla",
+      .rect = {20.0f, 20.0f, 200.0f, 200.0f},
+      .resize_dock = resize,
+      .drag_dock = ekg::dock::top
+    }
+  );
+
+  /*
   ekg::stack_t bla {
     .tag = "idk",
     .children = {
@@ -54,8 +64,8 @@ int32_t main(int32_t, char**) {
       )
     }
   };
+  */ 
   
-
   while (app.is_running) {
     while (SDL_PollEvent(&sdl_event)) {
       if (sdl_event.type == SDL_QUIT) {
@@ -67,8 +77,8 @@ int32_t main(int32_t, char**) {
 
     ekg::update();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0.0f, 0.0f, ekg::viewport.w, ekg::viewport.h);
 
     ekg::viewport.dt = 0.016f;

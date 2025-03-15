@@ -28,17 +28,11 @@
 #pragma STDC FENV_ACCESS ON
 
 #include "ekg/core/context.hpp"
-#include "ekg/core/runtime.hpp"
 #include "ekg/io/safety.hpp"
 
 namespace ekg {
   constexpr std::string_view version_id {"2.0.0"};
   constexpr std::string_view version_state {"ALPHA"};
-
-  /**
-   * The runtime core of ekg.
-   */
-  extern ekg::runtime *p_core;
 
   /** The setup and handling functions of ekg **/
 

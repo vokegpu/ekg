@@ -24,7 +24,7 @@
 
 #include "ekg/ui/scrollbar/ui_scrollbar_widget.hpp"
 #include "ekg/draw/draw.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 void ekg::ui::scrollbar_widget::on_reload() {
   this->scroll.p_rect_mother = this->p_parent;

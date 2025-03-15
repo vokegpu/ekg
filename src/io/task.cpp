@@ -23,7 +23,7 @@
  */
 
 #include "ekg/io/task.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 void ekg::io::dispatch(
   ekg::io::operation op

@@ -1,5 +1,5 @@
 #include "ekg/io/input.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 ekg::input_t &ekg::input() {
   return ekg::p_core->service_input.input;

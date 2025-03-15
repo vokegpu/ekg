@@ -25,20 +25,24 @@
 #ifndef EKG_IO_SAFETY_HPP
 #define EKG_IO_SAFETY_HPP
 
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
+#include "ekg/io/log.hpp"
+#include "ekg/ui/frame/frame_widget.hpp"
 
 namespace ekg::io {
   template<typename t>
   t *new_widget_instance() {
     return dynamic_cast<t*>(
-      ekg::core->emplace_back_new_widget_safety(
+      ekg::p_core->emplace_back_new_widget_safety(
         dynamic_cast<ekg::ui::abstract*>(new t {})
-      ).get()
+      )
     );
   }
+}
 
+namespace ekg {
   template<typename t>
-  ekg::ui::abstract *ekg::make(t descriptor) {
+  ekg::ui::abstract *make(t descriptor) {
     ekg::ui::abstract *p_created_widget {
       nullptr
     };
@@ -46,36 +50,39 @@ namespace ekg::io {
     ekg::properties_t properties {
       .tag = descriptor.tag,
       .type = descriptor.type,
-      .unique_id = ekg::core->generate_unique_id()
+      .unique_id = ekg::p_core->generate_unique_id(),
+      .is_visible = true,
       .is_alive = true
     };
 
+    ekg::theme_t &current_global_theme {ekg::p_core->service_theme.get_current_theme()};
+
     switch (descriptor.type) {
-      case ekg::type::button: {
-        ekg::button_t &button {
-          ekg::io::any_static_cast<ekg::button_t>(
-            descriptor
-          )
-        };
+//      case ekg::type::button: {
+//        ekg::button_t &button {
+//          ekg::io::any_static_cast<ekg::button_t>(
+//            descriptor
+//          )
+//        };
 
-        ekg::ui::button *p_button {
-          ekg::io::new_widget_instance<ekg::ui::button>()
-        };
+//        ekg::ui::button *p_button {
+//          ekg::io::new_widget_instance<ekg::ui::button>()
+//        };
 
-        p_button->descriptor = button;
-        p_created_widget = p_button;
+//        p_button->descriptor = button;
+//        p_created_widget = p_button;
 
-        properties.descriptor = &p_button->descriptor;
-        properties.p_widget = &p_button;
-        properties.dock = button.dock; // i mean im dumb idk
+//        properties.descriptor = &p_button->descriptor;
+//        properties.p_widget = &p_button;
+//        properties.dock = button.dock; // i mean im dumb idk
 
-        break;
-      }
+//        break;
+//      }
 
       case ekg::type::frame: {
         ekg::frame_t &frame {
           ekg::io::any_static_cast<ekg::frame_t>(
-            descriptor
+            &descriptor
           )
         };
 
@@ -84,23 +91,27 @@ namespace ekg::io {
         };
 
         p_frame->descriptor = frame;
-        p_frame->descriptor.__unsafe_p_properties = p_frame->properties;
+        p_frame->descriptor.p_properties = &p_frame->properties;
+        p_frame->descriptor.theme = current_global_theme.frame;
 
         p_created_widget = p_frame;
 
-        properties.descriptor = &p_frame->descriptor;
+        properties.p_descriptor = &p_frame->descriptor;
         properties.p_widget = &p_frame;
         properties.dock = frame.dock;
         properties.is_docknizable = true;
 
         break;
       }
+
+    default:
+      break;
     }
 
     p_created_widget->properties = properties;
     
-    ekg::properties_t *p_current_parent_proprerties {
-      ekg::core->get_current_parent_properties()
+    ekg::properties_t *p_current_parent_properties {
+      ekg::p_core->get_current_parent_properties()
     };
 
     if (
@@ -109,10 +120,12 @@ namespace ekg::io {
       p_current_parent_properties != nullptr
     ) {
       ekg::add_child_to_parent(
-        &p_current_parent_properties,
-        &p_created_widget
+        p_current_parent_properties,
+        &p_created_widget->properties
       );
     }
+
+    p_created_widget->on_create();
 
     return p_created_widget;
   }

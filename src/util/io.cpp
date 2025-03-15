@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/util/io.hpp"
 
 #include <fstream>

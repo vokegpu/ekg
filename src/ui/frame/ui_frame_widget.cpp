@@ -24,7 +24,7 @@
 
 #include "ekg/ui/frame/ui_frame_widget.hpp"
 #include "ekg/ui/frame/ui_frame.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/draw/draw.hpp"
 #include "ekg/os/platform.hpp"
 

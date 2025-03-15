@@ -23,7 +23,7 @@
  */
 
 #include "ekg/ui/abstract/ui_abstract.hpp"
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 
 ekg::ui::abstract::abstract() {
 

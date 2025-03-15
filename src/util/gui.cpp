@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "ekg/ekg.hpp"
+#include "ekg/core/runtime.hpp"
 #include "ekg/ui/abstract/ui_abstract_widget.hpp"
 
 void ekg::reload(int32_t id) {

@@ -1,6 +1,7 @@
 #ifndef EKG_IO_GPU_HPP
 #define EKG_IO_GPU_HPP
 
+#include <vector>
 #include "ekg/io/memory.hpp"
 #include "ekg/math/geometry.hpp"
 
