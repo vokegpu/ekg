@@ -77,7 +77,7 @@ void ekg::sdl::init() {
   this->loaded_system_cursor_list[static_cast<uint64_t>(ekg::system_cursor_type::hand)]       = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 
   this->system_cursor = ekg::system_cursor_type::arrow;
-  this->update_cursor();
+  this->update();
 
   ekg::vec2_t<int32_t> window_size {};
   SDL_GetWindowSize(this->p_sdl_win, &window_size.x, &window_size.y);
@@ -100,7 +100,9 @@ void ekg::sdl::quit() {
   
 }
 
-void ekg::sdl::update_cursor() {
+void ekg::sdl::update() {
+  ekg::timing_t::ticks = SDL_GetTicks64();
+
   SDL_SetCursor(
     this->loaded_system_cursor_list[static_cast<uint64_t>(this->system_cursor)]
   );
@@ -112,10 +114,6 @@ void ekg::sdl::update_display_size() {
 
   this->display_size.w = static_cast<int32_t>(sdl_display_mode.w);
   this->display_size.h = static_cast<int32_t>(sdl_display_mode.h);
-}
-
-uint64_t ekg::sdl::get_ticks() {
-  return SDL_GetTicks64();
 }
 
 void ekg::sdl::get_key_name(ekg::io::input_key_t &key, std::string &name) {

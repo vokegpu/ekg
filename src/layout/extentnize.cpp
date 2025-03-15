@@ -156,6 +156,9 @@ void ekg::layout::extentnize_widget(
         }
 
         p_widgets = static_cast<ekg::ui::abstract*>(p_properties->p_widget);
+        if (p_widgets->p_descriptor_rect == nullptr) {
+          continue;
+        }
 
         is_scrollbar = p_properties->type == ekg::type::scrollbar;
         is_last_index = it == latest_index;
@@ -201,7 +204,7 @@ void ekg::layout::extentnize_widget(
            * :blush:
            **/
           extent += (
-            p_widgets->rect.w
+            p_widgets->p_descriptor_rect->w
             *
             is_last_index_but
           );
@@ -243,7 +246,7 @@ void ekg::layout::extentnize_widget(
           continue;
         }
 
-        extent += p_widgets->rect.w + current_global_theme.layout_offset;
+        extent += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
       }
 
       in_out_count = flag_ok_count + (flag_ok_count == 0);

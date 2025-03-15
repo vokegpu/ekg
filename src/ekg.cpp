@@ -77,7 +77,7 @@ void ekg::quit() {
 
 void ekg::update() {
   ekg::p_core->update();
-  ekg::p_core->p_os_platform->update_cursor();
+  ekg::p_core->p_os_platform->update();
   ekg::p_core->p_os_platform->serialized_input_event.type = ekg::io::input_event_type::none;
 }
 

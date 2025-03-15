@@ -29,10 +29,14 @@ float ekg::layout::estimate_docknizable_height(
     }
 
     p_widgets = static_cast<ekg::ui::abstract*>(p_properties->p_widget);
+    if (p_widgets->p_descriptor_rect == nullptr) {
+      continue;
+    }
+
     p_widgets->on_reload();
 
     flags = p_widgets->properties.dock;
-    height = p_widgets->rect.h;
+    height = p_widgets->p_descriptor_rect->h;
 
     if (
         p_widgets->properties.is_docknizable

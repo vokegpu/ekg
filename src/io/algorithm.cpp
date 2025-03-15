@@ -25,11 +25,15 @@ ekg::flags_t ekg::add_child_to_parent(
   p_parent->children.push_back(p_child);
 
   if (p_parent->is_docknizable) {
-    ekg::ui::abstract *p_widget {
+    ekg::ui::abstract *p_child_widget {
       static_cast<ekg::ui::abstract*>(p_child->p_widget)
     };
 
-    p_widget->p_parent_rect = &p_parent->rect;
+    ekg::ui::abstract *p_parent_widget {
+      static_cast<ekg::ui::abstract*>(p_parent->p_widget)
+    };
+
+    p_child_widget->p_parent_rect = p_parent_widget->p_descriptor_rect;
   }
 
   return ekg::result::success;

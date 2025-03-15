@@ -231,13 +231,13 @@ ekg::rect_t<float> &ekg::layout::mask::get_rect() {
 void ekg::layout::docknize_widget(
   ekg::ui::abstract *p_widget_parent
 ) {
-  if (p_widget_parent == nullptr || !p_widget_parent->properties.is_docknizable) {
+  if (p_widget_parent->p_descriptor_rect == nullptr || p_widget_parent == nullptr || !p_widget_parent->properties.is_docknizable) {
     return;
   }
 
   ekg::type type {p_widget_parent->properties.type};
   bool is_group {type == ekg::type::frame};
-  ekg::rect_t<float> &abs_parent_rect {p_widget_parent->get_abs_rect()};
+  ekg::rect_t<float> &abs_parent_rect {p_widget_parent->properties.rect};
 
   if (!is_group || abs_parent_rect.w == 0 || abs_parent_rect.h == 0) {
     return;
@@ -256,7 +256,7 @@ void ekg::layout::docknize_widget(
     }
   }
 
-  ekg::rect_t<float> container_rect {p_widget_parent->rect};
+  ekg::rect_t<float> container_rect {*p_widget_parent->p_descriptor_rect};
   ekg::theme_t &current_global_theme {ekg::theme()};
 
   float initial_offset {static_cast<float>(current_global_theme.scrollbar.pixel_thickness)};
@@ -324,11 +324,14 @@ void ekg::layout::docknize_widget(
     }
 
     p_widgets = static_cast<ekg::ui::abstract*>(p_properties->p_widget);
-    flags = p_properties->dock;
+    if (p_widgets->p_descriptor_rect == nullptr) {
+      continue;
+    }
 
     // @TODO Prevent useless scrolling reload.
     p_widgets->on_reload();
     type = p_widgets->properties.type;
+    flags = p_properties->dock;
 
     if (type == ekg::type::scrollbar) {
       it++;
@@ -366,7 +369,7 @@ void ekg::layout::docknize_widget(
         p_widgets->min_size.x
       );
 
-      p_widgets->rect.w = dimensional_extent;
+      p_widgets->p_descriptor_rect->w = dimensional_extent;
       should_reload_widget = true;
       should_estimate_extent = false;
     }
@@ -388,8 +391,8 @@ void ekg::layout::docknize_widget(
       }
 
       if (is_left) {
-        p_widgets->rect.x = corner_bottom_left.x;
-        p_widgets->rect.y = (
+        p_widgets->p_descriptor_rect->x = corner_bottom_left.x;
+        p_widgets->p_descriptor_rect->y = (
           ekg::min_clamp(
             ekg::layout::transform_to_pixel_perfect_position(
               corner_top_right.y,
@@ -401,7 +404,7 @@ void ekg::layout::docknize_widget(
           )
         );
 
-        corner_bottom_left.x += p_widgets->rect.w + current_global_theme.layout_offset;
+        corner_bottom_left.x += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
       }
 
       if (is_next && is_right) {
@@ -414,8 +417,8 @@ void ekg::layout::docknize_widget(
       }
 
       if (is_right) {
-        corner_bottom_right.x += p_widgets->rect.w;
-        p_widgets->rect.x = (
+        corner_bottom_right.x += p_widgets->p_descriptor_rect->w;
+        p_widgets->p_descriptor_rect->x = (
           ekg::layout::transform_to_pixel_perfect_position(
             corner_bottom_left.x,
             corner_bottom_right.x,
@@ -424,7 +427,7 @@ void ekg::layout::docknize_widget(
           )
         );
 
-        p_widgets->rect.y = (
+        p_widgets->p_descriptor_rect->y = (
           ekg::min_clamp(
             ekg::layout::transform_to_pixel_perfect_position(
               corner_top_right.y,
@@ -439,7 +442,7 @@ void ekg::layout::docknize_widget(
         corner_bottom_right.x += current_global_theme.layout_offset;
       }
 
-      highest_bottom = ekg::min_clamp(highest_bottom, p_widgets->rect.h);
+      highest_bottom = ekg::min_clamp(highest_bottom, p_widgets->p_descriptor_rect->h);
       break;
     default:
       if (is_next && is_left) {
@@ -451,10 +454,10 @@ void ekg::layout::docknize_widget(
       }
 
       if (is_left) {
-        p_widgets->rect.x = corner_top_left.x;
-        p_widgets->rect.y = corner_top_left.y;
+        p_widgets->p_descriptor_rect->x = corner_top_left.x;
+        p_widgets->p_descriptor_rect->y = corner_top_left.y;
   
-        corner_top_left.x += p_widgets->rect.w + current_global_theme.layout_offset;
+        corner_top_left.x += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
       }
 
       if (is_next && is_right) {
@@ -466,8 +469,8 @@ void ekg::layout::docknize_widget(
       }
 
       if (is_right) {
-        corner_top_right.x += p_widgets->rect.w;
-        p_widgets->rect.x = (
+        corner_top_right.x += p_widgets->p_descriptor_rect->w;
+        p_widgets->p_descriptor_rect->x = (
           ekg::layout::transform_to_pixel_perfect_position(
             corner_top_left.x,
             corner_top_right.x,
@@ -477,10 +480,10 @@ void ekg::layout::docknize_widget(
         );
 
         corner_top_right.x += current_global_theme.layout_offset;
-        p_widgets->rect.y = corner_top_right.y;
+        p_widgets->p_descriptor_rect->y = corner_top_right.y;
       }
 
-      highest_top = ekg::min_clamp(highest_top, p_widgets->rect.h);
+      highest_top = ekg::min_clamp(highest_top, p_widgets->p_descriptor_rect->h);
       break;
     }
 
@@ -502,7 +505,7 @@ void ekg::layout::docknize_widget(
       &&
       fill_align.must_calculate_pixel_perfect
     ) {
-      fill_align.align = container_rect.w - (p_widgets->rect.x + p_widgets->rect.w);
+      fill_align.align = container_rect.w - (p_widgets->p_descriptor_rect->x + p_widgets->p_descriptor_rect->w);
       fill_align.was_pixel_perfect_calculated = true;
       
       corner_top_right.x = fill_align.align;
@@ -514,12 +517,12 @@ void ekg::layout::docknize_widget(
       &&
       fill_align.was_pixel_perfect_calculated
     ) {
-      p_widgets->rect.w = (
-        (container_rect.w - p_widgets->rect.x) - fill_align.align
+      p_widgets->p_descriptor_rect->w = (
+        (container_rect.w - p_widgets->p_descriptor_rect->x) - fill_align.align
       );
     }
 
-    max_previous_height = p_widgets->rect.h > max_previous_height ? p_widgets->rect.h : max_previous_height;
+    max_previous_height = p_widgets->p_descriptor_rect->h > max_previous_height ? p_widgets->p_descriptor_rect->h : max_previous_height;
     if (should_reload_widget) {
       p_widgets->on_reload();
     }

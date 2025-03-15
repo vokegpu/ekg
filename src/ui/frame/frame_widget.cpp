@@ -138,15 +138,15 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
 
         if (rect != new_rect) {
           if (this->properties.p_parent != nullptr) {
-            this->rect.x = new_rect.x - this->p_parent_rect->x;
-            this->rect.y = new_rect.y - this->p_parent_rect->y;
+            this->descriptor.rect.x = new_rect.x - this->p_parent_rect->x;
+            this->descriptor.rect.y = new_rect.y - this->p_parent_rect->y;
           } else {
-            this->p_parent_rect->x = new_rect.x;
-            this->p_parent_rect->y = new_rect.y;
+            this->descriptor.rect.x = new_rect.x;
+            this->descriptor.rect.y = new_rect.y;
           }
 
-          this->rect.w = new_rect.w;
-          this->rect.h = new_rect.h;
+          this->descriptor.rect.w = new_rect.w;
+          this->descriptor.rect.h = new_rect.h;
 
           if (this->target_dock_resize != ekg::dock::none) {
             this->states.is_targeting_absolute_parent = true;
@@ -249,11 +249,5 @@ void ekg::ui::frame::on_draw() {
     this->docker_drag.top,
     this->descriptor.theme.border,
     ekg::draw_mode::filled
-  );
-
-  ekg::draw::rect(
-    rect,
-    this->descriptor.theme.outline,
-    ekg::draw_mode::outline
   );
 }

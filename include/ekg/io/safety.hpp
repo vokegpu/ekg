@@ -52,7 +52,8 @@ namespace ekg {
       .type = descriptor.type,
       .unique_id = ekg::p_core->generate_unique_id(),
       .is_visible = true,
-      .is_alive = true
+      .is_alive = true,
+      .is_enabled = true
     };
 
     ekg::theme_t &current_global_theme {ekg::p_core->service_theme.get_current_theme()};
@@ -95,11 +96,13 @@ namespace ekg {
         p_frame->descriptor.theme = current_global_theme.frame;
 
         p_created_widget = p_frame;
+        p_created_widget->p_descriptor_rect = &p_frame->descriptor.rect;
 
         properties.p_descriptor = &p_frame->descriptor;
         properties.p_widget = &p_frame;
         properties.dock = frame.dock;
         properties.is_docknizable = true;
+        properties.p_parent = nullptr;
 
         break;
       }
@@ -125,8 +128,13 @@ namespace ekg {
       );
     }
 
-    p_created_widget->on_create();
+    if (p_created_widget->properties.is_docknizable) {
+      ekg::p_core->set_current_parent_properties(
+        &p_created_widget->properties
+      );
+    }
 
+    p_created_widget->on_create();
     return p_created_widget;
   }
 }

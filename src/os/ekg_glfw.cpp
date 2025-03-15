@@ -46,12 +46,11 @@ void ekg::glfw::update_display_size() {
 
   this->display_size.x = p_glfw_vidmode->width;
   this->display_size.y = p_glfw_vidmode->height;
-
-  this->system_cursor = ekg::system_cursor_type::arrow;
-  this->update_cursor();
 }
 
-void ekg::glfw::update_cursor() {
+void ekg::glfw::update() {
+  ekg::timing_t::ticks = static_cast<uint64_t>(glfwGetTime() * 1000.0f);
+
   glfwSetCursor(
     this->p_glfw_win,
     this->loaded_system_cursor_list[static_cast<uint64_t>(system_cursor)]
@@ -319,10 +318,6 @@ void ekg::glfw::set_clipboard_text(const char *p_text) {
 
 bool ekg::glfw::has_clipboard_text() {
   return glfwGetClipboardString(this->p_glfw_win) != NULL;
-}
-
-uint64_t ekg::glfw::get_ticks() {
-  return static_cast<uint64_t>(glfwGetTime() * 1000);
 }
 
 void ekg::glfw_window_size_callback(int32_t w, int32_t h) {

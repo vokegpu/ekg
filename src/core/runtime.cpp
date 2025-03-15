@@ -459,6 +459,10 @@ void ekg::runtime::render() {
   this->gpu_allocator.draw();
 }
 
+void ekg::runtime::set_current_parent_properties(ekg::properties_t *p_properties) {
+  this->p_current_parent_properties = p_properties;
+}
+
 ekg::properties_t *ekg::runtime::get_current_parent_properties() {
   return this->p_current_parent_properties;
 }

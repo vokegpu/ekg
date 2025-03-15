@@ -39,13 +39,12 @@ namespace ekg::os {
     virtual void init() {}
     virtual void quit() {}
     virtual void update_display_size() {}
-    virtual void update_cursor() {}
+    virtual void update() {}
     virtual void get_key_name(ekg::io::input_key_t &key, std::string &name) {}
     virtual void get_special_key(ekg::io::input_key_t &key, ekg::special_key_type &special_key) {}
     virtual const char *get_clipboard_text() { return nullptr; };
     virtual void set_clipboard_text(const char *p_text) {};
     virtual bool has_clipboard_text() { return false; }
-    virtual uint64_t get_ticks() { return 0; }
   };
 }
 

@@ -159,6 +159,18 @@ namespace ekg {
         this->w / div_by.w
       };
     }
+
+    operator std::string() {
+      std::string content {};
+      content += std::to_string(this->x);
+      content += ' ';
+      content += std::to_string(this->y);
+      content += ' ';
+      content += std::to_string(this->z);
+      content += ' ';
+      content += std::to_string(this->w);
+      return content;
+    }
   };
 
   template<typename t>
@@ -461,7 +473,12 @@ namespace ekg {
     t b,
     t a
   ) {
-    return ekg::vec4_t<t>(r, g, b, a) / 255;
+    return ekg::vec4_t<float>(
+      static_cast<float>(r),
+      static_cast<float>(g),
+      static_cast<float>(b),
+      static_cast<float>(a)
+    ) / 255.0f;
   }
 
   template<typename t>

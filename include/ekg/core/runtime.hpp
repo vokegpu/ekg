@@ -92,6 +92,7 @@ namespace ekg {
       ekg::io::operation op
     );
 
+    void set_current_parent_properties(ekg::properties_t *p_properties);
     ekg::properties_t *get_current_parent_properties();
   public:
     void init();

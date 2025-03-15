@@ -4,7 +4,8 @@
 #include <iostream>
 #include <sstream>
 
-#define EKG_LOG_DEBUG
+//#define EKG_LOG_DEBUG
+//#define EKG_INPUT_DEBUG
 
 namespace ekg {
   class log {

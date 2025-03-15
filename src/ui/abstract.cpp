@@ -2,9 +2,28 @@
 #include "ekg/core/runtime.hpp"
 
 ekg::rect_t<float> &ekg::ui::abstract::get_abs_rect() {
+
+  (
+    !this->p_descriptor_rect
+    &&
+    (this->p_descriptor_rect = &this->_blank_descriptor_rect)
+  );
+
+  (
+    !this->p_parent_rect
+    &&
+    (this->p_descriptor_rect = &this->_blank_descriptor_rect)
+  );
+
+  (
+    !this->p_scroll_vec
+    &&
+    (this->p_descriptor_rect = &this->_blank_descriptor_rect)
+  );
+
   return (
     this->properties.rect = (
-      this->rect + *this->p_parent_rect + *this->p_scroll_vec
+      *this->p_descriptor_rect + *this->p_parent_rect + *this->p_scroll_vec
     )
   );
 }
@@ -33,6 +52,10 @@ void ekg::ui::abstract::action(
 void ekg::ui::abstract::on_create() {
   this->p_parent_rect = &this->_blank_parent_rect;
   this->p_scroll_vec = &this->_blank_scroll_vec;
+
+  if (this->p_descriptor_rect == nullptr) {
+    this->p_descriptor_rect = &this->_blank_descriptor_rect;
+  }
 }
 
 void ekg::ui::abstract::on_destroy() {
@@ -65,7 +88,7 @@ void ekg::ui::abstract::on_event(ekg::io::stage stage) {
             ekg::rect_collide_vec2(this->scissor, interact)
           )
         );
-  }
+      }
       break;
     }
 

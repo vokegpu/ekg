@@ -216,6 +216,7 @@ void ekg::service::input::on_event() {
 
     case ekg::io::input_event_type::key_down: {
       this->input.was_pressed = true;
+      this->input.was_typed = true;
 
       std::string key_name {};
       std::string string_builder {};
@@ -463,6 +464,17 @@ void ekg::service::input::on_event() {
 }
 
 void ekg::service::input::on_update() {
+  #ifdef EKG_INPUT_DEBUG
+  ekg::log()
+    << "scroll_speed: " << this->input.scroll_speed           << "\n"
+    << "interact: "     << (std::string) this->input.interact << "\n"
+    << "was_pressed: "  << this->input.was_pressed            << "\n"
+    << "was_released: " << this->input.was_released           << "\n"
+    << "has_motion: "   << this->input.has_motion             << "\n"
+    << "was_wheel: "    << this->input.was_wheel              << "\n"
+    << "was_typed: "    << this->input.was_typed;
+  #endif
+
   ekg::reset_if_reach(&this->input.ui_timing, 1000);
   ekg::timing_t::second = this->input.ui_timing.elapsed_ticks;
 
