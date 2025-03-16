@@ -3,7 +3,7 @@
 
 #include "ekg/io/typography.hpp"
 #include "ekg/math/geometry.hpp"
-#include "ekg/ui/properties.hpp"
+#include "ekg/ui/types.hpp"
 
 namespace ekg {
   extern FT_Library freetype_library;

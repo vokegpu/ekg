@@ -78,6 +78,11 @@ namespace ekg {
       this->p_address = p_address;
     }
 
+    void set_value(t value) {
+      t &val {this->get_value()};
+      val = value;
+    }
+
     t &get_value() {
       return (
         this->p_address

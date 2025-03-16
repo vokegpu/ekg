@@ -33,7 +33,8 @@ ekg::flags_t ekg::add_child_to_parent(
       static_cast<ekg::ui::abstract*>(p_parent->p_widget)
     };
 
-    p_child_widget->p_parent_rect = p_parent_widget->p_descriptor_rect;
+    p_child_widget->p_parent_rect = &p_parent_widget->properties.rect;
+    p_child_widget->p_parent_scissor_rect = &p_parent_widget->scissor;
   }
 
   return ekg::result::success;

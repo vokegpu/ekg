@@ -29,32 +29,13 @@
 #include "ekg/math/geometry.hpp"
 #include "ekg/io/task.hpp"
 #include "ekg/io/gpu.hpp"
+#include "ekg/ui/types.hpp"
 
 #include <string>
 #include <array>
 #include <vector>
 
 namespace ekg {
-  enum type {
-    abstract,
-    button,
-    checkbox,
-    combobox,
-    frame,
-    label,
-    listbox,
-    menu,
-    popup,
-    scrollbar,
-    slider,
-    textbox
-  };
-
-  enum class level {
-    top,
-    bottom
-  };
-
   struct properties_t {
   public:
     std::string tag {};
@@ -71,7 +52,7 @@ namespace ekg {
     ekg::properties_t *p_abs_parent {};
     ekg::properties_t *p_parent {};
     std::vector<ekg::properties_t*> children {};
-    std::array<ekg::task_t*, 7> actions {};
+    std::array<ekg::task_t*, 8> actions {};
     std::array<ekg::sampler_t*, 7> layer {};
 
     bool is_enabled {};

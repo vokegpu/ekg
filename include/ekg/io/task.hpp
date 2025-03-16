@@ -4,6 +4,8 @@
 #include <functional>
 #include <string_view>
 
+#include "ekg/core/context.hpp"
+
 namespace ekg {
   struct info_t {
   public:
@@ -38,7 +40,8 @@ namespace ekg {
     active,
     focus,
     drag,
-    resize
+    resize,
+    hover
   };
 }
 
@@ -54,6 +57,18 @@ namespace ekg::io {
   void dispatch(
     ekg::io::operation op
   );
+
+  template<typename t>
+  constexpr t &set(t &must_set, t value) {
+    if (must_set == value) {
+      return must_set;
+    }
+
+    ekg::viewport.redraw = true;
+    return (
+      must_set = value
+    );
+  }
 }
 
 #endif

@@ -27,6 +27,8 @@
 
 #include "ekg/core/runtime.hpp"
 #include "ekg/io/log.hpp"
+
+#include "ekg/ui/button/button_widget.hpp"
 #include "ekg/ui/frame/frame_widget.hpp"
 
 namespace ekg::io {
@@ -51,34 +53,39 @@ namespace ekg {
       .tag = descriptor.tag,
       .type = descriptor.type,
       .unique_id = ekg::p_core->generate_unique_id(),
-      .is_visible = true,
+      .is_enabled = true,
       .is_alive = true,
-      .is_enabled = true
+      .is_visible = true
     };
 
     ekg::theme_t &current_global_theme {ekg::p_core->service_theme.get_current_theme()};
 
     switch (descriptor.type) {
-//      case ekg::type::button: {
-//        ekg::button_t &button {
-//          ekg::io::any_static_cast<ekg::button_t>(
-//            descriptor
-//          )
-//        };
+      case ekg::type::button: {
+        ekg::button_t &button {
+          ekg::io::any_static_cast<ekg::button_t>(
+            &descriptor
+          )
+        };
 
-//        ekg::ui::button *p_button {
-//          ekg::io::new_widget_instance<ekg::ui::button>()
-//        };
+        ekg::ui::button *p_button {
+          ekg::io::new_widget_instance<ekg::ui::button>()
+        };
 
-//        p_button->descriptor = button;
-//        p_created_widget = p_button;
+        p_button->descriptor = button;
+        p_button->descriptor.theme = current_global_theme.button;
 
-//        properties.descriptor = &p_button->descriptor;
-//        properties.p_widget = &p_button;
-//        properties.dock = button.dock; // i mean im dumb idk
+        properties.p_descriptor = &p_button->descriptor;
+        properties.p_widget = p_button;
+        properties.dock = button.dock;
+        properties.is_docknizable = false;
+        properties.is_parentable = true;
 
-//        break;
-//      }
+        p_created_widget = p_button;
+        p_created_widget->p_descriptor_rect = &p_button->descriptor.rect;
+
+        break;
+      }
 
       case ekg::type::frame: {
         ekg::frame_t &frame {
@@ -95,14 +102,14 @@ namespace ekg {
         p_frame->descriptor.p_properties = &p_frame->properties;
         p_frame->descriptor.theme = current_global_theme.frame;
 
-        p_created_widget = p_frame;
-        p_created_widget->p_descriptor_rect = &p_frame->descriptor.rect;
-
         properties.p_descriptor = &p_frame->descriptor;
-        properties.p_widget = &p_frame;
+        properties.p_widget = p_frame;
         properties.dock = frame.dock;
         properties.is_docknizable = true;
-        properties.p_parent = nullptr;
+        properties.is_parentable = frame.dock != 0;
+
+        p_created_widget = p_frame;
+        p_created_widget->p_descriptor_rect = &p_frame->descriptor.rect;
 
         break;
       }
@@ -112,7 +119,7 @@ namespace ekg {
     }
 
     p_created_widget->properties = properties;
-    
+
     ekg::properties_t *p_current_parent_properties {
       ekg::p_core->get_current_parent_properties()
     };
@@ -131,6 +138,11 @@ namespace ekg {
     if (p_created_widget->properties.is_docknizable) {
       ekg::p_core->set_current_parent_properties(
         &p_created_widget->properties
+      );
+
+      ekg::p_core->dispatch_widget_op(
+        p_created_widget,
+        ekg::io::operation::layout_docknize
       );
     }
 

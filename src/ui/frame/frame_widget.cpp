@@ -17,11 +17,6 @@ void ekg::ui::frame::on_reload() {
 
 void ekg::ui::frame::on_event(ekg::io::stage stage) {
   switch (stage) {
-    case ekg::io::stage::pre: {
-      ekg::ui::abstract::on_event(ekg::io::stage::pre);
-      break;
-    }
-
     case ekg::io::stage::process: {
       ekg::rect_t<float> &rect {this->get_abs_rect()};
       ekg::input_t &input {ekg::p_core->service_input.input};
@@ -219,8 +214,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
       break;
     }
 
-    case ekg::io::stage::post: {
-      ekg::ui::abstract::on_event(ekg::io::stage::post);
+    default: {
+      ekg::ui::abstract::on_event(stage);
       break;
     }
   }

@@ -6,7 +6,7 @@
 namespace ekg {
   struct label_theme_t {
   public:
-    ekg::vec4_t<float> string {};
+    ekg::vec4_t<float> text {};
     ekg::vec4_t<float> outline {};
     ekg::vec4_t<float> background {};
   };

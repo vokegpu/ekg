@@ -231,13 +231,19 @@ ekg::rect_t<float> &ekg::layout::mask::get_rect() {
 void ekg::layout::docknize_widget(
   ekg::ui::abstract *p_widget_parent
 ) {
-  if (p_widget_parent->p_descriptor_rect == nullptr || p_widget_parent == nullptr || !p_widget_parent->properties.is_docknizable) {
+  if (
+      p_widget_parent->p_descriptor_rect == nullptr
+      ||
+      p_widget_parent == nullptr
+      ||
+      !p_widget_parent->properties.is_docknizable
+  ) {
     return;
   }
 
   ekg::type type {p_widget_parent->properties.type};
   bool is_group {type == ekg::type::frame};
-  ekg::rect_t<float> &abs_parent_rect {p_widget_parent->properties.rect};
+  ekg::rect_t<float> &abs_parent_rect {p_widget_parent->get_abs_rect()};
 
   if (!is_group || abs_parent_rect.w == 0 || abs_parent_rect.h == 0) {
     return;
@@ -330,6 +336,7 @@ void ekg::layout::docknize_widget(
 
     // @TODO Prevent useless scrolling reload.
     p_widgets->on_reload();
+
     type = p_widgets->properties.type;
     flags = p_properties->dock;
 

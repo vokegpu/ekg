@@ -182,18 +182,10 @@ namespace ekg {
         t y {};
         t w {};
         t h {};
+        t scaled_height {};
       };
     };
   public:
-    inline rect_t() = default;
-
-    inline rect_t(t _x, t _y, t _w, t _h) {
-      this->x = _x;
-      this->y = _y;
-      this->w = _w;
-      this->h = _h;
-    }
-
     // TODO: add non-useless rect (aka vector 4 properties) operators
 
     template<typename s>
@@ -221,7 +213,7 @@ namespace ekg {
 
     template<typename s>
     operator ekg::rect_t<s>() {
-      return ekg::rect_t<s>{
+      return ekg::rect_t<s> {
         static_cast<s>(this->x),
         static_cast<s>(this->y),
         static_cast<s>(this->w),
@@ -241,32 +233,32 @@ namespace ekg {
 
     template<typename s>
     ekg::rect_t<t> operator + (ekg::rect_t<s> rect) {
-      return ekg::rect_t<t>(
+      return ekg::rect_t<t> {
         this->x + static_cast<t>(rect.x),
         this->y + static_cast<t>(rect.y),
-        this->w + static_cast<t>(rect.w),
-        this->h + static_cast<t>(rect.h)
-      );
+        this->w,
+        this->h
+      };
     }
 
     template<typename s>
     ekg::rect_t<t> operator + (ekg::vec4_t<s> vec) {
-      return ekg::rect_t<t>(
+      return ekg::rect_t<t> {
         this->x + static_cast<t>(vec.x),
         this->y + static_cast<t>(vec.y),
-        this->w + static_cast<t>(vec.z),
-        this->h + static_cast<t>(vec.w)
-      );
+        this->w,
+        this->h
+      };
     }
 
     template<typename s>
     ekg::rect_t<t> operator + (s expect_number) {
-      return ekg::rect_t<t>(
+      return ekg::rect_t<t> {
         this->x + static_cast<t>(expect_number),
         this->y + static_cast<t>(expect_number),
-        this->w + static_cast<t>(expect_number),
-        this->h + static_cast<t>(expect_number)
-      );
+        this->w,
+        this->h
+      };
     }
 
     operator std::string() {
@@ -283,7 +275,7 @@ namespace ekg {
   };
 
   template<typename t>
-  bool rect_precise_collide_vec2(ekg::rect_t<t> a, ekg::vec2_t<t> b) {
+  constexpr bool rect_precise_collide_vec2(ekg::rect_t<t> a, ekg::vec2_t<t> b) {
     return (
       b.x >= a.x && b.x <= a.x + a.w
       &&
@@ -292,7 +284,7 @@ namespace ekg {
   }
 
   template<typename t>
-  bool rect_collide_vec2(ekg::rect_t<t> a, ekg::vec2_t<t> b) {
+  constexpr bool rect_collide_vec2(ekg::rect_t<t> a, ekg::vec2_t<t> b) {
     return (
       b.x >= a.x && b.x <= a.x + a.w
       &&
@@ -301,7 +293,7 @@ namespace ekg {
   }
 
   template<typename t>
-  bool rect_precise_collide_vec4(ekg::rect_t<t> a, ekg::vec4_t<t> b) {
+  constexpr bool rect_precise_collide_vec4(ekg::rect_t<t> a, ekg::vec4_t<t> b) {
     return (
       a.x <= b.x + b.z && a.x + a.w >= b.x
       &&
@@ -310,7 +302,7 @@ namespace ekg {
   }
 
   template<typename t>
-  bool rect_collide_vec4(ekg::rect_t<t> a, ekg::vec4_t<t> b) {
+  constexpr bool rect_collide_vec4(ekg::rect_t<t> a, ekg::vec4_t<t> b) {
     return (
       a.x < b.x + b.z && a.x + a.w > b.x
       &&
@@ -319,7 +311,7 @@ namespace ekg {
   }
 
   template<typename t>
-  bool rect_precise_collide_rect(ekg::rect_t<t> a, ekg::rect_t<t> b) {
+  constexpr bool rect_precise_collide_rect(ekg::rect_t<t> a, ekg::rect_t<t> b) {
     return (
       a.x <= b.x + b.w && a.x + a.w >= b.x
       &&
@@ -328,7 +320,7 @@ namespace ekg {
   }
 
   template<typename t>
-  bool rect_collide_rect(ekg::rect_t<t> a, ekg::rect_t<t> b) {
+  constexpr bool rect_collide_rect(ekg::rect_t<t> a, ekg::rect_t<t> b) {
     return (
       a.x < b.x + b.w && a.x + a.w > b.x
       &&
@@ -342,6 +334,59 @@ namespace ekg {
     ekg::flags_t flags {};
   };
 
+  struct aligned_t {
+  public:
+    float w {};
+    float h {};
+    float offset {};
+  };
+
+  constexpr void align_rect_dimension(
+    ekg::axis axis,
+    ekg::rect_t<float> rect,
+    ekg::aligned_t &aligned
+  ) {
+    float dimension_offset {};
+    switch (axis) {
+    case ekg::axis::horizontal:
+      dimension_offset = (
+        static_cast<float>(static_cast<int32_t>(rect.h / 2.0f))
+      );
+
+      aligned.offset = (
+        static_cast<float>(
+          static_cast<int32_t>(
+            ((rect.w + dimension_offset) * 0.5f)
+            -
+            (rect.w * 0.5f)
+          )
+        )
+      );
+
+      aligned.w = rect.w + aligned.offset * 2;
+      aligned.h = rect.h + dimension_offset;
+      break;
+    case ekg::axis::vertical:
+      dimension_offset = (
+        static_cast<float>(static_cast<int32_t>(rect.w / 2.0f))
+      );
+
+      aligned.offset = (
+        static_cast<float>(
+          static_cast<int32_t>(
+            ((rect.h + dimension_offset) * 0.5f)
+            -
+            (rect.h * 0.5f)
+          )
+        )
+      );
+
+      aligned.h = rect.h + aligned.offset * 2;
+      aligned.w = rect.w + dimension_offset;
+      break;
+    }
+  }
+
   template<typename t>
   struct docker_t {
   public:
@@ -354,7 +399,7 @@ namespace ekg {
   };
 
   template<typename t>
-  ekg::flags_t vec2_collide_docker_if(
+  constexpr ekg::flags_t vec2_collide_docker_if(
     ekg::vec2_t<t> vec,
     ekg::docker_t<t> docker,
     ekg::flags_t if_dock
@@ -430,7 +475,7 @@ namespace ekg {
   }
 
   template<typename t>
-  void scale_docker_by_margin(
+  constexpr void scale_docker_by_margin(
     ekg::docker_t<t> &docker,
     ekg::vec2_t<t> margin,
     ekg::rect_t<t> rect
@@ -467,7 +512,7 @@ namespace ekg {
   }
 
   template<typename t>
-  ekg::vec4_t<float> color(
+  constexpr ekg::vec4_t<float> color(
     t r,
     t g,
     t b,
@@ -497,17 +542,17 @@ namespace ekg {
   }
 
   template<typename t>
-  ekg::rect_t<t> clamp_rect_by_square(
+  constexpr ekg::rect_t<t> clamp_rect_by_square(
     ekg::rect_t<t> rect,
     float square
   ) {
     const t zero {}; 
-    return ekg::rect_t<t>(
+    return ekg::rect_t<t> {
       ekg::min_clamp<t>(rect.x, zero),
       ekg::min_clamp<t>(rect.y, zero),
       ekg::max_clamp<t>(rect.w, square),
       ekg::max_clamp<t>(rect.h, square)
-    );
+    };
   } 
 
   void ortho(

@@ -142,6 +142,11 @@ namespace ekg::draw {
      **/
     void flush();
   };
+
+  /**
+   * Temp solution for fixed-font-renderer
+   **/
+  ekg::draw::font_renderer &get_font_renderer(ekg::font font);
 }
 
 #endif

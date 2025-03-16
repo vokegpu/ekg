@@ -46,25 +46,44 @@ int32_t main(int32_t, char**) {
     ekg::dock::left | ekg::dock::bottom | ekg::dock::right
   };
 
+  /* new */
+
   ekg::make(
     ekg::frame_t {
-      .tag = "bla",
+      .tag = "first frame idk",
       .rect = {20.0f, 20.0f, 200.0f, 200.0f},
-      .resize_dock = resize,
-      .drag_dock = ekg::dock::top
+      .drag_dock = ekg::dock::top,
+      .resize_dock = ekg::dock::left | ekg::dock::bottom | ekg::dock::right
+    }
+  );
+
+  ekg::make(
+    ekg::button_t {
+      .tag = "oi",
+      .dock = ekg::dock::fill,
+      .text = "meow meow",
+      .text_dock = ekg::dock::center,
     }
   );
 
   ekg::pop();
 
-  ekg::make(
-    ekg::frame_t {
-      .tag = "bla",
-      .rect = {20.0f, 20.0f, 200.0f, 200.0f},
-      .resize_dock = resize,
-      .drag_dock = ekg::dock::top
-    }
-  );
+  auto bla = ekg::frame_t {
+    .tag = "bla",
+    .rect = {20.0f, 20.0f, 200.0f, 200.0f},
+    .drag_dock = ekg::dock::top,
+    .resize_dock = ekg::dock::left | ekg::dock::bottom | ekg::dock::right
+  };
+
+  bla.tag = "meow";
+  bla.rect = {340.0f, 20.0f, 200.0f, 200.0f};
+  //ekg::make(bla);
+  ekg::pop();
+
+  bla.tag = "moo";
+  bla.rect = {500.0f, 200.0f, 200.0f, 200.0f};
+  //ekg::make(bla);
+  ekg::pop();
 
   /*
   ekg::stack_t bla {

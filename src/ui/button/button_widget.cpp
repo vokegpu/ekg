@@ -1,0 +1,170 @@
+#include "ekg/ui/button/button_widget.hpp"
+#include "ekg/draw/font_renderer.hpp"
+#include "ekg/draw/shape.hpp"
+#include "ekg/core/runtime.hpp"
+
+void ekg::ui::button::on_reload() {
+  this->get_abs_rect();
+
+  ekg::draw::font_renderer &text_fr {
+    ekg::draw::get_font_renderer(this->descriptor.text_font_size)
+  };
+
+  this->text_rect.w = text_fr.get_text_width(this->descriptor.text);
+  this->text_rect.h = text_fr.get_text_height();
+
+  ekg::axis pick_axis {
+    ekg::axis::horizontal
+  };
+
+  ekg::aligned_t aligned_dimension {};
+  ekg::align_rect_dimension(
+    pick_axis,
+    this->text_rect,
+    aligned_dimension
+  );
+
+  this->descriptor.rect.scaled_height = ekg::min_clamp<float>(this->descriptor.rect.scaled_height, ekg::pixel);
+  this->descriptor.rect.w = aligned_dimension.w;
+  this->descriptor.rect.h = aligned_dimension.h * this->descriptor.rect.scaled_height;
+
+  ekg::layout::mask &mask {
+    ekg::p_core->layout_mask 
+  };
+
+  mask.preset(
+    {
+      aligned_dimension.offset,
+      aligned_dimension.offset,
+      aligned_dimension.h
+    },
+    pick_axis,
+    aligned_dimension.w
+  );
+
+  mask.insert({&this->text_rect, this->descriptor.text_dock});
+  mask.docknize();
+}
+
+void ekg::ui::button::on_event(ekg::io::stage stage) {
+  switch (stage) {
+    case ekg::io::stage::process: {
+      ekg::input_t &input {ekg::p_core->service_input.input};
+
+      if (
+          input.has_motion
+          ||
+          input.was_pressed
+          ||
+          input.was_released
+      ) {
+        this->action(
+          input.has_motion && this->states.is_hover && ekg::timing_t::second > ekg::tweaks.task_latency,
+          ekg::action::hover
+        );
+
+        ekg::io::set<bool>(
+          this->states.is_highlighting,
+          this->states.is_hover
+        );
+      }
+
+      if (
+        input.was_pressed
+        &&
+        !this->states.is_active
+        &&
+        this->states.is_hover
+        &&
+        ekg::fire("button-active")
+      ) {
+        this->action(
+          true,
+          ekg::action::press
+        );
+
+        ekg::io::set<bool>(
+          this->states.is_active,
+          true
+        );
+      } else if (
+        input.was_released
+        &&
+        this->states.is_active
+      ) {
+        this->action(
+          this->states.is_hover,
+          ekg::action::active
+        );
+
+        this->descriptor.value.set_value(
+          this->states.is_hover
+        );
+
+        ekg::io::set<bool>(
+          this->states.is_active,
+          false
+        );
+      }
+
+      break;
+    }
+
+    default: {
+      ekg::ui::abstract::on_event(stage);
+      break;
+    }
+  }
+}
+
+void ekg::ui::button::on_draw() {
+  ekg::rect_t<float> &rect {
+    this->get_abs_rect()
+  };
+
+  ekg::draw::sync_scissor(
+    this->scissor,
+    rect,
+    this->p_parent_scissor_rect
+  );
+
+  EKG_ASSERT_SCISSOR();
+
+  if (this->states.is_highlighting) {
+    ekg::draw::rect(
+      rect,
+      this->descriptor.theme.highlight,
+      ekg::draw_mode::filled,
+      this->properties.layer.at(static_cast<size_t>(ekg::layer::highlight))
+    );
+  }
+
+  if (this->states.is_active) {
+    ekg::draw::rect(
+      rect,
+      this->descriptor.theme.active,
+      ekg::draw_mode::filled,
+      this->properties.layer.at(static_cast<size_t>(ekg::layer::active))
+    );
+
+    ekg::draw::rect(
+      rect,
+      this->descriptor.theme.active_outline,
+      ekg::draw_mode::outline
+    );
+  }
+
+  ekg::draw::get_font_renderer(this->descriptor.text_font_size)
+    .blit(
+      this->descriptor.text,
+      rect.x + this->text_rect.x,
+      rect.y + this->text_rect.y,
+      this->descriptor.theme.text
+    );
+
+  ekg::draw::rect(
+    rect,
+    this->descriptor.theme.outline,
+    ekg::draw_mode::outline
+  );
+}

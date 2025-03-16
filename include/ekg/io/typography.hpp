@@ -33,7 +33,7 @@
 #include "memory.hpp"
 
 namespace ekg {
-  // TODO: add no fixed font-rendering
+  // TODO: add non fixed font-renderer
   enum font {
     small,
     normal,

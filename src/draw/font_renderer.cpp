@@ -586,3 +586,16 @@ void ekg::draw::font_renderer::quit() {
     kanjis_font_face.was_loaded = false;
   }
 }
+
+ekg::draw::font_renderer &ekg::draw::get_font_renderer(ekg::font font) {
+  switch (font) {
+  case ekg::font::small:
+    return ekg::p_core->draw_fr_small;
+  case ekg::font::big:
+    return ekg::p_core->draw_fr_big;
+  default:
+    break;
+  }
+
+  return ekg::p_core->draw_fr_normal;
+}

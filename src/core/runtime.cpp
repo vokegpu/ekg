@@ -264,8 +264,7 @@ void ekg::runtime::poll_events() {
   bool first_absolute {};
 
   ekg::ui::abstract *p_widget_focused {};
-
-  for (ekg::ui::abstract *&p_widgets: this->context_widget_list) {
+  for (ekg::ui::abstract *&p_widgets : this->context_widget_list) {
     if (p_widgets == nullptr || !p_widgets->properties.is_alive) {
       continue;
     }
