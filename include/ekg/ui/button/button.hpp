@@ -21,12 +21,12 @@ namespace ekg {
   struct button_t {
   public:
     std::string tag {};
-    ekg::value<bool> value {};
     ekg::flags_t dock {};
+    ekg::value<std::string> text {};
+    ekg::flags_t text_dock {};
+    ekg::value<bool> value {};
     ekg::rect_t<float> rect {};
     ekg::type type {ekg::type::button};
-    std::string text {};
-    ekg::flags_t text_dock {};
     ekg::font text_font_size {ekg::font::normal};
     ekg::button_theme_t theme {};
   };

@@ -44,7 +44,7 @@ namespace ekg::io {
 
 namespace ekg {
   template<typename t>
-  ekg::ui::abstract *make(t descriptor) {
+  t &make(t descriptor) {
     ekg::ui::abstract *p_created_widget {
       nullptr
     };
@@ -81,7 +81,7 @@ namespace ekg {
         properties.is_docknizable = false;
         properties.is_parentable = true;
 
-        p_created_widget = p_button;
+        p_created_widget = dynamic_cast<ekg::ui::abstract*>(p_button);
         p_created_widget->p_descriptor_rect = &p_button->descriptor.rect;
 
         break;
@@ -108,7 +108,7 @@ namespace ekg {
         properties.is_docknizable = true;
         properties.is_parentable = frame.dock != 0;
 
-        p_created_widget = p_frame;
+        p_created_widget = dynamic_cast<ekg::ui::abstract*>(p_frame);
         p_created_widget->p_descriptor_rect = &p_frame->descriptor.rect;
 
         break;
@@ -147,7 +147,7 @@ namespace ekg {
     }
 
     p_created_widget->on_create();
-    return p_created_widget;
+    return p_created_widget->properties;
   }
 
   void pop(ekg::properties_t *p_properties = nullptr);

@@ -29,6 +29,8 @@
 #include "ekg/math/geometry.hpp"
 #include "ekg/io/input.hpp"
 
+#define EKG_ASSERT_VALUE(value) if (value.was_changed && !(value.was_changed = false)) ekg::p_core->dispatch_widget_op(this, ekg::io::operation::reload);
+
 namespace ekg::ui {
   class abstract {
   public:
@@ -60,6 +62,11 @@ namespace ekg::ui {
     virtual void on_event(ekg::io::stage stage);
     virtual void on_update();
     virtual void on_draw();
+  public:
+    template<typename t>
+    operator t() {
+      return *static_cast<t*>(this->properties.p_descriptor);
+    }
   };
 }
 

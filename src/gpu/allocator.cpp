@@ -124,9 +124,12 @@ void ekg::gpu::allocator::dispatch() {
 
   this->begin_stride_count += this->end_stride_count;
   this->end_stride_count = 0;
+  this->data_instance_index++;
 }
 
 void ekg::gpu::allocator::revoke() {
+  this->data_instance_index -= this->data_instance_index > 0;
+
   if (!this->high_priority_data_list.empty()) {
     uint64_t high_priority_data_list_size {this->high_priority_data_list.size()};
 
@@ -197,9 +200,7 @@ void ekg::gpu::allocator::init() {
   ekg::log() << "Initializing GPU allocator";
 }
 
-void ekg::gpu::allocator::clear_current_data() {
-  this->data_instance_index++;
-
+void ekg::gpu::allocator::clear_current_data() {  
   if (!ekg::gpu::allocator::high_priority && this->data_instance_index >= this->data_list.size()) {
     this->data_list.emplace_back();
   }

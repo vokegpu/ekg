@@ -10,7 +10,7 @@ void ekg::ui::button::on_reload() {
     ekg::draw::get_font_renderer(this->descriptor.text_font_size)
   };
 
-  this->text_rect.w = text_fr.get_text_width(this->descriptor.text);
+  this->text_rect.w = text_fr.get_text_width(static_cast<std::string>(this->descriptor.text));
   this->text_rect.h = text_fr.get_text_height();
 
   ekg::axis pick_axis {
@@ -118,6 +118,9 @@ void ekg::ui::button::on_event(ekg::io::stage stage) {
 }
 
 void ekg::ui::button::on_draw() {
+  EKG_ASSERT_VALUE(this->descriptor.value);
+  EKG_ASSERT_VALUE(this->descriptor.text);
+
   ekg::rect_t<float> &rect {
     this->get_abs_rect()
   };
@@ -156,7 +159,7 @@ void ekg::ui::button::on_draw() {
 
   ekg::draw::get_font_renderer(this->descriptor.text_font_size)
     .blit(
-      this->descriptor.text,
+      static_cast<std::string>(this->descriptor.text),
       rect.x + this->text_rect.x,
       rect.y + this->text_rect.y,
       this->descriptor.theme.text

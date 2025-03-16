@@ -29,6 +29,7 @@
 #define EKG_MEMORY_ACTIONS_SIZE 7
 
 #include <cstdint>
+#include <iostream>
 
 namespace ekg {
   typedef uint64_t id_t;
@@ -63,24 +64,34 @@ namespace ekg {
     t cache {};
     t *p_address {nullptr};
   public:
+    bool was_changed {};
+  public:
     value() = default;
 
     value(t *p_address) {
       this->p_address = p_address;
+      this->was_changed = true;
     }
 
     value(t value) {
       this->p_address = nullptr;
       this->cache = value;
+      this->was_changed = true;
+    }
+
+    value(const char *p_char) {
+      this->get_value() = p_char;
+      this->was_changed = true;
     }
 
     void move(t *p_address) {
       this->p_address = p_address;
+      this->was_changed = true;
     }
 
     void set_value(t value) {
-      t &val {this->get_value()};
-      val = value;
+      this->get_value() = value;
+      this->was_changed = true;
     }
 
     t &get_value() {
@@ -98,9 +109,15 @@ namespace ekg {
         this->cache
       );
     }
-
+  public:
     operator t() {
       return this->get_value();
+    }
+
+    ekg::value<t> &operator = (t value) {
+      this->get_value() = value;
+      this->was_changed = true;
+      return *this;
     }
   };
 }

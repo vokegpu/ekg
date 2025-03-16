@@ -57,12 +57,12 @@ int32_t main(int32_t, char**) {
     }
   );
 
-  ekg::make(
+  ekg::button_t &oi = ekg::make(
     ekg::button_t {
       .tag = "oi",
       .dock = ekg::dock::fill,
       .text = "meow meow",
-      .text_dock = ekg::dock::center,
+      .text_dock = ekg::dock::center
     }
   );
 
@@ -94,8 +94,8 @@ int32_t main(int32_t, char**) {
       )
     }
   };
-  */ 
-  
+  */
+
   while (app.is_running) {
     while (SDL_PollEvent(&sdl_event)) {
       if (sdl_event.type == SDL_QUIT) {
@@ -104,6 +104,8 @@ int32_t main(int32_t, char**) {
 
       ekg::sdl_poll_event(sdl_event);
     }
+
+    oi.text = "QUANTIDADE DE COISAS " + std::to_string(ekg::gpu::allocator::current_rendering_data_count);
 
     ekg::update();
 

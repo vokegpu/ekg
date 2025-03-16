@@ -250,5 +250,6 @@
 -- Added new reload, layout docknization, and scale update runtime operation tasks. 
 -- Properties has a visible absolute rect to user-programmer.
 -- Unsafe properties linked to the descriptor also.
--- Frame widget moved to new memory-model.
--- Button widget moved to new memory-model.
+-- Dynamic widget-text rendering via `ekg::value` wrapper.
+-- Frame widget implemented in new memory-model.
+-- Button widget implemented in new memory-model.
