@@ -4,7 +4,7 @@ High-performance, descriptor-based, low-latency, multi-platform, modular GPU-acc
 
 [EKG Docs](https://github.com/vokegpu/ekg-docs)
 
-![image](https://github.com/user-attachments/assets/6bedb912-c854-4a4c-9706-ca436ddced4f)
+![image](https://github.com/user-attachments/assets/3540064e-e71c-4494-bdca-28f1d5b3c0b6)
 
 # Contributing
 
