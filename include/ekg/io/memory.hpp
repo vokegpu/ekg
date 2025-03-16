@@ -114,7 +114,8 @@ namespace ekg {
       return this->get_value();
     }
 
-    ekg::value<t> &operator = (t value) {
+    template<typename s>
+    ekg::value<t> &operator = (s value) {
       this->get_value() = value;
       this->was_changed = true;
       return *this;

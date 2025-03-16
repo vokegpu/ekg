@@ -50,21 +50,31 @@ int32_t main(int32_t, char**) {
 
   ekg::make(
     ekg::frame_t {
-      .tag = "first frame idk",
+      .tag = "first frame",
       .rect = {20.0f, 20.0f, 200.0f, 200.0f},
       .drag_dock = ekg::dock::top,
       .resize_dock = ekg::dock::left | ekg::dock::bottom | ekg::dock::right
     }
   );
 
-  ekg::button_t &oi = ekg::make(
-    ekg::button_t {
-      .tag = "oi",
-      .dock = ekg::dock::fill,
-      .text = "meow meow",
-      .text_dock = ekg::dock::center
-    }
-  );
+  ekg::button_t button = {
+    .tag = "bt-1",
+    .dock = ekg::dock::fill,
+    .text = "meow meow",
+    .text_dock = ekg::dock::center
+  };
+
+  button.tag = "bt-2";
+  button.text = "moo moo";
+  ekg::make(button);
+
+  button.text = "owlf olwf";
+  button.dock = ekg::dock::next | ekg::dock::fill;
+  ekg::make(button);
+
+  button.text = "oi amo gatinhos";
+  button.dock = ekg::dock::next | ekg::dock::fill;
+  ekg::make(button);
 
   ekg::pop();
 
@@ -104,8 +114,6 @@ int32_t main(int32_t, char**) {
 
       ekg::sdl_poll_event(sdl_event);
     }
-
-    oi.text = "QUANTIDADE DE COISAS " + std::to_string(ekg::gpu::allocator::current_rendering_data_count);
 
     ekg::update();
 
