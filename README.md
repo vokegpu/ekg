@@ -38,7 +38,7 @@ ekg::make(button);
 
 button.tag = "bt-3";
 button.text = "oi amo gatinhos";
-bla = ekg::make(button);
+ekg::make(button);
 ```
 
 ![image](https://github.com/user-attachments/assets/5f510ef6-e51b-4ca0-a5fc-1d36582bb055)
