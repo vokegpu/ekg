@@ -51,36 +51,46 @@ int32_t main(int32_t, char**) {
   ekg::make(
     ekg::frame_t {
       .tag = "first frame",
-      .rect = {20.0f, 20.0f, 200.0f, 200.0f},
+      .rect = {500.0f, 200.0f, 200.0f, 200.0f},
       .drag_dock = ekg::dock::top,
       .resize_dock = ekg::dock::left | ekg::dock::bottom | ekg::dock::right
     }
   );
 
-  ekg::button_t button = {
-    .tag = "bt-1",
-    .dock = ekg::dock::fill,
-    .text = "meow meow",
-    .text_dock = ekg::dock::center
-  };
-
-  button.tag = "bt-2";
+  ekg::button_t button {};
+  
+  button.tag = "bt-1";
   button.text = "moo moo";
+  button.text_dock = ekg::dock::left;
+  button.dock = ekg::dock::left;
   ekg::make(button);
-
+  
+  button.tag = "bt-2";
   button.text = "owlf olwf";
-  button.dock = ekg::dock::next | ekg::dock::fill;
+  button.text_dock = ekg::dock::center;
+  button.dock = ekg::dock::fill;
+  ekg::make(button);
+  
+  button.tag = "bt-3";
+  button.text = "cancelar";
+  button.dock = ekg::dock::bottom | ekg::dock::right;
   ekg::make(button);
 
-  button.text = "oi amo gatinhos";
-  button.dock = ekg::dock::next | ekg::dock::fill;
+  button.tag = "bt-3";
+  button.text = "ok";
+  button.dock = ekg::dock::bottom | ekg::dock::right;
+  ekg::make(button);
+
+  button.tag = "bt-3";
+  button.text = "ok";
+  button.dock = ekg::dock::bottom | ekg::dock::right;
   ekg::make(button);
 
   ekg::pop();
 
   auto bla = ekg::frame_t {
     .tag = "bla",
-    .rect = {20.0f, 20.0f, 200.0f, 200.0f},
+    .rect = {500.0f, 200.0f, 200.0f, 200.0f},
     .drag_dock = ekg::dock::top,
     .resize_dock = ekg::dock::left | ekg::dock::bottom | ekg::dock::right
   };

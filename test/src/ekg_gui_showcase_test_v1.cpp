@@ -911,6 +911,24 @@ int32_t showcase_useless_window() {
   ekg::pop_group();
   #endif
 
+  /* old */
+
+  ekg::frame("first frame", {20.0f, 20.0f, 200.0f, 200.0f})
+    ->set_drag(ekg::dock::top)
+    ->set_resize(ekg::dock::left | ekg::dock::bottom | ekg::dock::right);
+
+  ekg::button("moo moo", ekg::dock::left)\
+    ->set_tag("bt-1")
+    ->set_text_align(ekg::dock::left);
+
+  ekg::button("owlf olwf", ekg::dock::next | ekg::dock::fill)
+    ->set_tag("bt-2")
+    ->set_text_align(ekg::dock::center);
+
+  ekg::button("owlf olwf", ekg::dock::next | ekg::dock::fill)
+    ->set_tag("bt-3")
+    ->set_text_align(ekg::dock::center);
+
   message_gui msg_gui {};
 
   bool running {true};

@@ -264,7 +264,6 @@ void ekg::layout::docknize_widget(
 
   ekg::rect_t<float> container_rect {*p_widget_parent->p_descriptor_rect};
   ekg::theme_t &current_global_theme {ekg::theme()};
-
   float initial_offset {static_cast<float>(current_global_theme.scrollbar.pixel_thickness)};
 
   if (
@@ -275,13 +274,13 @@ void ekg::layout::docknize_widget(
     initial_offset *= static_cast<float>(!current_global_theme.symmetric_layout);
     container_rect.w -= initial_offset * static_cast<float>(p_widget_parent->states.is_scrolling.x);
     container_rect.h -= initial_offset * static_cast<float>(p_widget_parent->states.is_scrolling.y);
-
-    initial_offset = (
-      static_cast<float>(current_global_theme.scrollbar.pixel_thickness)
-      *
-      static_cast<float>(current_global_theme.symmetric_layout)
-    );
   }
+
+  initial_offset = (
+    static_cast<float>(current_global_theme.scrollbar.pixel_thickness)
+    *
+    static_cast<float>(current_global_theme.symmetric_layout)
+  );
 
   float container_size_offset {(initial_offset + current_global_theme.layout_offset) * 2.0f};
   container_rect.w -= container_size_offset;
@@ -436,7 +435,7 @@ void ekg::layout::docknize_widget(
         );
 
         p_widgets->p_descriptor_rect->y = (
-          ekg::min_clamp(
+          ekg::min_clamp<float>(
             ekg::layout::transform_to_pixel_perfect_position(
               corner_top_right.y,
               corner_bottom_right.y,
@@ -500,7 +499,7 @@ void ekg::layout::docknize_widget(
       ekg::layout::extentnize_widget(
         p_widget_parent,
         ekg::dock::fill,
-        ekg::dock::next,
+        ekg::dock::next | (is_top ? ekg::dock::bottom : ekg::dock::top),
         ekg::axis::horizontal,
         fill_align,
         dimensional_extent,
