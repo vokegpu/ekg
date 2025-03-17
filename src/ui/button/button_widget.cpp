@@ -21,12 +21,13 @@ void ekg::ui::button::on_reload() {
   ekg::align_rect_dimension(
     pick_axis,
     this->text_rect,
+    ekg::viewport.minimum_possible_size,
     aligned_dimension
   );
 
   this->descriptor.rect.scaled_height = ekg::min_clamp<float>(this->descriptor.rect.scaled_height, ekg::pixel);
-  this->descriptor.rect.w = aligned_dimension.w;
-  this->descriptor.rect.h = aligned_dimension.h * this->descriptor.rect.scaled_height;
+  this->descriptor.rect.w = ekg::min_clamp<float>(aligned_dimension.w, this->descriptor.rect.w);
+  this->descriptor.rect.h = ekg::min_clamp<float>(aligned_dimension.h * this->descriptor.rect.scaled_height, this->descriptor.rect.h);
 
   ekg::layout::mask &mask {
     ekg::p_core->layout_mask 
@@ -39,7 +40,7 @@ void ekg::ui::button::on_reload() {
       aligned_dimension.h
     },
     pick_axis,
-    aligned_dimension.w
+    this->descriptor.rect.w
   );
 
   mask.insert({&this->text_rect, this->descriptor.text_dock});

@@ -189,7 +189,6 @@ void ekg::service::theme::init() {
   light_theme.listbox.outline = ekg::color<int32_t>(202, 207, 222, 100);
 
   this->add(light_theme);
-  this->set_current_theme("dark");
 
   ekg::theme_t light_pinky_theme {
     .name = "light-pinky",
@@ -326,6 +325,7 @@ void ekg::service::theme::init() {
   dark_pinky_theme.listbox.drag_background = ekg::color<int32_t>(85, 85, 85, 50);
 
   this->add(dark_pinky_theme);
+  this->set_current_theme("dark-pinky");
 }
 
 void ekg::service::theme::quit() {

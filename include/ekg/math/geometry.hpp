@@ -328,6 +328,35 @@ namespace ekg {
     );
   }
 
+  template<typename t>
+  constexpr t min_clamp(t a, t b) {
+    return a < b ? b : a;
+  }
+
+  template<typename t>
+  constexpr t max_clamp(t a, t b) {
+    return a > b ? b : a;
+  }
+
+  template<typename t>
+  constexpr t clamp(t a, t b, t c) {
+    return ekg::min_clamp(ekg::max_clamp(a, c), b);
+  }
+
+  template<typename t>
+  constexpr ekg::rect_t<t> clamp_rect_by_square(
+    ekg::rect_t<t> rect,
+    float square
+  ) {
+    const t zero {}; 
+    return ekg::rect_t<t> {
+      ekg::min_clamp<t>(rect.x, zero),
+      ekg::min_clamp<t>(rect.y, zero),
+      ekg::max_clamp<t>(rect.w, square),
+      ekg::max_clamp<t>(rect.h, square)
+    };
+  }
+
   struct rect_descriptor_t {
   public:
     ekg::rect_t<float> *p_rect {};
@@ -344,6 +373,7 @@ namespace ekg {
   constexpr void align_rect_dimension(
     ekg::axis axis,
     ekg::rect_t<float> rect,
+    float minimum_size,
     ekg::aligned_t &aligned
   ) {
     float dimension_offset {};
@@ -363,8 +393,8 @@ namespace ekg {
         )
       );
 
-      aligned.w = rect.w + aligned.offset * 2;
-      aligned.h = rect.h + dimension_offset;
+      aligned.w = ekg::min_clamp<float>(rect.w + aligned.offset * 2, minimum_size);
+      aligned.h = ekg::min_clamp<float>(rect.h + dimension_offset, minimum_size);
       break;
     case ekg::axis::vertical:
       dimension_offset = (
@@ -381,8 +411,8 @@ namespace ekg {
         )
       );
 
-      aligned.h = rect.h + aligned.offset * 2;
-      aligned.w = rect.w + dimension_offset;
+      aligned.h = ekg::min_clamp<float>(rect.h + aligned.offset * 2, minimum_size);
+      aligned.w = ekg::min_clamp<float>(rect.w + dimension_offset, minimum_size);
       break;
     }
   }
@@ -525,35 +555,6 @@ namespace ekg {
       static_cast<float>(a)
     ) / 255.0f;
   }
-
-  template<typename t>
-  constexpr t min_clamp(t a, t b) {
-    return a < b ? b : a;
-  }
-
-  template<typename t>
-  constexpr t max_clamp(t a, t b) {
-    return a > b ? b : a;
-  }
-
-  template<typename t>
-  constexpr t clamp(t a, t b, t c) {
-    return ekg::min_clamp(ekg::max_clamp(a, c), b);
-  }
-
-  template<typename t>
-  constexpr ekg::rect_t<t> clamp_rect_by_square(
-    ekg::rect_t<t> rect,
-    float square
-  ) {
-    const t zero {}; 
-    return ekg::rect_t<t> {
-      ekg::min_clamp<t>(rect.x, zero),
-      ekg::min_clamp<t>(rect.y, zero),
-      ekg::max_clamp<t>(rect.w, square),
-      ekg::max_clamp<t>(rect.h, square)
-    };
-  } 
 
   void ortho(
     float *p_mat4x4,

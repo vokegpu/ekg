@@ -377,6 +377,7 @@ void ekg::layout::docknize_widget(
       );
 
       p_widgets->p_descriptor_rect->w = dimensional_extent;
+
       should_reload_widget = true;
       should_estimate_extent = false;
     }
@@ -532,6 +533,7 @@ void ekg::layout::docknize_widget(
     max_previous_height = p_widgets->p_descriptor_rect->h > max_previous_height ? p_widgets->p_descriptor_rect->h : max_previous_height;
     if (should_reload_widget) {
       p_widgets->on_reload();
+      should_reload_widget = false;
     }
 
     h_extent_backup = ekg::layout::extent_t::h_widget;
