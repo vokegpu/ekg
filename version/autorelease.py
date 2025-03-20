@@ -47,7 +47,7 @@ if __name__ == "__main__":
     print("reading metadata:")
     print(metadata)
 
-    file = open("./devlog/commit.txt", "r")
+    file = open("./version/commit.txt", "r")
     content: List[str] = file.read().split("\n")
     file.close()
 
@@ -72,7 +72,7 @@ News:
 
 ---
 
-For complete previously released logs, check [here](https://github.com/vokegpu/ekg-ui-library/blob/version-core/devlog/commit.txt).
+For complete previously released logs, check [here](https://github.com/vokegpu/ekg-ui-library/blob/version-core/version/commit.txt).
 
 """
 
