@@ -25,14 +25,14 @@ jobs:
 
       - name: Linux Install Libraries
         run: |
-          sudo apt-get update
-          sudo dpkg -r libyaml-cpp
-
-          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
-          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+          get -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+          
+          sudo apt update
+          sudo apt install vulkan-sdk
 
           sudo apt-get install gcc-mingw-w64 g++-mingw-w64 mingw-w64-tools mingw-w64-x86-64-dev
-          sudo apt-get install libfreetype6-dev vulkan-sdk libsdl2-dev libglew-dev libopengl-dev libglx-dev libgl1-mesa-dev libglfw3-dev
+          sudo apt-get install libfreetype6-dev libsdl2-dev libglew-dev libopengl-dev libglx-dev libgl1-mesa-dev libglfw3-dev
 
           wget https://github.com/libsdl-org/SDL/releases/download/release-2.30.2/SDL2-devel-2.30.2-mingw.zip
           unzip ./SDL2-devel-2.30.2-mingw.zip
