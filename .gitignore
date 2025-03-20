@@ -11,3 +11,4 @@ lib/
 *.sublime-workspace
 ekg-ui-library.sublime-workspace
 ekg-sandbox
+ekg-cmake-install

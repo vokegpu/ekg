@@ -1,4 +1,5 @@
 set(EKG_VERSION 2.0.0)
+set(EKG_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
 
 if(CMAKE_TOOLCHAIN_FILE)
   string(
@@ -22,16 +23,18 @@ elseif(EKG_EMSCRIPTEN_BUILD_TYPE)
   message(FATAL_ERROR "No specialized toolchain ID  was found with '/Emscripten' for WASM build-type")
 endif()
 
-if(EKG_EMSCRIPTEN_BUILD_TYPE)
-  set(COMPILE_OPTIMIZATION_NUMBER -O3)
-elseif(
-  CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
-  OR
-  CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
+if(
+    CMAKE_BUILD_TYPE STREQUAL "Release"
+    AND
+    EKG_EMSCRIPTEN_BUILD_TYPE
+    OR
+    CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+    OR
+    CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
 )
   set(COMPILE_OPTIMIZATION_NUMBER -O3)
 endif()
-
+  
 if(WIN32 OR EKG_FORCE_WINDOWS)
   set(LIBRARY_OUTPUT_PATH "../lib/windows/")
   set(PLATFORM            "windows")

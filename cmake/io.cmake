@@ -1,5 +1,5 @@
 function(
-  exclude_sources_by_regex
+  exclude_files_by_regex
   src_files
   regex
 )

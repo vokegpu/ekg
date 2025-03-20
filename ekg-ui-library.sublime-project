@@ -25,37 +25,37 @@
 		{
 			"name": "Build Linux GNU",
 			"shell_cmd":
-				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DEKG_LINUX_NOT_FOUND_FREETYPE=1 && cmake --build ./cmake-build/"
+				"cd $folder && EKG_BUILD_MODE=build-only EKG_BUILD_COMPILER=/usr/bin/g++ sh ./linux.sh"
 		},
 		{
 			"name": "Build-&-Test Linux GNU",
 			"shell_cmd":
-				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DEKG_LINUX_NOT_FOUND_FREETYPE=1 && cmake --build ./cmake-build/ && cd ./ekg-sandbox && cmake -S . -B ./cmake-build -G Ninja -DEKG_SANDBOX_ALLOW_DEV_INCLUDE_CASE=1 -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DEKG_LINUX_NOT_FOUND_FREETYPE=1 && cmake --build ./cmake-build && cd ./bin && ./ekg-showcase",
+				"cd $folder && EKG_BUILD_MODE=build-and-test EKG_BUILD_COMPILER=/usr/bin/g++ sh ./linux.sh"
 		},
 		{
 			"name": "Build Linux Clang",
 			"shell_cmd":
-				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DEKG_LINUX_NOT_FOUND_FREETYPE=1 && cmake --build ./cmake-build/"
+				"cd $folder && EKG_BUILD_MODE=build-only EKG_BUILD_COMPILER=/usr/bin/g++ sh ./linux.sh"
 		},
 		{
 			"name": "Build-&-Test Linux Clang",
+			"shell_cmd": 
+				"cd $folder && EKG_BUILD_MODE=build-and-test EKG_BUILD_COMPILER=/usr/bin/clang++ sh ./linux.sh"
+		},
+		{
+			"name": "Build Linux WASM/emscripten",
 			"shell_cmd":
-				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DEKG_LINUX_NOT_FOUND_FREETYPE=1 && cmake --build ./cmake-build/ && cd ./ekg-sandbox && cmake -S . -B ./cmake-build -G Ninja -DEKG_SANDBOX_ALLOW_DEV_INCLUDE_CASE=1 -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DEKG_LINUX_NOT_FOUND_FREETYPE=1 && cmake --build ./cmake-build && cd ./bin && ./ekg-showcase",
+				"cd $folder && EKG_BUILD_MODE=build-only EKG_BUILD_COMPILER=emscripten sh ./linux.sh"
 		},
 		{
 			"name": "Build Windows GNU",
 			"shell_cmd":
-				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DEKG_LINUX_NOT_FOUND_FREETYPE=1 && cmake --build ./cmake-build/"
+				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=1 && cmake --build ./cmake-build/"
 		},
 		{
 			"name": "Build-&-Test Windows GNU",
 			"shell_cmd":
-				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DEKG_LINUX_NOT_FOUND_FREETYPE=1 && cmake --build ./cmake-build/ && cd ./ekg-sandbox && cmake -S . -B ./cmake-build -G Ninja -DEKG_SANDBOX_ALLOW_DEV_INCLUDE_CASE=1 -DEKG_LINUX_NOT_FOUND_FREETYPE=1 && cmake --build ./cmake-build && cd ./bin && ./ekg-showcase",
+				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=1 && cmake --build ./cmake-build/ && cd ./ekg-sandbox && cmake -S . -B ./cmake-build -G Ninja -DEKG_DEVELOPER_MODE=1 && cmake --build ./cmake-build && cd ./bin && ./ekg-showcase",
 		},
-		{
-			"name": "Build Linux WASM",
-			"shell_cmd":
-				"cd $folder && emcmake cmake -S . -B ./cmake-build/ -G Ninja -DEKG_EMSCRIPTEN_BUILD_TYPE=1 -DEKG_LINUX_NOT_FOUND_FREETYPE=1 -DCMAKE_EXPORT_COMPILE_COMMANDS=1 && cmake --build ./cmake-build",
-		}
 	],
 }
