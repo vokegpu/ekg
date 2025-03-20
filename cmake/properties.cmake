@@ -1,0 +1,48 @@
+set(EKG_VERSION 2.0.0)
+
+if(CMAKE_TOOLCHAIN_FILE)
+  string(
+    REGEX MATCH
+    "/Emscripten"
+    compiler_filename
+    ${CMAKE_TOOLCHAIN_FILE}
+  )
+
+  if(
+    EKG_EMSCRIPTEN_BUILD_TYPE
+    OR
+    ${compiler_filename} STREQUAL "/Emscripten"
+  )
+    message(STATUS "Toolchain ID: ${compiler_filename}, WASM build-type")
+    set(EKG_EMSCRIPTEN_BUILD_TYPE 1)
+  elseif(EKG_EMSCRIPTEN_BUILD_TYPE)
+    message(FATAL_ERROR "No specialized toolchain ID  was found with '/Emscripten' for WASM build-type")
+  endif()
+elseif(EKG_EMSCRIPTEN_BUILD_TYPE)
+  message(FATAL_ERROR "No specialized toolchain ID  was found with '/Emscripten' for WASM build-type")
+endif()
+
+if(EKG_EMSCRIPTEN_BUILD_TYPE)
+  set(COMPILE_OPTIMIZATION_NUMBER -O3)
+elseif(
+  CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+  OR
+  CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
+)
+  set(COMPILE_OPTIMIZATION_NUMBER -O3)
+endif()
+
+if(WIN32 OR EKG_FORCE_WINDOWS)
+  set(LIBRARY_OUTPUT_PATH "../lib/windows/")
+  set(PLATFORM            "windows")
+elseif(ANDROID OR EKG_FORCE_ANDROID)
+  set(LIBRARY_OUTPUT_PATH "${ANDROID_ABI}/")
+  set(PLATFORM            "${ANDROID_ABI}")
+elseif(EKG_EMSCRIPTEN_BUILD_TYPE)
+  set(LIBRARY_OUTPUT_PATH "../lib/linux-wasm/")
+  set(PLATFORM            "linux-wasm")
+elseif(LINUX OR EKG_FORCE_LINUX)
+  # WSL is not detected as Linux-based OS, same you use a Linux kernel-based distribution.
+  set(LIBRARY_OUTPUT_PATH "../lib/linux/")
+  set(PLATFORM            "linux")
+endif()

@@ -10,3 +10,4 @@ lib/
 .sublime-project.sublime-workspace
 *.sublime-workspace
 ekg-ui-library.sublime-workspace
+ekg-sandbox

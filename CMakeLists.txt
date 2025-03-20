@@ -21,65 +21,16 @@
 # SOFTWARE.
 
 cmake_minimum_required(VERSION 3.25)
-set(EKG_VERSION 2.0.0)
 
-function(
-  exclude_sources_by_regex
-  src_files
-  regex
-)
-  foreach(PATH ${${src_files}})
-    if(${PATH} MATCHES ${regex})
-      message(STATUS "Removed: '${PATH}'")
-      list(REMOVE_ITEM ${src_files} ${PATH})
-    else()
-      message(STATUS "Keep: '${PATH}'")
-    endif()
-  endforeach()
-
-  return(
-    PROPAGATE
-    ${src_files}
-  )
-endfunction()
+include(cmake/io.cmake)
+include(cmake/properties.cmake)
 
 project(
   ekg
   VERSION ${EKG_VERSION}
-  DESCRIPTION "graphical user interface"
+  DESCRIPTION "Modern descriptor-based GPU-accelerated GUI library"
+  LANGUAGES CXX
 )
-
-if(CMAKE_TOOLCHAIN_FILE)
-  string(
-    REGEX MATCH
-    "/Emscripten"
-    compiler_filename
-    ${CMAKE_TOOLCHAIN_FILE}
-  )
-
-  if(
-    EKG_EMSCRIPTEN_BUILD_TYPE
-    OR
-    ${compiler_filename} STREQUAL "/Emscripten"
-  )
-    message(STATUS "Toolchain ID: ${compiler_filename}, WASM build-type")
-    set(EKG_EMSCRIPTEN_BUILD_TYPE 1)
-  elseif(EKG_EMSCRIPTEN_BUILD_TYPE)
-    message(FATAL_ERROR "No specialized toolchain ID  was found with '/Emscripten' for WASM build-type")
-  endif()
-elseif(EKG_EMSCRIPTEN_BUILD_TYPE)
-  message(FATAL_ERROR "No specialized toolchain ID  was found with '/Emscripten' for WASM build-type")
-endif()
-
-if(EKG_EMSCRIPTEN_BUILD_TYPE)
-  set(COMPILE_OPTIMIZATION_NUMBER -O3)
-elseif(
-  CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
-  OR
-  CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
-)
-  set(COMPILE_OPTIMIZATION_NUMBER -O3)
-endif()
 
 add_compile_options(
   ${COMPILE_OPTIMIZATION_NUMBER}
@@ -99,21 +50,6 @@ if (EKG_LINUX_NOT_FOUND_FREETYPE)
     STATUS
     "Using var EKG_LINUX_NOT_FOUND_FREETYPE to direct include `/usr/include/freetype2`"
   )
-endif()
-
-if(WIN32 OR EKG_FORCE_WINDOWS)
-  set(LIBRARY_OUTPUT_PATH "../lib/windows/")
-  set(PLATFORM            "windows")
-elseif(ANDROID OR EKG_FORCE_ANDROID)
-  set(LIBRARY_OUTPUT_PATH "${ANDROID_ABI}/")
-  set(PLATFORM            "${ANDROID_ABI}")
-elseif(EKG_EMSCRIPTEN_BUILD_TYPE)
-  set(LIBRARY_OUTPUT_PATH "../lib/linux-wasm/")
-  set(PLATFORM            "linux-wasm")
-elseif(LINUX OR EKG_FORCE_LINUX)
-  # WSL is not detected as Linux-based OS, same you use a Linux kernel-based distribution.
-  set(LIBRARY_OUTPUT_PATH "../lib/linux/")
-  set(PLATFORM            "linux")
 endif()
 
 message(STATUS "Building EKG user interface library version ${EKG_VERSION}")
