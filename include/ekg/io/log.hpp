@@ -2,6 +2,7 @@
 #define EKG_IO_LOG_HPP
 
 #include <iostream>
+#include <cstdint>
 #include <sstream>
 
 //#define EKG_LOG_DEBUG
