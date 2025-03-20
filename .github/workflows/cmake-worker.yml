@@ -25,12 +25,12 @@ jobs:
 
       - name: Linux Install Libraries
         run: |
-          sudo dpkg -r yaml-cpp
+          sudo apt-get update
+          sudo dpkg -r libyaml-cpp
 
           wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
 
-          sudo apt-get update
           sudo apt-get install gcc-mingw-w64 g++-mingw-w64 mingw-w64-tools mingw-w64-x86-64-dev
           sudo apt-get install libfreetype6-dev vulkan-sdk libsdl2-dev libglew-dev libopengl-dev libglx-dev libgl1-mesa-dev libglfw3-dev
 
