@@ -83,4 +83,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cd ${{ github.workspace }}
-          python ./devlog/devlog.py -m ${{ steps.commit_title.outputs.message }} -d ${{ steps.commit_description.outputs.message }}
+          python ./version/autorelease.py -m ${{ steps.commit_title.outputs.message }} -d ${{ steps.commit_description.outputs.message }}
