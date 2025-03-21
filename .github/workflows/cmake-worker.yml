@@ -44,7 +44,7 @@ jobs:
 
           wget https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-freetype-2.13.3-1-any.pkg.tar.zst
           tar --use-compress-program=unzstd -xvf ./mingw-w64-x86_64-freetype-2.13.3-1-any.pkg.tar.zst
-          yes | sudo cp -r ./mingw/* /usr/x86_64-w64-mingw32/
+          yes | sudo cp -r ./mingw64/* /usr/x86_64-w64-mingw32/
 
       - name: Configure Linux-CMake
         run: >
