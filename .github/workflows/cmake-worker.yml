@@ -42,6 +42,8 @@ jobs:
           unzip ./x86_64-w64-mingw32.zip
           yes | sudo cp -r ./x86_64-w64-mingw32/* /usr/x86_64-w64-mingw32/
 
+          sudo apt-get install mingw-w64-x86_64-freetype
+
       - name: Configure Linux-CMake
         run: >
           cmake -B ${{ github.workspace }}/cmake-build-debug
