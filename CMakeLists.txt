@@ -70,13 +70,13 @@ set_target_properties(
 
 message(STATUS "EKG native library building done")
 
- install(
-   TARGETS ekg
-   EXPORT ekg
-   ARCHIVE DESTINATION lib
-   LIBRARY DESTINATION lib
-   RUNTIME DESTINATION bin
- )
+install(
+  TARGETS ekg
+  EXPORT ekg
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 install(
   DIRECTORY ./include/ekg
@@ -88,11 +88,6 @@ install(
   FILE EKGConfig.cmake
   NAMESPACE EKG::
   DESTINATION lib/cmake/ekg
-)
-
-configure_file(
-  ${CMAKE_CURRENT_LIST_DIR}/cmake/ekg-config.cmake
-  ${CMAKE_BINARY_DIR}/lib/cmake/ekg/EKGConfig.cmake
 )
 
 message(STATUS "EKG installation config done!")
