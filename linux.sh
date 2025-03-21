@@ -19,21 +19,29 @@ if [[ "$EKG_BUILD_MODE" ==  "$MODE_BUILD_AND_TEST" ]]; then
 
   cmake \
     --build ./cmake-build \
-
+  \
+  && \
+  \
   cmake \
     --install ./cmake-build \
-    --prefix ./ekg-cmake-install
-
-  cd ./ekg-sandbox
-
+    --prefix ./ekg-cmake-install \
+  \
+  && \
+  \
+  cd ./ekg-sandbox \
+  \
+  && \
+  \
   cmake \
     -S . \
     -B ./cmake-build \
     -G Ninja \
     -D CMAKE_CXX_COMPILER=$EKG_BUILD_COMPILER \
     -D CMAKE_BUILD_TYPE=Release \
-    -D EKG_DEVELOPER_MODE=1
-
+    -D EKG_DEVELOPER_MODE=1 \
+  \
+  && \
+  \
   cmake \
     --build ./cmake-build \
     && cd ./bin && ./ekg-showcase

@@ -236,7 +236,9 @@ void ekg::layout::extentnize_widget(
 
           ekg::layout::extent_t::h_widget.end_index = it + (is_last_index * is_last_index_but);
           ekg::layout::extent_t::h_widget.extent = extent;
-          ekg::layout::extent_t::h_widget.count = flag_ok_count + (flag_ok_count == 0);
+          ekg::layout::extent_t::h_widget.count = flag_ok_count + (flag_ok_count == 0);\
+
+          is_stop = true;
 
           break;
         }
@@ -249,9 +251,18 @@ void ekg::layout::extentnize_widget(
         extent += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
       }
 
+
       in_out_count = flag_ok_count + (flag_ok_count == 0);
-      if (!fill_align.was_found && is_stop) {
+      if ((!fill_align.was_found && is_stop) || (!fill_align.must_calculate_pixel_perfect && fill_align.previous_end_index == begin_index)) {
         fill_align.was_found = true;
+        if (fill_align.previous_end_index == begin_index) {
+          fill_align.index = begin_index;
+          ekg::log() << p_widgets->properties.tag;
+        }
+      }
+
+      if (is_stop) {
+        fill_align.previous_end_index = it;
       }
 
       break;

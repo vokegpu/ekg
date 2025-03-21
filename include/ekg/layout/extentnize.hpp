@@ -14,6 +14,7 @@ namespace ekg::layout {
     float align {static_cast<float>(UINT32_MAX)}; // idk may i duwmb
     int64_t index {};
     int64_t end_fill_index {};
+    int64_t previous_end_index {-1};
   };
 
   struct extent_t {

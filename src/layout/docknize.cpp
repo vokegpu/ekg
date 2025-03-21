@@ -384,6 +384,7 @@ void ekg::layout::docknize_widget(
     switch (flags & ekg::dock::bottom) {
     case ekg::dock::bottom:
       if (ekg::fequalsf(corner_bottom_right.y, 0.0f)) {
+        highest_bottom = p_widgets->p_descriptor_rect->h;
         corner_bottom_right.y += highest_bottom + current_global_theme.layout_offset;
         corner_bottom_left.y = corner_bottom_right.y;
       }
@@ -516,7 +517,12 @@ void ekg::layout::docknize_widget(
       fill_align.was_pixel_perfect_calculated = true;
       
       corner_top_right.x = fill_align.align;
-      corner_bottom_right.x = fill_align.align + current_global_theme.layout_offset;
+      corner_bottom_right.x = fill_align.align;
+
+      if (is_right) {
+        p_widgets->p_descriptor_rect->x -= fill_align.align;
+        corner_bottom_right.x += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
+      }
     } else if (
       is_fill
       &&

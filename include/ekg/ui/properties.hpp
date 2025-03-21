@@ -60,6 +60,7 @@ namespace ekg {
     bool is_visible {};
     bool is_parentable {};
     bool is_docknizable {};
+    bool must_refresh_size {true};
   public:
     template<typename t>
     operator t&() {

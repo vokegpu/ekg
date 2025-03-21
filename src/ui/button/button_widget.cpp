@@ -26,8 +26,12 @@ void ekg::ui::button::on_reload() {
   );
 
   this->descriptor.rect.scaled_height = ekg::min_clamp<float>(this->descriptor.rect.scaled_height, ekg::pixel);
-  this->descriptor.rect.w = ekg::min_clamp<float>(aligned_dimension.w, this->descriptor.rect.w);
-  this->descriptor.rect.h = ekg::min_clamp<float>(aligned_dimension.h * this->descriptor.rect.scaled_height, this->descriptor.rect.h);
+  
+  if (this->properties.must_refresh_size) {
+    this->descriptor.rect.w = ekg::min_clamp<float>(aligned_dimension.w, this->descriptor.rect.w);
+    this->descriptor.rect.h = ekg::min_clamp<float>(aligned_dimension.h * this->descriptor.rect.scaled_height, this->descriptor.rect.h);
+    this->properties.must_refresh_size = false;
+  }
 
   ekg::layout::mask &mask {
     ekg::p_core->layout_mask 
@@ -133,6 +137,13 @@ void ekg::ui::button::on_draw() {
   );
 
   EKG_ASSERT_SCISSOR();
+
+  ekg::draw::rect(
+    rect,
+    this->descriptor.theme.background,
+    ekg::draw_mode::filled,
+    this->properties.layer.at(static_cast<size_t>(ekg::layer::background))
+  );
 
   if (this->states.is_highlighting) {
     ekg::draw::rect(
