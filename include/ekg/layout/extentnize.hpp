@@ -4,19 +4,6 @@
 #include "ekg/ui/abstract.hpp"
 
 namespace ekg::layout {
-  struct fill_align_t {
-  public:
-    bool was_last_fill_found {};
-    bool was_found {};
-    bool must_calculate_pixel_perfect {};
-    bool was_pixel_perfect_calculated {};
-
-    float align {static_cast<float>(UINT32_MAX)}; // idk may i duwmb
-    int64_t index {};
-    int64_t end_fill_index {};
-    int64_t previous_end_index {-1};
-  };
-
   struct extent_t {
   public:
     static ekg::layout::extent_t v_widget;
@@ -65,7 +52,6 @@ namespace ekg::layout {
     ekg::flags_t flag_ok,
     ekg::flags_t flag_stop,
     ekg::flags_t flag_axis,
-    ekg::layout::fill_align_t &fill_align,
     float &extent,
     int32_t &in_out_count
   );
@@ -79,7 +65,6 @@ namespace ekg::layout {
     ekg::flags_t flag_ok,
     ekg::flags_t flag_stop,
     ekg::flags_t flag_axis,
-    ekg::layout::fill_align_t &fill_align,
     float &extent,
     int32_t &in_out_count
   );

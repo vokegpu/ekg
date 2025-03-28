@@ -135,8 +135,8 @@ void ekg::runtime::init() {
     .function = [this](ekg::info_t &info) {
       ekg::layout::scale_calculate();
 
-      ekg::viewport.font_scale = ekg::clamp<float>(
-        ekg::viewport.font_scale,
+      ekg::dpi.font_scale = ekg::clamp<float>(
+        ekg::dpi.font_scale,
         static_cast<float>(ekg::minimum_font_height),
         static_cast<float>(UINT8_MAX)
       );
@@ -144,9 +144,9 @@ void ekg::runtime::init() {
       uint32_t font_size {
         ekg::clamp<uint32_t>(
           static_cast<uint32_t>(
-            ekg::viewport.font_scale
+            ekg::dpi.font_scale
             *
-            ekg::viewport.factor_scale
+            ekg::dpi.factor_scale
           ),
           0,
           UINT8_MAX
@@ -156,7 +156,7 @@ void ekg::runtime::init() {
       if (this->draw_fr_normal.font_size != font_size) {
         this->draw_fr_small.set_size(
           ekg::min_clamp(
-            font_size - ekg::viewport.font_offset.x,
+            font_size - ekg::dpi.font_offset.x,
             ekg::minimum_small_font_height
           )
         );
@@ -170,7 +170,7 @@ void ekg::runtime::init() {
 
         this->draw_fr_big.set_size(
           ekg::min_clamp(
-            font_size + ekg::viewport.font_offset.y,
+            font_size + ekg::dpi.font_offset.y,
             ekg::minimum_big_font_height
           )
         );
@@ -181,11 +181,9 @@ void ekg::runtime::init() {
           continue;
         }
 
-        this->reload_widget_list.push_back(p_widgets);
-        p_widgets->states.was_reloaded = true;
-
         this->layout_docknize_list.push_back(p_widgets);
         p_widgets->states.was_layout_docknized = true;
+        p_widgets->properties.must_refresh_size = true;
       }
 
       ekg::io::dispatch(

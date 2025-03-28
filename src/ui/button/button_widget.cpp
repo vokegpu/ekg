@@ -29,10 +29,11 @@ void ekg::ui::button::on_reload() {
   
   if (this->properties.must_refresh_size) {
     this->descriptor.rect.w = ekg::min_clamp<float>(aligned_dimension.w, this->descriptor.rect.w);
-    this->descriptor.rect.h = ekg::min_clamp<float>(aligned_dimension.h * this->descriptor.rect.scaled_height, this->descriptor.rect.h);
     this->properties.must_refresh_size = false;
   }
 
+  this->descriptor.rect.h = ekg::min_clamp<float>(aligned_dimension.h * this->descriptor.rect.scaled_height, this->descriptor.rect.h);
+  
   ekg::layout::mask &mask {
     ekg::p_core->layout_mask 
   };

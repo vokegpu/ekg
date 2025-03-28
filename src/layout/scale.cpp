@@ -3,17 +3,17 @@
 #include "ekg/layout/scale.hpp"
 
 void ekg::layout::scale_calculate() {
-  ekg::vec2_t<float> display_size {ekg::viewport.scale.w, ekg::viewport.scale.h};
+  ekg::vec2_t<float> display_size {ekg::dpi.scale.w, ekg::dpi.scale.h};
   ekg::vec2_t<float> viewport {ekg::viewport.w, ekg::viewport.h};
 
-  if (ekg::viewport.auto_scale) {
+  if (ekg::dpi.auto_scale) {
     ekg::p_core->p_os_platform->update_display_size();
 
     display_size.x = ekg::p_core->p_os_platform->display_size.w;
     display_size.y = ekg::p_core->p_os_platform->display_size.h;
 
-    ekg::viewport.scale.w = 1920.0f;
-    ekg::viewport.scale.h = 1080.0f;
+    ekg::dpi.scale.w = 1920.0f;
+    ekg::dpi.scale.h = 1080.0f;
 
     viewport = display_size;
   }
@@ -35,7 +35,7 @@ void ekg::layout::scale_calculate() {
    **/
 
   float base_scale {
-    ekg::viewport.scale.w * ekg::viewport.scale.h
+    ekg::dpi.scale.w * ekg::dpi.scale.h
   };
 
   float display_scale {
@@ -59,10 +59,10 @@ void ekg::layout::scale_calculate() {
   };
 
   factor = (
-    roundf(factor / ekg::viewport.scale_interval)
+    roundf(factor / ekg::dpi.scale_interval)
     /
-    (display_scale_percent / ekg::viewport.scale_interval)
+    (display_scale_percent / ekg::dpi.scale_interval)
   );
 
-  ekg::viewport.factor_scale = ekg::clamp(factor, 0.5f, 2.0f);
+  ekg::dpi.factor_scale = ekg::clamp(factor, 0.5f, 2.0f);
 }

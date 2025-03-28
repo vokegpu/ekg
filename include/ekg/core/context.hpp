@@ -13,20 +13,21 @@ namespace ekg {
     float y {};
     float w {};
     float h {};
-
     float dt {};
     float minimum_possible_size {10.0f};
+    bool redraw {};
+  } viewport;
 
-    bool auto_scale {true};
+  extern struct dpi_t {
     ekg::rect_t<float> scale {0.0f, 0.0f, 1920.0f, 1080.0f};
     float scale_interval {25.0f};
 
     float font_scale {18.0f};
     float factor_scale {};
-    ekg::vec2_t<uint32_t> font_offset {4, 6};
 
-    bool redraw {};
-  } viewport;
+    ekg::vec2_t<uint32_t> font_offset {4, 6};
+    bool auto_scale {true};
+  } dpi;
 
   extern struct current_t {
     ekg::id_t pressed {};

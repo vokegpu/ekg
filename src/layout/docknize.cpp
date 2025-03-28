@@ -28,8 +28,6 @@ void ekg::layout::mask::insert(
 }
 
 void ekg::layout::mask::docknize() {
-  ekg::layout::fill_align_t fill_align {};
-
   int32_t count {};
   float dimensional_extent {};
   float rect_height {};
@@ -116,7 +114,6 @@ void ekg::layout::mask::docknize() {
           ekg::dock::fill,
           ekg::dock::none,
           ekg::axis::horizontal,
-          fill_align,
           dimensional_extent,
           count
         );
@@ -241,8 +238,7 @@ void ekg::layout::docknize_widget(
     return;
   }
 
-  ekg::type type {p_widget_parent->properties.type};
-  bool is_group {type == ekg::type::frame};
+  bool is_group {p_widget_parent->properties.type == ekg::type::frame};
   ekg::rect_t<float> &abs_parent_rect {p_widget_parent->get_abs_rect()};
 
   if (!is_group || abs_parent_rect.w == 0 || abs_parent_rect.h == 0) {
@@ -262,7 +258,7 @@ void ekg::layout::docknize_widget(
     }
   }
 
-  ekg::rect_t<float> container_rect {*p_widget_parent->p_descriptor_rect};
+  ekg::rect_t<float> container_rect {abs_parent_rect};
   ekg::theme_t &current_global_theme {ekg::theme()};
   float initial_offset {static_cast<float>(current_global_theme.scrollbar.pixel_thickness)};
 
@@ -290,6 +286,7 @@ void ekg::layout::docknize_widget(
   ekg::flags_t flags {};
 
   float dimensional_extent {};
+  float extent {};
   int32_t it {};
   int32_t count {};
 
@@ -306,7 +303,6 @@ void ekg::layout::docknize_widget(
 
   ekg::layout::extent_t::h_widget = {};
   ekg::layout::extent_t h_extent_backup {};
-  ekg::layout::fill_align_t fill_align {};
 
   bool is_left {};
   bool is_right {};
@@ -323,6 +319,25 @@ void ekg::layout::docknize_widget(
   float highest_top {};
   float highest_bottom {};
 
+  ekg::rect_t<float> pixel_perfect_projection {
+    .x = parent_offset.x,
+    .y = current_global_theme.layout_offset,
+    .w = current_global_theme.layout_offset * 2.0f,
+    .h = 0.0f
+  };
+
+  pixel_perfect_projection.w = ekg::layout::transform_dimension_from_extent(
+    container_rect.w,
+    0.0f,
+    current_global_theme.layout_offset,
+    1
+  );
+
+  float align {};
+  float imperfect_pixel_max_bounding {pixel_perfect_projection.x + ekg::pixel * 5.0f};
+  float projected_pixel_perfect_width {pixel_perfect_projection.x + pixel_perfect_projection.w};
+  float unsolved_pixel_position {};
+
   for (ekg::properties_t *&p_properties : p_widget_parent->properties.children) {
     if (p_properties == nullptr || p_properties->p_widget == nullptr) {
       continue;
@@ -333,25 +348,27 @@ void ekg::layout::docknize_widget(
       continue;
     }
 
+    if (p_widget_parent->properties.must_refresh_size) {
+      p_widgets->properties.must_refresh_size = true;
+    }
+
     // @TODO Prevent useless scrolling reload.
     p_widgets->on_reload();
 
-    type = p_widgets->properties.type;
-    flags = p_properties->dock;
-
-    if (type == ekg::type::scrollbar) {
+    if (p_widgets->properties.type == ekg::type::scrollbar) {
       it++;
       continue;
     }
 
-    should_estimate_extent = true;
-
+    flags     = p_properties->dock;
     is_right  = ekg::has(flags, ekg::dock::right);
     is_left   = ekg::has(flags, ekg::dock::left) || !is_right;
     is_bottom = ekg::has(flags, ekg::dock::bottom);
     is_top    = ekg::has(flags, ekg::dock::top) || !is_bottom;
     is_fill   = ekg::has(flags, ekg::dock::fill);
     is_next   = ekg::has(flags, ekg::dock::next);
+
+    should_estimate_extent = true;
 
     if (is_fill) {
       count = it;
@@ -360,22 +377,33 @@ void ekg::layout::docknize_widget(
         ekg::dock::fill,
         ekg::dock::next | (is_top ? ekg::dock::bottom : ekg::dock::top),
         ekg::axis::horizontal,
-        fill_align,
-        dimensional_extent,
+        extent,
         count
       );
 
       dimensional_extent = ekg::min_clamp(
         ekg::layout::transform_dimension_from_extent(
           container_rect.w,
-          dimensional_extent,
+          extent,
           current_global_theme.layout_offset,
           count
         ),
         p_widgets->min_size.x
       );
 
-      p_widgets->p_descriptor_rect->w = dimensional_extent;
+      if (is_bottom) {
+        align = ((dimensional_extent + current_global_theme.layout_offset) * count) + (extent);
+        align = (align - pixel_perfect_projection.w) * (align > pixel_perfect_projection.w) * (extent > 0.0f);
+        align > 0.0f && (align = (align / count));
+      } else {
+        if (p_properties->tag == "bt-2") ekg::log() << dimensional_extent << " meow " << pixel_perfect_projection.w;
+        align = ((dimensional_extent + current_global_theme.layout_offset) * count) + (extent);
+        if (p_properties->tag == "bt-2") ekg::log() << align << " meow " << pixel_perfect_projection.w;
+        align = (pixel_perfect_projection.w - align) * (align < pixel_perfect_projection.w) * (extent > 0.0f);
+        align > 0.0f && (align = -(align / count));
+      }
+
+      p_widgets->p_descriptor_rect->w = dimensional_extent - align;
 
       should_reload_widget = true;
       should_estimate_extent = false;
@@ -426,26 +454,9 @@ void ekg::layout::docknize_widget(
 
       if (is_right) {
         corner_bottom_right.x += p_widgets->p_descriptor_rect->w;
-        p_widgets->p_descriptor_rect->x = (
-          ekg::layout::transform_to_pixel_perfect_position(
-            corner_bottom_left.x,
-            corner_bottom_right.x,
-            container_rect.w,
-            current_global_theme.layout_offset
-          )
-        );
 
-        p_widgets->p_descriptor_rect->y = (
-          ekg::min_clamp<float>(
-            ekg::layout::transform_to_pixel_perfect_position(
-              corner_top_right.y,
-              corner_bottom_right.y,
-              container_rect.h,
-              current_global_theme.layout_offset
-            ),
-            corner_top_right.y + current_global_theme.layout_offset + highest_bottom
-          )
-        );
+        p_widgets->p_descriptor_rect->x = projected_pixel_perfect_width - corner_bottom_right.x;
+        p_widgets->p_descriptor_rect->y = container_rect.h - corner_bottom_right.y;
 
         corner_bottom_right.x += current_global_theme.layout_offset;
       }
@@ -464,6 +475,8 @@ void ekg::layout::docknize_widget(
       if (is_left) {
         p_widgets->p_descriptor_rect->x = corner_top_left.x;
         p_widgets->p_descriptor_rect->y = corner_top_left.y;
+
+        if (p_properties->tag == "bt-2") ekg::log() << corner_top_left.x + p_widgets->p_descriptor_rect->w << " xoxo ";
   
         corner_top_left.x += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
       }
@@ -497,42 +510,14 @@ void ekg::layout::docknize_widget(
 
     if (should_estimate_extent) {
       count = it;
-      ekg::layout::extentnize_widget(
-        p_widget_parent,
-        ekg::dock::fill,
-        ekg::dock::next | (is_top ? ekg::dock::bottom : ekg::dock::top),
-        ekg::axis::horizontal,
-        fill_align,
-        dimensional_extent,
-        count
-      );
-    }
-
-    if (
-      !fill_align.was_pixel_perfect_calculated
-      &&
-      fill_align.must_calculate_pixel_perfect
-    ) {
-      fill_align.align = container_rect.w - (p_widgets->p_descriptor_rect->x + p_widgets->p_descriptor_rect->w);
-      fill_align.was_pixel_perfect_calculated = true;
-      
-      corner_top_right.x = fill_align.align;
-      corner_bottom_right.x = fill_align.align;
-
-      if (is_right) {
-        p_widgets->p_descriptor_rect->x -= fill_align.align;
-        corner_bottom_right.x += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
-      }
-    } else if (
-      is_fill
-      &&
-      fill_align.was_last_fill_found
-      &&
-      fill_align.was_pixel_perfect_calculated
-    ) {
-      p_widgets->p_descriptor_rect->w = (
-        (container_rect.w - p_widgets->p_descriptor_rect->x) - fill_align.align
-      );
+      //ekg::layout::extentnize_widget(
+      //  p_widget_parent,
+      //  ekg::dock::fill,
+      //  ekg::dock::next | (is_top ? ekg::dock::bottom : ekg::dock::top),
+      //  ekg::axis::horizontal,
+      //  dimensional_extent,
+      //  count
+      //);
     }
 
     max_previous_height = p_widgets->p_descriptor_rect->h > max_previous_height ? p_widgets->p_descriptor_rect->h : max_previous_height;
@@ -549,6 +534,8 @@ void ekg::layout::docknize_widget(
     ekg::layout::extent_t::h_widget = h_extent_backup;
     it++;
   }
+
+  p_widget_parent->properties.must_refresh_size = false;
 
   // TODO: may is necessary to re-docknize the parent widget if previous scroll is disabled but now enabled
 }

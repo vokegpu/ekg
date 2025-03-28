@@ -135,6 +135,11 @@ namespace ekg {
       );
     }
 
+    ekg::p_core->dispatch_widget_op(
+      p_created_widget,
+      ekg::io::operation::reload
+    );
+
     if (p_created_widget->properties.is_docknizable) {
       ekg::p_core->set_current_parent_properties(
         &p_created_widget->properties

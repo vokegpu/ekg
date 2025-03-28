@@ -183,6 +183,7 @@ namespace ekg {
         t w {};
         t h {};
         t scaled_height {};
+        t pixel_calibration {};
       };
     };
   public:
