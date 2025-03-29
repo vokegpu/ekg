@@ -75,7 +75,7 @@ void ekg::ui::scrollbar_widget::on_draw_refresh() {
   this->dimension.w = this->p_parent->w;
   this->dimension.h = this->p_parent->h;
 
-  ekg::draw::sync_scissor(this->scissor, this->get_abs_rect(), this->p_parent_scissor);
+  EKG_ASSERT_SCISSOR(this->scissor, this->get_abs_rect(), this->p_parent_scissor);
   ekg_draw_assert_scissor();
 
   this->scroll.on_draw_refresh();

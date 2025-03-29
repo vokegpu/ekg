@@ -31,12 +31,6 @@
 #include "ekg/math/geometry.hpp"
 #include "ekg/gpu/api.hpp"
 
-/**
- * The exception:
- * ASSERT
- **/
-#define EKG_ASSERT_SCISSOR() if (ekg::gpu::allocator::is_out_of_scissor) { return;  }
-
 namespace ekg {
   enum draw_mode {
     filled = 0,
@@ -58,12 +52,6 @@ namespace ekg::draw {
     const ekg::vec4_t<float> &color,
     int32_t draw_mode,
     ekg::sampler_t *p_sampler = nullptr
-  );
-
-  void sync_scissor(
-    ekg::rect_t<float> &scissor,
-    ekg::rect_t<float> &rect_child,
-    ekg::rect_t<float> *p_parent_scissor
   );
 
   void scissor(

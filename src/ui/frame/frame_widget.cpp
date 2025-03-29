@@ -230,8 +230,11 @@ void ekg::ui::frame::on_draw() {
     this->get_abs_rect()
   };
 
-  ekg::draw::sync_scissor(this->scissor, rect, this->p_parent_scissor_rect);
-  EKG_ASSERT_SCISSOR();
+  EKG_ASSERT_SCISSOR(
+    this->scissor,
+    rect,
+    this->p_parent_scissor_rect
+  );
 
   ekg::draw::rect(
     rect,

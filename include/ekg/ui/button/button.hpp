@@ -25,9 +25,9 @@ namespace ekg {
     ekg::value<std::string> text {};
     ekg::flags_t text_dock {};
     ekg::value<bool> value {};
+    ekg::font text_font_size {ekg::font::normal};
     ekg::rect_t<float> rect {};
     ekg::type type {ekg::type::button};
-    ekg::font text_font_size {ekg::font::normal};
     ekg::button_theme_t theme {};
   };
 }

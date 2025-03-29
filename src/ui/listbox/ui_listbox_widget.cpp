@@ -620,7 +620,7 @@ void ekg::ui::listbox_widget::on_draw_refresh() {
   this->rect_content_abs = this->rect_content_place + rect;
   this->embedded_scroll.clamp_scroll();
 
-  ekg::draw::sync_scissor(
+  EKG_ASSERT_SCISSOR(
     this->scissor,
     rect,
     this->p_parent_scissor
@@ -685,7 +685,7 @@ void ekg::ui::listbox_widget::on_draw_refresh() {
     this->header_relative_x += placement_header.rect.w + ekg_pixel;
   }
 
-  ekg::draw::sync_scissor(
+  EKG_ASSERT_SCISSOR(
     this->scissor,
     rect,
     this->p_parent_scissor
@@ -776,7 +776,7 @@ void ekg::ui::listbox_widget::render_item(
     item_rect.x = item_rect.x + this->embedded_scroll.scroll.x;
   }
 
-  ekg::draw::sync_scissor(
+  EKG_ASSERT_SCISSOR(
     this->scissor,
     item_rect,
     &widget_absolute_rect_scissor
@@ -818,7 +818,7 @@ void ekg::ui::listbox_widget::render_item(
     ekg::draw_mode::outline
   );
 
-  ekg::draw::sync_scissor(
+  EKG_ASSERT_SCISSOR(
     this->scissor,
     this->rect_content_abs,
     this->p_parent_scissor
@@ -852,7 +852,7 @@ void ekg::ui::listbox_widget::render_item(
      **/
     item_rect.w += ekg_pixel;
 
-    ekg::draw::sync_scissor(
+    EKG_ASSERT_SCISSOR(
       this->scissor,
       item_rect,
       &content_scissor_bounding
@@ -943,7 +943,7 @@ void ekg::ui::listbox_widget::render_item(
     item_rect.w = ekg_pixel;
     item_rect.h = rect.h;
 
-    ekg::draw::sync_scissor(
+    EKG_ASSERT_SCISSOR(
       this->scissor,
       item_rect,
       &widget_absolute_rect_scissor

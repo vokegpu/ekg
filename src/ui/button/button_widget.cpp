@@ -131,13 +131,11 @@ void ekg::ui::button::on_draw() {
     this->get_abs_rect()
   };
 
-  ekg::draw::sync_scissor(
+  EKG_ASSERT_SCISSOR(
     this->scissor,
     rect,
     this->p_parent_scissor_rect
   );
-
-  EKG_ASSERT_SCISSOR();
 
   ekg::draw::rect(
     rect,

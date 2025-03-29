@@ -351,7 +351,7 @@ void ekg::ui::popup_widget::on_draw_refresh() {
   auto &f_renderer {ekg::f_renderer(p_ui->get_font_size())};
   auto &item_list {p_ui->get_item_list()};
 
-  ekg::draw::sync_scissor(this ->scissor, rect, this->p_parent_scissor);
+  EKG_ASSERT_SCISSOR(this ->scissor, rect, this->p_parent_scissor);
   ekg::draw::rect(rect, theme_scheme.popup_background, ekg::draw_mode::filled, ekg_layer(ekg::layer::background));
 
   ekg::rect button_rect {};

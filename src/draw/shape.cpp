@@ -67,14 +67,6 @@ void ekg::draw::rect(
   ekg::p_core->gpu_allocator.dispatch();
 }
 
-void ekg::draw::sync_scissor(
-  ekg::rect_t<float> &scissor,
-  ekg::rect_t<float> &rect_child,
-  ekg::rect_t<float> *p_parent_scissor
-) {
-  ekg::p_core->gpu_allocator.sync_scissor(scissor, rect_child, p_parent_scissor);
-}
-
 void ekg::draw::scissor(
   float x,
   float y,

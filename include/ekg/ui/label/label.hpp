@@ -13,6 +13,14 @@ namespace ekg {
 
   struct label_t {
   public:
+    std::string tag {};
+    ekg::flags_t dock {};
+    ekg::value<std::string> text {};
+    ekg::flags_t text_dock {};
+    ekg::font text_font_size {ekg::font::normal};
+    ekg::rect_t<float> rect {};
+    ekg::type type {ekg::type::label};
+    ekg::label_theme_t theme {};
   };
 }
 

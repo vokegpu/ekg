@@ -29,7 +29,7 @@
 #include "ekg/math/geometry.hpp"
 #include "ekg/io/input.hpp"
 
-#define EKG_ASSERT_VALUE(value) if (value.was_changed && !(value.was_changed = false) && (this->properties.must_refresh_size = true)) ekg::p_core->dispatch_widget_op(this, ekg::io::operation::reload);
+#define EKG_ASSERT_VALUE(value) if (value.was_changed && !(value.was_changed = false)) ekg::p_core->dispatch_widget_op(this, ekg::io::operation::reload);
 
 namespace ekg::ui {
   class abstract {

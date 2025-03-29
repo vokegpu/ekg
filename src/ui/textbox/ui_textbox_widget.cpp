@@ -1085,7 +1085,7 @@ void ekg::ui::textbox_widget::on_draw_refresh() {
   float x {rect.x + this->embedded_scroll.scroll.x};
   float y {};
 
-  ekg::draw::sync_scissor(
+  EKG_ASSERT_SCISSOR(
     this->scissor,
     rect,
     this->p_parent_scissor

@@ -72,7 +72,7 @@ void ekg::ui::label_widget::on_draw_refresh() {
     ekg::reload(this);
   }
 
-  ekg::draw::sync_scissor(this->scissor, rect, this->p_parent_scissor);
+  EKG_ASSERT_SCISSOR(this->scissor, rect, this->p_parent_scissor);
   ekg_draw_assert_scissor();
 
   ekg::draw::rect(

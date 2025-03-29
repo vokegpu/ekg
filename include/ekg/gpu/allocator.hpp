@@ -30,10 +30,11 @@
 
 #include "ekg/gpu/api.hpp"
 
+#define EKG_ASSERT_SCISSOR(scissor, rect_child, p_parent_scissor) if (!ekg::p_core->gpu_allocator.sync_scissor(scissor, rect_child, p_parent_scissor)) return
+
 namespace ekg::gpu {
   class allocator {
   public:
-    static bool is_out_of_scissor;
     static float concave;
     static bool high_priority;
     static uint64_t current_rendering_data_count;
@@ -129,7 +130,7 @@ namespace ekg::gpu {
     /*
      * Sync active scissor position.
      */
-    void sync_scissor(
+    bool sync_scissor(
       ekg::rect_t<float> &scissor,
       ekg::rect_t<float> &rect_child,
       ekg::rect_t<float> *p_parent_scissor

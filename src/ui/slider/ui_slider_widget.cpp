@@ -226,7 +226,7 @@ void ekg::ui::slider_widget::on_draw_refresh() {
   ekg::flags text_align_flags {p_ui->get_text_align()};
   bool is_text_enabled {!ekg_bitwise_contains(text_align_flags, ekg::dock::none)};
 
-  ekg::draw::sync_scissor(this->scissor, rect, this->p_parent_scissor);
+  EKG_ASSERT_SCISSOR(this->scissor, rect, this->p_parent_scissor);
   ekg_draw_assert_scissor();
 
   ekg::draw::rect(

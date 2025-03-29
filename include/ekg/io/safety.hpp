@@ -30,6 +30,7 @@
 
 #include "ekg/ui/button/button_widget.hpp"
 #include "ekg/ui/frame/frame_widget.hpp"
+#include "ekg/ui/label/label_widget.hpp"
 
 namespace ekg::io {
   template<typename t>
@@ -110,6 +111,32 @@ namespace ekg {
 
         p_created_widget = dynamic_cast<ekg::ui::abstract*>(p_frame);
         p_created_widget->p_descriptor_rect = &p_frame->descriptor.rect;
+
+        break;
+      }
+
+      case ekg::type::label: {
+        ekg::label_t &label {
+          ekg::io::any_static_cast<ekg::label_t>(
+            &descriptor
+          )
+        };
+
+        ekg::ui::label *p_label {
+          ekg::io::new_widget_instance<ekg::ui::label>()
+        };
+
+        p_label->descriptor = label;
+        p_label->descriptor.theme = current_global_theme.label;
+
+        properties.p_descriptor = &p_label->descriptor;
+        properties.p_widget = p_label;
+        properties.dock = label.dock;
+        properties.is_docknizable = false;
+        properties.is_parentable = true;
+
+        p_created_widget = dynamic_cast<ekg::ui::abstract*>(p_label);
+        p_created_widget->p_descriptor_rect = &p_label->descriptor.rect;
 
         break;
       }

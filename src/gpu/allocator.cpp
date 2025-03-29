@@ -28,7 +28,6 @@
 // TODO: add capacity mapped-gbuffer
 
 bool ekg::gpu::allocator::high_priority {};
-bool ekg::gpu::allocator::is_out_of_scissor {};
 float ekg::gpu::allocator::concave {-2.0f};
 uint64_t ekg::gpu::allocator::current_rendering_data_count {};
 
@@ -234,7 +233,7 @@ void ekg::gpu::allocator::quit() {
   ekg::log() << "Quitting GPU allocator";
 }
 
-void ekg::gpu::allocator::sync_scissor(
+bool ekg::gpu::allocator::sync_scissor(
   ekg::rect_t<float> &scissor,
   ekg::rect_t<float> &rect_child,
   ekg::rect_t<float> *p_parent_scissor
@@ -244,42 +243,45 @@ void ekg::gpu::allocator::sync_scissor(
   scissor.w = rect_child.w;
   scissor.h = rect_child.h;
 
-  ekg::gpu::allocator::is_out_of_scissor = false;
-
   if (p_parent_scissor) {
-    if (scissor.x < p_parent_scissor->x) {
-      scissor.w -= p_parent_scissor->x - scissor.x;
-      scissor.x = p_parent_scissor->x;
-    }
+    bool only_if {};
 
-    if (scissor.y < p_parent_scissor->y) {
-      scissor.h -= p_parent_scissor->y - scissor.y;
-      scissor.y = p_parent_scissor->y;
-    }
+    only_if = scissor.x < p_parent_scissor->x;
+    scissor.w -= only_if * (p_parent_scissor->x - scissor.x);
+    scissor.x = (only_if * p_parent_scissor->x) + (scissor.x * !only_if);
 
-    if (scissor.x + scissor.w > p_parent_scissor->x + p_parent_scissor->w) {
-      scissor.w -= (scissor.x + scissor.w) - (p_parent_scissor->x + p_parent_scissor->w);
-    }
+    only_if = scissor.y < p_parent_scissor->y;
+    scissor.h -= only_if * (p_parent_scissor->y - scissor.y);
+    scissor.y = (only_if * p_parent_scissor->y) + (scissor.y * !only_if);
 
-    if (scissor.y + scissor.h > p_parent_scissor->y + p_parent_scissor->h) {
-      scissor.h -= (scissor.y + scissor.h) - (p_parent_scissor->y + p_parent_scissor->h);
-    }
+    only_if = scissor.x + scissor.w > p_parent_scissor->x + p_parent_scissor->w;
+    scissor.w -= only_if * ((scissor.x + scissor.w) - (p_parent_scissor->x + p_parent_scissor->w));
 
-    ekg::gpu::allocator::is_out_of_scissor = (
-      !(scissor.x             < p_parent_scissor->x + p_parent_scissor->w &&
-        scissor.x + scissor.w > p_parent_scissor->x                       &&
-        scissor.y             < p_parent_scissor->y + p_parent_scissor->h &&
-        scissor.y + scissor.h > p_parent_scissor->y)
+    only_if = scissor.y + scissor.h > p_parent_scissor->y + p_parent_scissor->h;
+    scissor.h -= only_if * ((scissor.y + scissor.h) - (p_parent_scissor->y + p_parent_scissor->h));
+
+    this->scissor_instance.x = scissor.x;
+    this->scissor_instance.y = scissor.y;
+    this->scissor_instance.w = scissor.w;
+    this->scissor_instance.h = scissor.h;
+
+    return (
+      scissor.x < p_parent_scissor->x + p_parent_scissor->w
+      &&
+      scissor.x + scissor.w > p_parent_scissor->x
+      &&
+      scissor.y < p_parent_scissor->y + p_parent_scissor->h
+      &&
+      scissor.y + scissor.h > p_parent_scissor->y
     );
   }
-  
-  /**
-   * It is much better to waste memory than CPU runtime processing.
-   **/
+
   this->scissor_instance.x = scissor.x;
   this->scissor_instance.y = scissor.y;
   this->scissor_instance.w = scissor.w;
   this->scissor_instance.h = scissor.h;
+
+  return true;
 }
 
 void ekg::gpu::allocator::unsafe_set_scissor_placement(
