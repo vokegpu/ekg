@@ -62,7 +62,7 @@ void ekg::service::theme::init() {
 
   dark_theme.symmetric_layout = true;
   dark_theme.frame.background = ekg::color<int32_t>(43, 43, 43, 255);
-  dark_theme.frame.border = ekg::color<int32_t>(190, 190, 190, 0);
+  dark_theme.frame.outline = ekg::color<int32_t>(190, 190, 190, 0);
   dark_theme.frame.outline = ekg::color<int32_t>(30, 40, 60, 100);
   dark_theme.frame.margin_actions_offset = 18;
   dark_theme.button.background = ekg::color<int32_t>(85, 85, 85, 50);
@@ -75,6 +75,9 @@ void ekg::service::theme::init() {
   dark_theme.checkbox.outline = ekg::color<int32_t>(202, 207, 222, 0);
   dark_theme.checkbox.active = ekg::color<int32_t>(44, 166, 255, 200);
   dark_theme.checkbox.highlight = ekg::color<int32_t>(44, 166, 255, 50);
+  dark_theme.checkbox.box_outline = dark_theme.checkbox.outline;
+  dark_theme.checkbox.box_active = dark_theme.checkbox.active;
+  dark_theme.checkbox.box_highlight = dark_theme.checkbox.highlight;
   dark_theme.slider.background = ekg::color<int32_t>(85, 85, 85, 50);
   dark_theme.slider.bar_background = ekg::color<int32_t>(85, 85, 85, 50);
   dark_theme.slider.text = ekg::color<int32_t>(202, 202, 202, 255);
@@ -130,7 +133,7 @@ void ekg::service::theme::init() {
 
   light_theme.symmetric_layout = true;
   light_theme.frame.background = ekg::color<int32_t>(242, 242, 242, 255);
-  light_theme.frame.border = ekg::color<int32_t>(190, 190, 190, 0);
+  light_theme.frame.outline = ekg::color<int32_t>(190, 190, 190, 0);
   light_theme.frame.outline = ekg::color<int32_t>(202, 207, 222, 150);
   light_theme.frame.margin_actions_offset = 18;
   light_theme.button.text = ekg::color<int32_t>(141, 141, 141, 255);
@@ -143,6 +146,9 @@ void ekg::service::theme::init() {
   light_theme.checkbox.active = ekg::color<int32_t>(44, 166, 255, 200);
   light_theme.checkbox.outline = ekg::color<int32_t>(202, 207, 222, 0);
   light_theme.checkbox.highlight = ekg::color<int32_t>(44, 166, 255, 50);
+  light_theme.checkbox.box_outline = light_theme.checkbox.outline;
+  light_theme.checkbox.box_active = light_theme.checkbox.active;
+  light_theme.checkbox.box_highlight = light_theme.checkbox.highlight;
   light_theme.slider.text = ekg::color<int32_t>(141, 141, 141, 255);
   light_theme.slider.background = ekg::color<int32_t>(204, 204, 204, 50);
   light_theme.slider.bar_background = ekg::color<int32_t>(204, 204, 204, 50);
@@ -198,7 +204,7 @@ void ekg::service::theme::init() {
 
   light_pinky_theme.symmetric_layout = true;
   light_pinky_theme.frame.background = ekg::color<int32_t>(242, 242, 242, 255);
-  light_pinky_theme.frame.border = ekg::color<int32_t>(190, 190, 190, 0);
+  light_pinky_theme.frame.outline = ekg::color<int32_t>(190, 190, 190, 0);
   light_pinky_theme.frame.outline = ekg::color<int32_t>(202, 207, 222, 150);
   light_pinky_theme.frame.margin_actions_offset = 18;
   light_pinky_theme.button.text = ekg::color<int32_t>(141, 141, 141, 255);
@@ -211,6 +217,9 @@ void ekg::service::theme::init() {
   light_pinky_theme.checkbox.active = ekg::color<int32_t>(245, 169, 184, 200);
   light_pinky_theme.checkbox.outline = ekg::color<int32_t>(202, 207, 222, 0);
   light_pinky_theme.checkbox.highlight = ekg::color<int32_t>(245, 169, 184, 50);
+  light_pinky_theme.checkbox.box_outline = light_pinky_theme.checkbox.outline;
+  light_pinky_theme.checkbox.box_active = light_pinky_theme.checkbox.active;
+  light_pinky_theme.checkbox.box_highlight = light_pinky_theme.checkbox.highlight;
   light_pinky_theme.slider.text = ekg::color<int32_t>(141, 141, 141, 255);
   light_pinky_theme.slider.background = ekg::color<int32_t>(204, 204, 204, 50);
   light_pinky_theme.slider.bar_background = ekg::color<int32_t>(204, 204, 204, 50);
@@ -266,7 +275,7 @@ void ekg::service::theme::init() {
 
   dark_pinky_theme.symmetric_layout = true;
   dark_pinky_theme.frame.background = ekg::color<int32_t>(43, 43, 43, 255);
-  dark_pinky_theme.frame.border = ekg::color<int32_t>(190, 190, 190, 0);
+  dark_pinky_theme.frame.outline = ekg::color<int32_t>(190, 190, 190, 0);
   dark_pinky_theme.frame.outline = ekg::color<int32_t>(30, 40, 60, 100);
   dark_pinky_theme.frame.margin_actions_offset = 18;
   dark_pinky_theme.button.background = ekg::color<int32_t>(85, 85, 85, 50);
@@ -279,6 +288,9 @@ void ekg::service::theme::init() {
   dark_pinky_theme.checkbox.outline = ekg::color<int32_t>(202, 207, 222, 0);
   dark_pinky_theme.checkbox.active = ekg::color<int32_t>(245, 169, 184, 200);
   dark_pinky_theme.checkbox.highlight = ekg::color<int32_t>(245, 169, 184, 50);
+  dark_pinky_theme.checkbox.box_outline = dark_pinky_theme.checkbox.outline;
+  dark_pinky_theme.checkbox.box_active = dark_pinky_theme.checkbox.active;
+  dark_pinky_theme.checkbox.box_highlight = dark_pinky_theme.checkbox.highlight;
   dark_pinky_theme.slider.background = ekg::color<int32_t>(85, 85, 85, 50);
   dark_pinky_theme.slider.bar_background = ekg::color<int32_t>(85, 85, 85, 50);
   dark_pinky_theme.slider.text = ekg::color<int32_t>(202, 202, 202, 255);

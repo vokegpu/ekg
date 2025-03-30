@@ -31,6 +31,7 @@
 #include "ekg/ui/button/button_widget.hpp"
 #include "ekg/ui/frame/frame_widget.hpp"
 #include "ekg/ui/label/label_widget.hpp"
+#include "ekg/ui/checkbox/checkbox_widget.hpp"
 
 namespace ekg::io {
   template<typename t>
@@ -137,6 +138,32 @@ namespace ekg {
 
         p_created_widget = dynamic_cast<ekg::ui::abstract*>(p_label);
         p_created_widget->p_descriptor_rect = &p_label->descriptor.rect;
+
+        break;
+      }
+
+      case ekg::type::checkbox: {
+        ekg::checkbox_t &checkbox {
+          ekg::io::any_static_cast<ekg::checkbox_t>(
+            &descriptor
+          )
+        };
+
+        ekg::ui::checkbox *p_checkbox {
+          ekg::io::new_widget_instance<ekg::ui::checkbox>()
+        };
+
+        p_checkbox->descriptor = checkbox;
+        p_checkbox->descriptor.theme = current_global_theme.checkbox;
+
+        properties.p_descriptor = &p_checkbox->descriptor;
+        properties.p_widget = p_checkbox;
+        properties.dock = checkbox.dock;
+        properties.is_docknizable = false;
+        properties.is_parentable = true;
+
+        p_created_widget = dynamic_cast<ekg::ui::abstract*>(p_checkbox);
+        p_created_widget->p_descriptor_rect = &p_checkbox->descriptor.rect;
 
         break;
       }

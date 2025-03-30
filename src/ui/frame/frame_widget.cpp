@@ -23,7 +23,7 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
       ekg::flags_t resize_over_dock {};
 
       this->action(
-        input.has_motion && this->states.is_hover && (ekg::timing_t::second > ekg::tweaks.task_latency),
+        input.has_motion && this->states.is_hovering && (ekg::timing_t::second > ekg::tweaks.task_latency),
         ekg::action::motion
       );
 
@@ -154,7 +154,7 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
           ekg::viewport.redraw = true;
         }
       } else if (
-        this->states.is_hover
+        this->states.is_hovering
         &&
         this->descriptor.resize_dock != ekg::dock::none
         &&
@@ -201,7 +201,7 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
           this->states.is_absolute = false;
 
           this->action(
-            this->states.is_hover,
+            this->states.is_hovering,
             ekg::action::release
           );
         }
@@ -240,12 +240,12 @@ void ekg::ui::frame::on_draw() {
     rect,
     this->descriptor.theme.background,
     ekg::draw_mode::filled,
-    this->properties.layer.at(static_cast<size_t>(ekg::layer::background))
+    this->descriptor.theme.layers[ekg::layer::background]
   );
 
   ekg::draw::rect(
-    this->docker_drag.top,
-    this->descriptor.theme.border,
+    rect,
+    this->descriptor.theme.outline,
     ekg::draw_mode::filled
   );
 }

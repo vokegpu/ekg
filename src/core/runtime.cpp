@@ -281,7 +281,7 @@ void ekg::runtime::poll_events() {
         this->p_os_platform->serialized_input_event.type == ekg::io::input_event_type::text_input
       )
       &&
-      p_widgets->states.is_hover
+      p_widgets->states.is_hovering
       &&
       p_widgets->properties.is_visible
       &&
@@ -289,7 +289,7 @@ void ekg::runtime::poll_events() {
     );
 
     if (hovered) {
-      p_widget_focused && (p_widget_focused->states.is_hover = false);
+      p_widget_focused && (p_widget_focused->states.is_hovering = false);
       p_widget_focused = p_widgets;
       first_absolute = false;
     }
@@ -320,7 +320,7 @@ void ekg::runtime::poll_events() {
 
     p_widgets->on_event(ekg::io::stage::post);
     if (!hovered && !p_widgets->states.is_absolute) {
-      p_widgets->states.is_hover = false;
+      p_widgets->states.is_hovering = false;
       p_widgets->on_event(ekg::io::stage::process);
     }
   }

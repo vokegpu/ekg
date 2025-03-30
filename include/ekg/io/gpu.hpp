@@ -2,17 +2,12 @@
 #define EKG_IO_GPU_HPP
 
 #include <vector>
+#include <array>
+
 #include "ekg/io/memory.hpp"
 #include "ekg/math/geometry.hpp"
 
 namespace ekg {
-  enum class layer {
-    background,
-    background2,
-    highlight,
-    active
-  };
-
   enum class gpu_api {
     vulkan,
     opengl,
@@ -48,6 +43,35 @@ namespace ekg {
     uint32_t gl_id {};
     int8_t gl_protected_active_index {-1};
     bool is_protected {};
+  };
+
+  enum class layer {
+    background,
+    highlight,
+    active
+  };
+
+  struct layer_group_t {
+  protected:
+    std::array<ekg::sampler_t*, 3> samplers {};
+  public:
+    ekg::sampler_t *&operator[](ekg::layer layer) {
+      return this->samplers[static_cast<size_t>(layer)];
+    }
+  };
+
+  template<size_t size>
+  struct layer_t {
+  protected:
+    std::array<ekg::layer_group_t, size> layer_groups {};
+  public:
+    ekg::sampler_t* &operator[](ekg::layer layer) {
+      return this->layer_groups[0][layer];
+    }
+
+    ekg::layer_group_t &operator[](size_t group) {
+      return this->layer_groups[group];
+    }
   };
 
   ekg::flags_t gpu_allocate_sampler(

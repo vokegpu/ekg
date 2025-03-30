@@ -69,7 +69,7 @@ void ekg::ui::label::on_draw() {
     rect,
     this->descriptor.theme.background,
     ekg::draw_mode::filled,
-    this->properties.layer.at(static_cast<size_t>(ekg::layer::background))
+    this->descriptor.theme.layers[ekg::layer::background]
   );
 
   ekg::draw::get_font_renderer(this->descriptor.text_font_size)

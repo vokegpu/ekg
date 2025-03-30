@@ -84,14 +84,16 @@ namespace ekg {
       this->was_changed = true;
     }
 
-    void move(t *p_address) {
+    t &move(t *p_address) {
       this->p_address = p_address;
       this->was_changed = true;
+      return this->get_value();
     }
 
-    void set_value(t value) {
+    t &set_value(t value) {
       this->get_value() = value;
       this->was_changed = true;
+      return this->get_value();
     }
 
     t &get_value() {

@@ -28,19 +28,21 @@ namespace ekg {
 namespace ekg::ui {
   struct states_t {
   public:
+    bool is_hovering {};
+    bool is_highlighting {};
+    ekg::vec2_t<bool> is_scrolling {};
+
+    bool is_active {};
+    bool is_focused {};
+
     /**
      * Generic use-case reserved
      **/
     bool is[4] {};
 
-    bool is_hover {};
-    bool is_active {};
-    bool is_absolute {};
-    bool is_highlighting {};
-    bool is_focusing {};
-    ekg::vec2_t<bool> is_scrolling {};
     bool is_high_frequency {};
     bool is_targeting_absolute_parent {};
+    bool is_absolute {};
 
     bool was_reloaded {};
     bool was_layout_docknized {};

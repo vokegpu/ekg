@@ -63,7 +63,7 @@ void ekg::ui::abstract::on_event(ekg::io::stage stage) {
         ekg::rect_t<float> &rect {this->get_abs_rect()};
         ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
-        this->states.is_hover = (
+        this->states.is_hovering = (
           ekg::rect_collide_vec2(rect, interact)
           &&
           (
@@ -79,12 +79,12 @@ void ekg::ui::abstract::on_event(ekg::io::stage stage) {
     }
 
     case ekg::io::stage::post: {
-      this->states.is_hover = false;
+      this->states.is_hovering = false;
 
       #if defined(__ANDROID__)
       this->states.is_highlight = (
         !(
-          !this->states.is_hover
+          !this->states.is_hovering
           &&
           input.was_released
         )

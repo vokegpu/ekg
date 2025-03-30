@@ -1,9 +1,9 @@
-#include "ekg/ui/button/button_widget.hpp"
+#include "ekg/ui/checkbox/checkbox_widget.hpp"
 #include "ekg/draw/font_renderer.hpp"
 #include "ekg/draw/shape.hpp"
 #include "ekg/core/runtime.hpp"
 
-void ekg::ui::button::on_reload() {
+void ekg::ui::checkbox::on_reload() {
   this->get_abs_rect();
 
   ekg::draw::font_renderer &text_fr {
@@ -12,6 +12,11 @@ void ekg::ui::button::on_reload() {
 
   this->text_rect.w = text_fr.get_text_width(static_cast<std::string>(this->descriptor.text));
   this->text_rect.h = text_fr.get_text_height();
+
+  /* checkbox box square size is the same size as font renderer text height */
+
+  this->box_rect.w = this->text_rect.h;
+  this->box_rect.h = this->text_rect.h;
 
   ekg::axis pick_axis {
     ekg::axis::horizontal
@@ -48,15 +53,21 @@ void ekg::ui::button::on_reload() {
     this->descriptor.rect.w
   );
 
+  ekg::log() << "bla";
+  ekg::log() << (std::string) this->box_rect;
+
+  mask.insert({&this->box_rect, this->descriptor.box_dock});
   mask.insert({&this->text_rect, this->descriptor.text_dock});
   mask.docknize();
+
+  ekg::log() << (std::string) this->box_rect;
 }
 
-void ekg::ui::button::on_event(ekg::io::stage stage) {
+void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
   switch (stage) {
     case ekg::io::stage::process: {
       ekg::input_t &input {ekg::p_core->service_input.input};
-
+    
       if (
           input.has_motion
           ||
@@ -64,49 +75,61 @@ void ekg::ui::button::on_event(ekg::io::stage stage) {
           ||
           input.was_released
       ) {
-        this->action(
-          input.has_motion && this->states.is_hovering && ekg::timing_t::second > ekg::tweaks.task_latency,
-          ekg::action::hover
-        );
-
         ekg::io::set<bool>(
           this->states.is_highlighting,
           this->states.is_hovering
         );
-      }
 
+        ekg::io::set<bool>(
+          this->states.is[ekg::checkbox_t::box],
+          (
+            this->states.is_hovering
+            &&
+            ekg::rect_collide_vec2(
+              this->box_rect + this->get_abs_rect(),
+              static_cast<ekg::vec2_t<float>>(input.interact)
+            )
+          )
+        );
+    
+        this->action(
+          input.has_motion
+          &&
+          this->states.is_hovering
+          &&
+          ekg::timing_t::second > ekg::tweaks.task_latency,
+          ekg::action::motion
+        );
+      }
+    
       if (
-        input.was_pressed
-        &&
-        !this->states.is_active
-        &&
-        this->states.is_hovering
-        &&
-        ekg::fire("button-active")
+          input.was_pressed
+          &&
+          !this->states.is_active
+          &&
+          this->states.is_hovering
+          &&
+          ekg::fire("checkbox-active")
       ) {
         this->action(
           true,
           ekg::action::press
         );
-
-        ekg::io::set<bool>(
-          this->states.is_active,
-          true
-        );
-      } else if (
-        input.was_released
-        &&
-        this->states.is_active
-      ) {
+    
+        ekg::io::set<bool>(this->states.is_active, true);
+      } else if (input.was_released && this->states.is_active) {
         this->action(
           this->states.is_hovering,
+          ekg::action::release
+        );
+
+        this->action(
+          this->states.is_hovering
+          &&
+          (this->descriptor.value.set_value(!this->descriptor.value.get_value()) || false),
           ekg::action::active
         );
-
-        this->descriptor.value.set_value(
-          this->states.is_hovering
-        );
-
+    
         ekg::io::set<bool>(
           this->states.is_active,
           false
@@ -115,18 +138,11 @@ void ekg::ui::button::on_event(ekg::io::stage stage) {
 
       break;
     }
-
-    default: {
-      ekg::ui::abstract::on_event(stage);
-      break;
-    }
   }
 }
 
-void ekg::ui::button::on_draw() {
-  ekg::rect_t<float> &rect {
-    this->get_abs_rect()
-  };
+void ekg::ui::checkbox::on_draw() {
+  ekg::rect_t<float> &rect {this->get_abs_rect()};
 
   EKG_ASSERT_SCISSOR(
     this->scissor,
@@ -137,6 +153,12 @@ void ekg::ui::button::on_draw() {
   EKG_ASSERT_VALUE(this->descriptor.value);
   EKG_ASSERT_VALUE(this->descriptor.text);
 
+  bool is_value_true {
+    this->descriptor.value.get_value()
+  };
+
+  ekg::rect_t<float> box {this->box_rect + rect};
+
   ekg::draw::rect(
     rect,
     this->descriptor.theme.background,
@@ -144,7 +166,7 @@ void ekg::ui::button::on_draw() {
     this->descriptor.theme.layers[ekg::layer::background]
   );
 
-  if (this->states.is_highlighting) {
+  if (this->states.is_highlighting && !this->states.is[ekg::checkbox_t::box]) {
     ekg::draw::rect(
       rect,
       this->descriptor.theme.highlight,
@@ -153,20 +175,52 @@ void ekg::ui::button::on_draw() {
     );
   }
 
-  if (this->states.is_active) {
+  if (this->states.is[ekg::checkbox_t::box]) {
+    ekg::draw::rect(
+      box,
+      this->descriptor.theme.box_highlight,
+      ekg::draw_mode::filled,
+      this->descriptor.theme.layers[ekg::checkbox_t::box][ekg::layer::highlight]
+    );
+  }
+
+  ekg::draw::rect(
+    box,
+    this->descriptor.theme.box_background,
+    ekg::draw_mode::filled,
+    this->descriptor.theme.layers[ekg::checkbox_t::box][ekg::layer::background]
+  );
+
+  if (this->states.is_active && this->states.is[ekg::checkbox_t::box]) {
+    ekg::draw::rect(
+      box,
+      this->descriptor.theme.box_active,
+      ekg::draw_mode::filled,
+      this->descriptor.theme.layers[ekg::checkbox_t::box][ekg::layer::active]
+    );
+  } else if (this->states.is_active) {
     ekg::draw::rect(
       rect,
       this->descriptor.theme.active,
       ekg::draw_mode::filled,
       this->descriptor.theme.layers[ekg::layer::active]
     );
+  }
 
+  if (is_value_true) {
     ekg::draw::rect(
-      rect,
-      this->descriptor.theme.active_outline,
-      ekg::draw_mode::outline
+      box,
+      this->descriptor.theme.box_active,
+      ekg::draw_mode::filled,
+      this->descriptor.theme.layers[ekg::checkbox_t::box][ekg::layer::active]
     );
   }
+
+  ekg::draw::rect(
+    box,
+    this->descriptor.theme.box_outline,
+    ekg::draw_mode::outline
+  );
 
   ekg::draw::get_font_renderer(this->descriptor.text_font_size)
     .blit(

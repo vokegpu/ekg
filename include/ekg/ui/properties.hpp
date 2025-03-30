@@ -53,7 +53,6 @@ namespace ekg {
     ekg::properties_t *p_parent {};
     std::vector<ekg::properties_t*> children {};
     std::array<ekg::task_t*, 8> actions {};
-    std::array<ekg::sampler_t*, 7> layer {};
 
     bool is_enabled {};
     bool is_alive {};

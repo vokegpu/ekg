@@ -3,6 +3,7 @@
 
 #include "ekg/math/geometry.hpp"
 #include "ekg/ui/properties.hpp"
+#include "ekg/io/gpu.hpp"
 
 namespace ekg {
   struct frame_theme_t {
@@ -11,6 +12,11 @@ namespace ekg {
     ekg::vec4_t<float> border {};
     ekg::vec4_t<float> outline {};
     float margin_actions_offset {};
+
+    /**
+     * [0] ekg::frame_t
+     **/
+    ekg::layer_t<1> layers {};
   };
 
   struct frame_t {
