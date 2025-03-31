@@ -243,6 +243,12 @@ namespace ekg {
     }
 
     template<typename s>
+    void operator += (ekg::rect_t<s> rect) {
+      this->x += rect.x;
+      this->y += rect.y;
+    }
+
+    template<typename s>
     ekg::rect_t<t> operator + (ekg::vec4_t<s> vec) {
       return ekg::rect_t<t> {
         this->x + static_cast<t>(vec.x),
@@ -250,6 +256,12 @@ namespace ekg {
         this->w,
         this->h
       };
+    }
+
+    template<typename s>
+    void operator += (ekg::vec4_t<s> vec) {
+      this->x += vec.x;
+      this->y += vec.y;
     }
 
     template<typename s>
@@ -287,9 +299,9 @@ namespace ekg {
   template<typename t>
   constexpr bool rect_collide_vec2(ekg::rect_t<t> a, ekg::vec2_t<t> b) {
     return (
-      b.x >= a.x && b.x <= a.x + a.w
+      b.x > a.x && b.x < a.x + a.w
       &&
-      b.y >= a.y && b.y <= a.y + a.h
+      b.y > a.y && b.y < a.y + a.h
     );
   }
 

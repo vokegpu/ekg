@@ -64,14 +64,14 @@ void ekg::ui::abstract::on_event(ekg::io::stage stage) {
         ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
         this->states.is_hovering = (
-          ekg::rect_collide_vec2(rect, interact)
+          ekg::rect_collide_vec2<float>(rect, interact)
           &&
           (
             this->properties.level == ekg::level::top
             ||
             this->properties.p_parent == nullptr
             ||
-            ekg::rect_collide_vec2(this->scissor, interact)
+            ekg::rect_collide_vec2<float>(this->scissor, interact)
           )
         );
       }

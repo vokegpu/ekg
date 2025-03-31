@@ -38,7 +38,7 @@ namespace ekg {
     ekg::font text_font_size {ekg::font::normal};
     ekg::flags_t box_dock {ekg::dock::left};
     ekg::rect_t<float> rect {};
-    ekg::type type {ekg::type::button};
+    ekg::type type {ekg::type::checkbox};
     ekg::checkbox_theme_t theme {};
   };
 }

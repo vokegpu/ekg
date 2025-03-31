@@ -53,14 +53,9 @@ void ekg::ui::checkbox::on_reload() {
     this->descriptor.rect.w
   );
 
-  ekg::log() << "bla";
-  ekg::log() << (std::string) this->box_rect;
-
   mask.insert({&this->box_rect, this->descriptor.box_dock});
   mask.insert({&this->text_rect, this->descriptor.text_dock});
   mask.docknize();
-
-  ekg::log() << (std::string) this->box_rect;
 }
 
 void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
@@ -85,13 +80,13 @@ void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
           (
             this->states.is_hovering
             &&
-            ekg::rect_collide_vec2(
-              this->box_rect + this->get_abs_rect(),
+            ekg::rect_collide_vec2<float>(
+              (this->box_rect + this->get_abs_rect()),
               static_cast<ekg::vec2_t<float>>(input.interact)
             )
           )
         );
-    
+
         this->action(
           input.has_motion
           &&
@@ -138,6 +133,10 @@ void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
 
       break;
     }
+
+    default:
+      ekg::ui::abstract::on_event(stage);
+      break;
   }
 }
 
