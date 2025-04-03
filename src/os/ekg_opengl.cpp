@@ -569,7 +569,7 @@ void ekg::opengl::draw(
       } else {
         glBindTexture(GL_TEXTURE_2D, p_sampler->gl_id);
         glUniform1i(this->uniform_active_tex_slot, this->protected_texture_active_index);
-        glUniform1i(this->uniform_active_texture, EKG_ENABLE_TEXTURE);        
+        glUniform1i(this->uniform_active_texture, EKG_ENABLE_TEXTURE);
       }
 
       previous_sampler_bound = data.sampler_index;

@@ -65,7 +65,7 @@ namespace ekg {
   protected:
     std::array<ekg::layer_group_t, size> layer_groups {};
   public:
-    ekg::sampler_t* &operator[](ekg::layer layer) {
+    ekg::sampler_t *&operator[](ekg::layer layer) {
       return this->layer_groups[0][layer];
     }
 

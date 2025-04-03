@@ -2,6 +2,7 @@
 #define EKG_UI_SCROLLBAR_HPP
 
 #include "ekg/math/geometry.hpp"
+#include "ekg/ui/properties.hpp"
 
 namespace ekg {
   struct scrollbar_theme_t {
@@ -16,6 +17,11 @@ namespace ekg {
 
   struct scrollbar_t {
   public:
+    std::string tag {};
+    ekg::vec2_t<bool> axis {true, true};
+    std::vector<ekg::properties_t*> *p_binded_children {};
+    ekg::rect_t<float> *p_binded_rect {};
+    ekg::type type {ekg::type::scrollbar};
   };
 }
 

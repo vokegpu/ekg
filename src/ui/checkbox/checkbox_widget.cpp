@@ -188,7 +188,7 @@ void ekg::ui::checkbox::on_draw() {
     this->descriptor.theme.box_background,
     ekg::draw_mode::filled,
     this->descriptor.theme.layers[ekg::checkbox_t::box][ekg::layer::background]
-  );
+  ); 
 
   if (this->states.is_active && this->states.is[ekg::checkbox_t::box]) {
     ekg::draw::rect(
