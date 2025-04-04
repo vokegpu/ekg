@@ -20,12 +20,13 @@ namespace ekg::ui {
     void clamp_scroll();
     void reset_scroll();
     void check_scroll();
-    bool is_scrolling(bool should_force_disable);
+    bool is_scrolling(bool state);
     float get_horizontal_scroll_normalized();
     float get_vertical_scroll_normalized();
   public:
+    void on_create() override;
     void on_reload() override;
-    void on_event(ekg::io::stage stage);
+    void on_event(ekg::io::stage stage) override;
     void on_update() override;
     void on_draw() override;
   };
