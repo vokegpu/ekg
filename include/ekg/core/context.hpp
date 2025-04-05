@@ -41,6 +41,7 @@ namespace ekg {
 
   extern struct tweaks_t {
     int64_t task_latency {500};
+    int64_t debug {};
   } tweaks;
 
   constexpr uint32_t minimum_small_font_height {4};

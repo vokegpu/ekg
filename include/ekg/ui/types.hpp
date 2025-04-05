@@ -20,8 +20,8 @@ namespace ekg {
   };
 
   enum class level {
-    top,
-    bottom
+    bottom,
+    top
   };
 }
 
@@ -30,7 +30,14 @@ namespace ekg::ui {
   public:
     bool is_hovering {};
     bool is_highlighting {};
-    ekg::vec2_t<bool> is_scrolling {};
+
+    /**
+     * X if horizontal is scrolling;
+     * Y if vertical is scrolling;
+     * Z if horizontal is scrollable;
+     * W if vertical is scrollable;
+     **/
+    ekg::vec4_t<bool> is_scrolling {};
 
     bool is_active {};
     bool is_focused {};

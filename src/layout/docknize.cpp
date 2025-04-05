@@ -263,13 +263,13 @@ void ekg::layout::docknize_widget(
   float initial_offset {static_cast<float>(current_global_theme.scrollbar.pixel_thickness)};
 
   if (
-    p_widget_parent->states.is_scrolling.x
+    p_widget_parent->states.is_scrolling.z
     ||
-    p_widget_parent->states.is_scrolling.y
+    p_widget_parent->states.is_scrolling.w
   ) {
     initial_offset *= static_cast<float>(!current_global_theme.symmetric_layout);
-    container_rect.w -= initial_offset * static_cast<float>(p_widget_parent->states.is_scrolling.x);
-    container_rect.h -= initial_offset * static_cast<float>(p_widget_parent->states.is_scrolling.y);
+    container_rect.w -= initial_offset * static_cast<float>(p_widget_parent->states.is_scrolling.z);
+    container_rect.h -= initial_offset * static_cast<float>(p_widget_parent->states.is_scrolling.w);
   }
 
   initial_offset = (

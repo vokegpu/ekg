@@ -28,7 +28,6 @@ namespace ekg {
     constexpr static ekg::flags_t vertical {1};
   public:
     std::string tag {};
-    ekg::vec2_t<bool> axis {true, true};
     std::vector<ekg::properties_t*> *p_binded_children {};
     ekg::rect_t<float> *p_binded_rect {};
     ekg::type type {ekg::type::scrollbar};
