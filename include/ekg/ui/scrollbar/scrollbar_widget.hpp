@@ -16,6 +16,9 @@ namespace ekg::ui {
     ekg::vec4_t<float> scroll {};
     ekg::vec2_t<float> delta {};
     ekg::vec2_t<float> acceleration {};
+
+    ekg::ui::states_t bar_horizontal_states {};
+    ekg::ui::states_t bar_vertical_states {};
   public:
     void clamp_scroll();
     void reset_scroll();

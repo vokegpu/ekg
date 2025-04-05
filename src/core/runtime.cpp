@@ -155,21 +155,21 @@ void ekg::runtime::init() {
 
       if (this->draw_fr_normal.font_size != font_size) {
         this->draw_fr_small.set_size(
-          ekg::min_clamp(
+          ekg::clamp_min(
             font_size - ekg::dpi.font_offset.x,
             ekg::minimum_small_font_height
           )
         );
 
         this->draw_fr_normal.set_size(
-          ekg::min_clamp(
+          ekg::clamp_min(
             font_size,
             ekg::minimum_font_height
           )
         );
 
         this->draw_fr_big.set_size(
-          ekg::min_clamp(
+          ekg::clamp_min(
             font_size + ekg::dpi.font_offset.y,
             ekg::minimum_big_font_height
           )
@@ -229,11 +229,12 @@ void ekg::runtime::poll_events() {
     this->service_input.input
   };
 
-  bool is_on_scrolling_timeout {!ekg::reach(&input.ui_scrolling_timing, 250)};
+  bool is_on_scrolling_timeout {!ekg::reach(&input.ui_scrolling_timing, 100)};
   ekg::current.unique_id *= !(input.was_pressed || input.was_released || input.has_motion);
 
   if (
-      this->p_abs_activity_widget != nullptr &&
+      this->p_abs_activity_widget != nullptr
+      &&
       (this->p_abs_activity_widget->states.is_absolute || is_on_scrolling_timeout)
     ) {
 

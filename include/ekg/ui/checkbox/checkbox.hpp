@@ -28,7 +28,7 @@ namespace ekg {
 
   struct checkbox_t {
   public:
-    const static ekg::flags_t box {1};
+    constexpr static ekg::flags_t box {1};
   public:
     std::string tag {};
     ekg::flags_t dock {};

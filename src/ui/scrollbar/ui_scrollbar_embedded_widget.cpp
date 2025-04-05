@@ -198,7 +198,7 @@ void ekg::ui::scrollbar_embedded_widget::on_event(ekg::os::io_event_serial &io_e
     );
   }
 #else
-  bool is_horizontal_scroll {ekg::input::action("scrollbar-horizontal-scroll")};
+  bool is_horizontal_scroll {ekg::input::action("scrollbar-scroll-horizontal")};
 
   if (this->flag.scrolling && this->is_vertical_enabled && !is_horizontal_scroll) {
     this->scroll.w = ekg_clamp(

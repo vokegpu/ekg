@@ -118,7 +118,7 @@ void ekg::layout::mask::docknize() {
           count
         );
 
-        rect_width = ekg::min_clamp(
+        rect_width = ekg::clamp_min(
           ekg::layout::transform_dimension_from_extent(
             this->respective_all,
             dimensional_extent,
@@ -201,7 +201,7 @@ void ekg::layout::mask::docknize() {
       this->mask.h = dimension_height;
     }
 
-    this->mask.w = ekg::min_clamp(
+    this->mask.w = ekg::clamp_min(
       this->respective_all,
       this->mask.w
     );
@@ -381,7 +381,7 @@ void ekg::layout::docknize_widget(
         count
       );
 
-      dimensional_extent = ekg::min_clamp(
+      dimensional_extent = ekg::clamp_min(
         ekg::layout::transform_dimension_from_extent(
           container_rect.w,
           extent,
@@ -429,7 +429,7 @@ void ekg::layout::docknize_widget(
       if (is_left) {
         p_widgets->p_descriptor_rect->x = corner_bottom_left.x;
         p_widgets->p_descriptor_rect->y = (
-          ekg::min_clamp(
+          ekg::clamp_min(
             ekg::layout::transform_to_pixel_perfect_position(
               corner_top_right.y,
               corner_bottom_right.y,
@@ -461,7 +461,7 @@ void ekg::layout::docknize_widget(
         corner_bottom_right.x += current_global_theme.layout_offset;
       }
 
-      highest_bottom = ekg::min_clamp(highest_bottom, p_widgets->p_descriptor_rect->h);
+      highest_bottom = ekg::clamp_min(highest_bottom, p_widgets->p_descriptor_rect->h);
       break;
     default:
       if (is_next && is_left) {
@@ -504,7 +504,7 @@ void ekg::layout::docknize_widget(
         p_widgets->p_descriptor_rect->y = corner_top_right.y;
       }
 
-      highest_top = ekg::min_clamp(highest_top, p_widgets->p_descriptor_rect->h);
+      highest_top = ekg::clamp_min(highest_top, p_widgets->p_descriptor_rect->h);
       break;
     }
 

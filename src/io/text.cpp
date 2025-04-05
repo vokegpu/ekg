@@ -182,7 +182,7 @@ std::string ekg::utf_substr(
     at_last_index = index + utf_sequence_size == string_size;
 
     if ((at_last_index || utf_text_size >= offset) && begin == UINT64_MAX) {
-      begin = ekg::max_clamp(index, string_size);
+      begin = ekg::clamp_max(index, string_size);
     }
 
     index += utf_sequence_size;
@@ -251,7 +251,7 @@ std::string ekg::string_float64_precision(
   std::string to_string_result {std::to_string(n)};
   return to_string_result.substr(
     0,
-    ekg::max_clamp(
+    ekg::clamp_max(
       static_cast<int32_t>(to_string_result.find('.') + precision + (1 * precision)),
       static_cast<int32_t>(to_string_result.size())
     )
@@ -265,7 +265,7 @@ std::string ekg::string_float_precision(
   std::string to_string_result {std::to_string(n)};
   return to_string_result.substr(
     0,
-    ekg::max_clamp(
+    ekg::clamp_max(
       static_cast<int32_t>(to_string_result.find('.') + precision + (1 * precision)),
       static_cast<int32_t>(to_string_result.size())
     )

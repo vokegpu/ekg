@@ -185,11 +185,8 @@ void ekg::service::input::init() {
   this->insert_input_bind("scrollbar-drag", "finger-click");
   this->insert_input_bind("scrollbar-scroll", "mouse-wheel");
   this->insert_input_bind("scrollbar-scroll", "finger-swipe");
-
-  this->insert_input_bind("scrollbar-scroll", "lshift+mouse-wheel");
-  this->insert_input_bind("scrollbar-scroll", "rshift+mouse-wheel");
-  this->insert_input_bind("scrollbar-horizontal-scroll", "lshift+mouse-wheel");
-  this->insert_input_bind("scrollbar-horizontal-scroll", "rshift+mouse-wheel");
+  this->insert_input_bind("scrollbar-scroll-horizontal", "lshift+mouse-wheel");
+  this->insert_input_bind("scrollbar-scroll-horizontal", "rshift+mouse-wheel");
 }
 
 void ekg::service::input::quit() {
@@ -381,7 +378,7 @@ void ekg::service::input::on_event() {
 
       wheel_precise_interval = (wheel_precise_interval / 1000.0f);
       wheel_precise_interval = wheel_precise_interval + (static_cast<float>(wheel_precise_interval > 0.99) * 0.5f);
-      wheel_precise_interval = ekg::min_clamp<float>(wheel_precise_interval, 0.2f);
+      wheel_precise_interval = ekg::clamp_min<float>(wheel_precise_interval, 0.2f);
 
       this->input.interact.z = serialized_input_event.mouse_wheel_precise_x * wheel_precise_interval;
       this->input.interact.w = serialized_input_event.mouse_wheel_precise_y * wheel_precise_interval;
@@ -464,15 +461,15 @@ void ekg::service::input::on_event() {
 }
 
 void ekg::service::input::on_update() {
-  #ifdef EKG_INPUT_DEBUG
-  ekg::log()
-    << "scroll_speed: " << this->input.scroll_speed           << "\n"
-    << "interact: "     << (std::string) this->input.interact << "\n"
-    << "was_pressed: "  << this->input.was_pressed            << "\n"
-    << "was_released: " << this->input.was_released           << "\n"
-    << "has_motion: "   << this->input.has_motion             << "\n"
-    << "was_wheel: "    << this->input.was_wheel              << "\n"
-    << "was_typed: "    << this->input.was_typed;
+  #if defined(EKG_INPUT_DEBUG)
+    ekg::log()
+      << "scroll_speed: " << this->input.scroll_speed           << "\n"
+      << "interact: "     << (std::string) this->input.interact << "\n"
+      << "was_pressed: "  << this->input.was_pressed            << "\n"
+      << "was_released: " << this->input.was_released           << "\n"
+      << "has_motion: "   << this->input.has_motion             << "\n"
+      << "was_wheel: "    << this->input.was_wheel              << "\n"
+      << "was_typed: "    << this->input.was_typed;
   #endif
 
   ekg::reset_if_reach(&this->input.ui_timing, 1000);

@@ -32,6 +32,7 @@
 #include "ekg/ui/frame/frame_widget.hpp"
 #include "ekg/ui/label/label_widget.hpp"
 #include "ekg/ui/checkbox/checkbox_widget.hpp"
+#include "ekg/ui/scrollbar/scrollbar_widget.hpp"
 
 namespace ekg::io {
   template<typename t>
@@ -58,6 +59,10 @@ namespace ekg {
       .is_enabled = true,
       .is_alive = true,
       .is_visible = true
+    };
+
+    ekg::properties_t *p_current_parent_properties {
+      ekg::p_core->get_current_parent_properties()
     };
 
     ekg::theme_t &current_global_theme {ekg::p_core->service_theme.get_current_theme()};
@@ -168,15 +173,42 @@ namespace ekg {
         break;
       }
 
+      case ekg::type::scrollbar: {
+        ekg::scrollbar_t &scrollbar {
+          ekg::io::any_static_cast<ekg::scrollbar_t>(
+            &descriptor
+          )
+        };
+
+        ekg::ui::scrollbar *p_scrollbar {
+          ekg::io::new_widget_instance<ekg::ui::scrollbar>()
+        };
+
+        p_scrollbar->descriptor = scrollbar;
+        p_scrollbar->descriptor.theme = current_global_theme.scrollbar;
+
+        properties.p_descriptor = &p_scrollbar->descriptor;
+        properties.p_widget = p_scrollbar;
+        properties.is_docknizable = false;
+        properties.is_parentable = true;
+
+        p_created_widget = dynamic_cast<ekg::ui::abstract*>(p_scrollbar);
+
+        if (p_current_parent_properties) {
+          p_scrollbar->descriptor.p_binded_children = &p_current_parent_properties->children;
+          p_scrollbar->descriptor.p_binded_rect = (
+            static_cast<ekg::ui::abstract*>(p_current_parent_properties->p_widget)->p_descriptor_rect
+          );
+        }
+
+        break;
+      }
+
     default:
       break;
     }
 
     p_created_widget->properties = properties;
-
-    ekg::properties_t *p_current_parent_properties {
-      ekg::p_core->get_current_parent_properties()
-    };
 
     if (
       p_created_widget->properties.is_parentable

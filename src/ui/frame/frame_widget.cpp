@@ -106,23 +106,23 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
           );
 
           if (ekg::has(this->target_dock_resize, ekg::dock::left)) {
-            interact.x = ekg::min_clamp<float>(interact.x, this->rect_delta.x);
-            new_rect.x = ekg::max_clamp<float>(interact.x - this->rect_delta.x, this->rect_cache.x + this->rect_cache.w - ekg::viewport.minimum_possible_size);
+            interact.x = ekg::clamp_min<float>(interact.x, this->rect_delta.x);
+            new_rect.x = ekg::clamp_max<float>(interact.x - this->rect_delta.x, this->rect_cache.x + this->rect_cache.w - ekg::viewport.minimum_possible_size);
             new_rect.w = (this->rect_cache.x + this->rect_cache.w) - new_rect.x;
           }
 
           if (ekg::has(this->target_dock_resize, ekg::dock::right)) {
-            new_rect.w = ekg::min_clamp<float>(this->rect_delta.w + ((interact.x - new_rect.x) - this->rect_delta.x), ekg::viewport.minimum_possible_size);
+            new_rect.w = ekg::clamp_min<float>(this->rect_delta.w + ((interact.x - new_rect.x) - this->rect_delta.x), ekg::viewport.minimum_possible_size);
           }
 
           if (ekg::has(this->target_dock_resize, ekg::dock::top)) {
-            interact.y = ekg::min_clamp<float>(interact.y, this->rect_delta.y);
-            new_rect.y = ekg::max_clamp<float>(interact.y - this->rect_delta.y, this->rect_cache.y + this->rect_cache.h - ekg::viewport.minimum_possible_size);
+            interact.y = ekg::clamp_min<float>(interact.y, this->rect_delta.y);
+            new_rect.y = ekg::clamp_max<float>(interact.y - this->rect_delta.y, this->rect_cache.y + this->rect_cache.h - ekg::viewport.minimum_possible_size);
             new_rect.h = (this->rect_cache.y + this->rect_cache.h) - new_rect.y;
           }
 
           if (ekg::has(this->target_dock_resize, ekg::dock::bottom)) {
-            new_rect.h = ekg::min_clamp<float>(this->rect_delta.h + ((interact.y - new_rect.y) - this->rect_delta.y), ekg::viewport.minimum_possible_size);
+            new_rect.h = ekg::clamp_min<float>(this->rect_delta.h + ((interact.y - new_rect.y) - this->rect_delta.y), ekg::viewport.minimum_possible_size);
           }
         }
 

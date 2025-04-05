@@ -17,10 +17,10 @@ namespace ekg {
   public:
     static void flush() {
       if (ekg::log::buffered) {
-        #ifdef __ANDROID__
-        __android_log_print(ANDROID_LOG_VERBOSE, "EKG", "%s", ekg::log::buffer.str().c_str());
+        #if defined(__ANDROID__)
+          __android_log_print(ANDROID_LOG_VERBOSE, "EKG", "%s", ekg::log::buffer.str().c_str());
         #else
-        std::cout << ekg::log::buffer.str();
+          std::cout << ekg::log::buffer.str();
         #endif
 
         ekg::log::buffer = std::ostringstream {};
@@ -56,9 +56,10 @@ namespace ekg {
 
     ~log() {
       ekg::log::buffer << '\n';
-      #ifdef EKG_LOG_DEBUG
-      ekg::log::flush();
-      std::cout << std::endl;
+
+      #if defined(EKG_LOG_DEBUG)
+        ekg::log::flush();
+        std::cout << std::endl;
       #endif
     }
 

@@ -85,7 +85,7 @@ void ekg::service::theme::init() {
   dark_theme.slider.outline = ekg::color<int32_t>(202, 207, 222, 0);
   dark_theme.slider.active = ekg::color<int32_t>(44, 166, 255, 200);
   dark_theme.slider.highlight = ekg::color<int32_t>(44, 166, 255, 50);
-  dark_theme.slider.bar = ekg::color<int32_t>(44, 166, 255, 200);
+  dark_theme.slider.background = ekg::color<int32_t>(44, 166, 255, 200);
   dark_theme.slider.bar_outline = ekg::color<int32_t>(202, 207, 222, 0);
   dark_theme.slider.bar_thickness = 100;
   dark_theme.slider.target_thickness = 0;
@@ -103,7 +103,7 @@ void ekg::service::theme::init() {
   dark_theme.textbox.select = ekg::color<int32_t>(44, 166, 255, 50);
   dark_theme.scrollbar.background = ekg::color<int32_t>(85, 85, 85, 255);
   dark_theme.scrollbar.outline = ekg::color<int32_t>(202, 207, 222, 150);
-  dark_theme.scrollbar.bar = ekg::color<int32_t>(44, 166, 255, 200);
+  dark_theme.scrollbar.background = ekg::color<int32_t>(44, 166, 255, 200);
   dark_theme.scrollbar.highlight = ekg::color<int32_t>(44, 166, 255, 50);
   dark_theme.scrollbar.pixel_thickness = 4;
   dark_theme.scrollbar.min_bar_size = 30.0f;
@@ -157,7 +157,7 @@ void ekg::service::theme::init() {
   light_theme.slider.active = ekg::color<int32_t>(44, 166, 255, 200);
   light_theme.slider.outline = ekg::color<int32_t>(202, 207, 222, 0);
   light_theme.slider.highlight = ekg::color<int32_t>(44, 166, 255, 50);
-  light_theme.slider.bar = ekg::color<int32_t>(44, 166, 255, 200);
+  light_theme.slider.background = ekg::color<int32_t>(44, 166, 255, 200);
   light_theme.slider.bar_outline = ekg::color<int32_t>(44, 166, 255, 200);
   light_theme.slider.bar_thickness = 16;
   light_theme.slider.target_thickness = 0;
@@ -175,7 +175,7 @@ void ekg::service::theme::init() {
   light_theme.textbox.cursor = ekg::color<int32_t>(141, 141, 141, 255);
   light_theme.scrollbar.background = ekg::color<int32_t>(202, 202, 202, 255);
   light_theme.scrollbar.outline = ekg::color<int32_t>(202, 207, 222, 150);
-  light_theme.scrollbar.bar = ekg::color<int32_t>(44, 166, 255, 200);
+  light_theme.scrollbar.background = ekg::color<int32_t>(44, 166, 255, 200);
   light_theme.scrollbar.highlight = ekg::color<int32_t>(44, 166, 255, 50);
   light_theme.scrollbar.pixel_thickness = 4;
   light_theme.scrollbar.min_bar_size = 30.0f;
@@ -229,7 +229,7 @@ void ekg::service::theme::init() {
   light_pinky_theme.slider.active = ekg::color<int32_t>(245, 169, 184, 200);
   light_pinky_theme.slider.outline = ekg::color<int32_t>(202, 207, 222, 0);
   light_pinky_theme.slider.highlight = ekg::color<int32_t>(245, 169, 184, 50);
-  light_pinky_theme.slider.bar = ekg::color<int32_t>(245, 169, 184, 200);
+  light_pinky_theme.slider.background = ekg::color<int32_t>(245, 169, 184, 200);
   light_pinky_theme.slider.bar_outline = ekg::color<int32_t>(245, 169, 184, 200);
   light_pinky_theme.slider.bar_thickness = 16;
   light_pinky_theme.slider.target_thickness = 0;
@@ -247,7 +247,7 @@ void ekg::service::theme::init() {
   light_pinky_theme.textbox.cursor = ekg::color<int32_t>(141, 141, 141, 255);
   light_pinky_theme.scrollbar.background = ekg::color<int32_t>(202, 202, 202, 255);
   light_pinky_theme.scrollbar.outline = ekg::color<int32_t>(202, 207, 222, 150);
-  light_pinky_theme.scrollbar.bar = ekg::color<int32_t>(245, 169, 184, 200);
+  light_pinky_theme.scrollbar.background = ekg::color<int32_t>(245, 169, 184, 200);
   light_pinky_theme.scrollbar.highlight = ekg::color<int32_t>(245, 169, 184, 50);
   light_pinky_theme.scrollbar.pixel_thickness = 4;
   light_pinky_theme.scrollbar.min_bar_size = 30.0f;
@@ -301,7 +301,7 @@ void ekg::service::theme::init() {
   dark_pinky_theme.slider.outline = ekg::color<int32_t>(202, 207, 222, 0);
   dark_pinky_theme.slider.active = ekg::color<int32_t>(245, 169, 184, 200);
   dark_pinky_theme.slider.highlight = ekg::color<int32_t>(245, 169, 184, 50);
-  dark_pinky_theme.slider.bar = ekg::color<int32_t>(245, 169, 184, 200);
+  dark_pinky_theme.slider.background = ekg::color<int32_t>(245, 169, 184, 200);
   dark_pinky_theme.slider.bar_outline = ekg::color<int32_t>(202, 207, 222, 0);
   dark_pinky_theme.slider.bar_thickness = 100;
   dark_pinky_theme.slider.target_thickness = 0;
@@ -319,7 +319,7 @@ void ekg::service::theme::init() {
   dark_pinky_theme.textbox.select = ekg::color<int32_t>(245, 169, 184, 50);
   dark_pinky_theme.scrollbar.background = ekg::color<int32_t>(85, 85, 85, 255);
   dark_pinky_theme.scrollbar.outline = ekg::color<int32_t>(202, 207, 222, 150);
-  dark_pinky_theme.scrollbar.bar = ekg::color<int32_t>(245, 169, 184, 200);
+  dark_pinky_theme.scrollbar.background = ekg::color<int32_t>(245, 169, 184, 200);
   dark_pinky_theme.scrollbar.highlight = ekg::color<int32_t>(245, 169, 184, 50);
   dark_pinky_theme.scrollbar.pixel_thickness = 4;
   dark_pinky_theme.scrollbar.min_bar_size = 30.0f;

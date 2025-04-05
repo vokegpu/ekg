@@ -342,18 +342,18 @@ namespace ekg {
   }
 
   template<typename t>
-  constexpr t min_clamp(t a, t b) {
+  constexpr t clamp_min(t a, t b) {
     return a < b ? b : a;
   }
 
   template<typename t>
-  constexpr t max_clamp(t a, t b) {
+  constexpr t clamp_max(t a, t b) {
     return a > b ? b : a;
   }
 
   template<typename t>
   constexpr t clamp(t a, t b, t c) {
-    return ekg::min_clamp(ekg::max_clamp(a, c), b);
+    return ekg::clamp_min(ekg::clamp_max(a, c), b);
   }
 
   template<typename t>
@@ -363,11 +363,16 @@ namespace ekg {
   ) {
     const t zero {}; 
     return ekg::rect_t<t> {
-      ekg::min_clamp<t>(rect.x, zero),
-      ekg::min_clamp<t>(rect.y, zero),
-      ekg::max_clamp<t>(rect.w, square),
-      ekg::max_clamp<t>(rect.h, square)
+      ekg::clamp_min<t>(rect.x, zero),
+      ekg::clamp_min<t>(rect.y, zero),
+      ekg::clamp_max<t>(rect.w, square),
+      ekg::clamp_max<t>(rect.h, square)
     };
+  }
+
+  template<typename t>
+  constexpr t lerp(t x, t y, t delta) {
+    return x + (y - x) * delta;
   }
 
   struct rect_descriptor_t {
@@ -406,8 +411,8 @@ namespace ekg {
         )
       );
 
-      aligned.w = ekg::min_clamp<float>(rect.w + aligned.offset * 2, minimum_size);
-      aligned.h = ekg::min_clamp<float>(rect.h + dimension_offset, minimum_size);
+      aligned.w = ekg::clamp_min<float>(rect.w + aligned.offset * 2, minimum_size);
+      aligned.h = ekg::clamp_min<float>(rect.h + dimension_offset, minimum_size);
       break;
     case ekg::axis::vertical:
       dimension_offset = (
@@ -424,8 +429,8 @@ namespace ekg {
         )
       );
 
-      aligned.h = ekg::min_clamp<float>(rect.h + aligned.offset * 2, minimum_size);
-      aligned.w = ekg::min_clamp<float>(rect.w + dimension_offset, minimum_size);
+      aligned.h = ekg::clamp_min<float>(rect.h + aligned.offset * 2, minimum_size);
+      aligned.w = ekg::clamp_min<float>(rect.w + dimension_offset, minimum_size);
       break;
     }
   }

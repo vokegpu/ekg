@@ -68,7 +68,7 @@ float ekg::draw::font_renderer::get_text_width(std::string_view text, int32_t &l
     break_text = char8 == '\n';
     if (break_text || (r_n_break_text = (char8 == '\r' && it < text_size && text.at(it + 1) == '\n'))) {
       it += static_cast<uint64_t>(r_n_break_text);
-      largest_text_width = ekg::min_clamp(largest_text_width, text_width);
+      largest_text_width = ekg::clamp_min(largest_text_width, text_width);
       text_width = 0.0f;
       lines_count++;
       continue;
@@ -115,8 +115,8 @@ float ekg::draw::font_renderer::get_text_width(std::string_view text, int32_t &l
     text_width += this->mapped_glyph_char_data[char32].wsize;
   }
 
-  lines = ekg::min_clamp(lines, lines_count);
-  largest_text_width = ekg::min_clamp(largest_text_width, text_width);
+  lines = ekg::clamp_min(lines, lines_count);
+  largest_text_width = ekg::clamp_min(largest_text_width, text_width);
 
   return largest_text_width;
 }
@@ -157,7 +157,7 @@ float ekg::draw::font_renderer::get_text_width(std::string_view text) {
     break_text = char8 == '\n';
     if (break_text || (r_n_break_text = (char8 == '\r' && it < text_size && text.at(it + 1) == '\n'))) {
       it += static_cast<uint64_t>(r_n_break_text);
-      largest_text_width = ekg::min_clamp(largest_text_width, text_width);
+      largest_text_width = ekg::clamp_min(largest_text_width, text_width);
       text_width = 0.0f;
       continue;
     }
@@ -203,7 +203,7 @@ float ekg::draw::font_renderer::get_text_width(std::string_view text) {
     text_width += char_data.wsize;
   }
 
-  largest_text_width = ekg::min_clamp(largest_text_width, text_width);
+  largest_text_width = ekg::clamp_min(largest_text_width, text_width);
   return largest_text_width;
 }
 
@@ -339,14 +339,14 @@ void ekg::draw::font_renderer::reload() {
     char_data.wsize = static_cast<float>(static_cast<int32_t>(ft_glyph_slot->advance.x >> 6));
 
     this->atlas_rect.w += static_cast<int32_t>(char_data.w);
-    this->atlas_rect.h = ekg::min_clamp<int32_t>(this->atlas_rect.h, static_cast<int32_t>(char_data.h));
+    this->atlas_rect.h = ekg::clamp_min<int32_t>(this->atlas_rect.h, static_cast<int32_t>(char_data.h));
 
-    p_font_face_picked->highest_glyph_size.x = ekg::min_clamp(
+    p_font_face_picked->highest_glyph_size.x = ekg::clamp_min(
       static_cast<int32_t>(p_font_face_picked->highest_glyph_size.x),
       static_cast<int32_t>(char_data.w)
     );
 
-    p_font_face_picked->highest_glyph_size.y = ekg::min_clamp(
+    p_font_face_picked->highest_glyph_size.y = ekg::clamp_min(
       static_cast<int32_t>(p_font_face_picked->highest_glyph_size.y),
       static_cast<int32_t>(char_data.h)
     );

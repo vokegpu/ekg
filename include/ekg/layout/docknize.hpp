@@ -72,7 +72,7 @@ namespace ekg::layout {
     float container_dimension,
     float offset
   ) {
-    return ekg::min_clamp(
+    return ekg::clamp_min(
       (
         (side_a + (container_dimension - side_a) + offset)
         -

@@ -30,14 +30,14 @@ void ekg::ui::checkbox::on_reload() {
     aligned_dimension
   );
 
-  this->descriptor.rect.scaled_height = ekg::min_clamp<float>(this->descriptor.rect.scaled_height, ekg::pixel);
+  this->descriptor.rect.scaled_height = ekg::clamp_min<float>(this->descriptor.rect.scaled_height, ekg::pixel);
   
   if (this->properties.must_refresh_size) {
-    this->descriptor.rect.w = ekg::min_clamp<float>(aligned_dimension.w, this->descriptor.rect.w);
+    this->descriptor.rect.w = ekg::clamp_min<float>(aligned_dimension.w, this->descriptor.rect.w);
     this->properties.must_refresh_size = false;
   }
 
-  this->descriptor.rect.h = ekg::min_clamp<float>(aligned_dimension.h * this->descriptor.rect.scaled_height, this->descriptor.rect.h);
+  this->descriptor.rect.h = ekg::clamp_min<float>(aligned_dimension.h * this->descriptor.rect.scaled_height, this->descriptor.rect.h);
   
   ekg::layout::mask &mask {
     ekg::p_core->layout_mask 
