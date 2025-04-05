@@ -227,6 +227,8 @@ namespace ekg {
     );
 
     if (p_created_widget->properties.is_docknizable) {
+      p_created_widget->properties.p_abs_parent = &p_created_widget->properties;
+
       ekg::p_core->set_current_parent_properties(
         &p_created_widget->properties
       );

@@ -68,9 +68,12 @@ void ekg::gpu::get_standard_fragment_shader(
        * calling command buffers to GPU rastarizer.
        **/
       bool shouldDiscard = (
-        fragPos.x <= uContent[4] ||
-        fragPos.y <= uContent[5] ||
-        fragPos.x >= uContent[4] + uContent[6] ||
+        fragPos.x <= uContent[4]
+        ||
+        fragPos.y <= uContent[5]
+        ||
+        fragPos.x >= uContent[4] + uContent[6]
+        ||
         fragPos.y >= uContent[5] + uContent[7]
       );
 

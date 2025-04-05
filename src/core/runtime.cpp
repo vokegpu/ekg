@@ -41,7 +41,7 @@ void ekg::runtime::init() {
 
       for (std::unique_ptr<ekg::ui::abstract> &p_widget : this->loaded_widget_list) {
         if (
-            p_widget->properties.p_abs_parent != nullptr
+            p_widget->properties.p_abs_parent == nullptr
             ||
             /**
              * TODO: check this right
@@ -50,7 +50,7 @@ void ekg::runtime::init() {
           ) {
           continue;
         }
-
+ 
         this->swap_target_collector.was_target_found = false;
         this->swap_target_collector.storage.clear();
 
@@ -64,7 +64,11 @@ void ekg::runtime::init() {
         }
 
         if (this->swap_target_collector.was_target_found) {
-          top_level_widget_list = this->swap_target_collector.storage; // idk i be brain dead
+          top_level_widget_list.insert(
+            top_level_widget_list.begin(),
+            this->swap_target_collector.storage.begin(),
+            this->swap_target_collector.storage.end()
+          );
         } else {
           this->context_widget_list.insert(
             this->context_widget_list.end(),
@@ -331,6 +335,7 @@ void ekg::runtime::poll_events() {
   if (p_widget_focused) {
     p_widget_focused->states.is_absolute && (this->p_abs_activity_widget = p_widget_focused);
     ekg::current.type = p_widget_focused->properties.type;
+    ekg::current.unique_id = p_widget_focused->properties.unique_id;
 
     p_widget_focused->on_event(ekg::io::stage::pre);
     p_widget_focused->on_event(ekg::io::stage::process);
