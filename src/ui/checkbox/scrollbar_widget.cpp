@@ -404,27 +404,25 @@ void ekg::ui::scrollbar::on_event(ekg::io::stage stage) {
 }
 
 void ekg::ui::scrollbar::on_update() {
-  float delta {
+  float speed {
     ekg::p_core->service_input.input.scroll_speed
-    *
-    ekg::viewport.dt
   };
 
   this->scroll.x = ekg::lerp<float>(
     this->scroll.x,
     this->scroll.z,
-    delta
+    ekg::viewport.dt * this->acceleration.x * speed
   );
 
   this->scroll.y = ekg::lerp<float>(
     this->scroll.y,
     this->scroll.w,
-    delta
+    ekg::viewport.dt * this->acceleration.y * speed
   );
 
   #if defined(__ANDROID__)
-    this->clamp_scroll();
   #endif
+  this->clamp_scroll();
 
   if (
       (

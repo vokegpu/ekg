@@ -254,3 +254,4 @@
 -- Frame widget impl. on new memory-model.
 -- Button widget impl. on new memory-model.
 -- Label widget impl. on new memory-model.
+-- Scrollbar widget impl. on new memory-model.
