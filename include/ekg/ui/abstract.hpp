@@ -28,6 +28,7 @@
 #include "ekg/ui/properties.hpp"
 #include "ekg/math/geometry.hpp"
 #include "ekg/io/input.hpp"
+#include "ekg/io/task.hpp"
 
 #define EKG_ASSERT_VALUE(value) if (value.was_changed && !(value.was_changed = false)) ekg::p_core->dispatch_widget_op(this, ekg::io::operation::reload);
 
@@ -50,11 +51,6 @@ namespace ekg::ui {
     ekg::rect_t<float> *p_parent_scissor_rect {};
   public:
     ekg::rect_t<float> &get_abs_rect();
-
-    void action(
-      bool must_trigger,
-      ekg::action action
-    );
   public:
     virtual void on_create();
     virtual void on_destroy();

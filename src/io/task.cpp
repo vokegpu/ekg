@@ -38,3 +38,24 @@ void ekg::io::dispatch(
     break;
   }
 }
+
+void ekg::io::trigger(
+  bool must_trigger,
+  ekg::action action,
+  ekg::actions actions
+) {
+  ekg::task_t *&p_task {
+    actions[action]
+  };
+
+  if (
+    p_task == nullptr
+    ||
+    !must_trigger
+  ) {
+    return;
+  }
+
+  ekg::log(p_task->info.tag);
+  p_task->function(p_task->info);
+}

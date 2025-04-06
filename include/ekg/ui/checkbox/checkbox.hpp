@@ -5,6 +5,7 @@
 #include "ekg/io/gpu.hpp"
 #include "ekg/io/typography.hpp"
 #include "ekg/ui/types.hpp"
+#include "ekg/io/task.hpp"
 
 namespace ekg {
   struct checkbox_theme_t {
@@ -20,8 +21,8 @@ namespace ekg {
     ekg::vec4_t<float> box_active {};
 
     /**
-     * [0] ekg::checkbox_t
-     * [1] ekg::checkbox_t::box
+     * [0] ekg::checkbox_t;
+     * [1] ekg::checkbox_t::box;
      **/
     ekg::layer_t<2> layers {};
   };
@@ -39,6 +40,7 @@ namespace ekg {
     ekg::flags_t box_dock {ekg::dock::left};
     ekg::rect_t<float> rect {};
     ekg::type type {ekg::type::checkbox};
+    ekg::actions actions {};
     ekg::checkbox_theme_t theme {};
   };
 }

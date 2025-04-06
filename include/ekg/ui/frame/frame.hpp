@@ -4,6 +4,7 @@
 #include "ekg/math/geometry.hpp"
 #include "ekg/ui/properties.hpp"
 #include "ekg/io/gpu.hpp"
+#include "ekg/io/task.hpp"
 
 namespace ekg {
   struct frame_theme_t {
@@ -14,7 +15,7 @@ namespace ekg {
     float margin_actions_offset {};
 
     /**
-     * [0] ekg::frame_t
+     * [0] ekg::frame_t;
      **/
     ekg::layer_t<1> layers {};
   };
@@ -29,6 +30,7 @@ namespace ekg {
     ekg::type type {ekg::type::frame};
     ekg::top_level_t top_level {};
     ekg::level level {ekg::level::bottom}; // wtfffffffffffffffff
+    ekg::actions actions {};
     ekg::frame_theme_t theme {};
   public:
     ekg::properties_t *p_properties {};

@@ -64,9 +64,16 @@ void ekg::ui::button::on_event(ekg::io::stage stage) {
           ||
           input.was_released
       ) {
-        this->action(
-          input.has_motion && this->states.is_hovering && ekg::timing_t::second > ekg::tweaks.task_latency,
-          ekg::action::hover
+        ekg::io::trigger(
+          (
+            input.has_motion
+            &&
+            this->states.is_hovering
+            &&
+            (ekg::timing_t::second > ekg::tweaks.task_latency)
+          ),
+          ekg::action::hover,
+          this->descriptor.actions
         );
 
         ekg::io::set<bool>(
@@ -84,9 +91,10 @@ void ekg::ui::button::on_event(ekg::io::stage stage) {
         &&
         ekg::fire("button-active")
       ) {
-        this->action(
+        ekg::io::trigger(
           true,
-          ekg::action::press
+          ekg::action::press,
+          this->descriptor.actions
         );
 
         ekg::io::set<bool>(
@@ -98,9 +106,10 @@ void ekg::ui::button::on_event(ekg::io::stage stage) {
         &&
         this->states.is_active
       ) {
-        this->action(
+        ekg::io::trigger(
           this->states.is_hovering,
-          ekg::action::active
+          ekg::action::active,
+          this->descriptor.actions
         );
 
         this->descriptor.value.set_value(

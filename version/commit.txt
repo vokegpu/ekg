@@ -256,3 +256,4 @@
 -- Label widget impl. on new memory-model.
 -- Scrollbar widget impl. on new memory-model.
 -- Scrollbar scrolling speed fix.
+-- Moved callback-actions to descriptors instead as before in properties, also actions are type-based named `ekg::actions`.

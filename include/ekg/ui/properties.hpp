@@ -27,7 +27,6 @@
 
 #include "ekg/io/memory.hpp"
 #include "ekg/math/geometry.hpp"
-#include "ekg/io/task.hpp"
 #include "ekg/io/gpu.hpp"
 #include "ekg/ui/types.hpp"
 
@@ -52,7 +51,6 @@ namespace ekg {
     ekg::properties_t *p_abs_parent {};
     ekg::properties_t *p_parent {};
     std::vector<ekg::properties_t*> children {};
-    std::array<ekg::task_t*, 8> actions {};
 
     bool is_enabled {};
     bool is_alive {};

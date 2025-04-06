@@ -5,6 +5,7 @@
 #include "ekg/io/typography.hpp"
 #include "ekg/io/gpu.hpp"
 #include "ekg/ui/types.hpp"
+#include "ekg/io/task.hpp"
 
 namespace ekg {
   struct label_theme_t {
@@ -14,7 +15,7 @@ namespace ekg {
     ekg::vec4_t<float> background {};
 
     /**
-     * [0] ekg::label_t
+     * [0] ekg::label_t;
      **/
     ekg::layer_t<1> layers {};
   };
@@ -28,6 +29,7 @@ namespace ekg {
     ekg::font text_font_size {ekg::font::normal};
     ekg::rect_t<float> rect {};
     ekg::type type {ekg::type::label};
+    ekg::actions actions {};
     ekg::label_theme_t theme {};
   };
 }
