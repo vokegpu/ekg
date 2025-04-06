@@ -31,7 +31,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
           (ekg::timing_t::second > ekg::tweaks.task_latency)
         ),
         ekg::action::motion,
-        this->descriptor.actions
+        this->descriptor.actions,
+        this->properties
       );
 
       if (
@@ -88,7 +89,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
         ekg::io::trigger(
           true,
           ekg::action::press,
-          this->descriptor.actions
+          this->descriptor.actions,
+          this->properties
         );
       } else if (input.has_motion && this->states.is_active) {
         ekg::rect_t<float> new_rect {rect};
@@ -100,7 +102,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
           ekg::io::trigger(
             ekg::timing_t::second > ekg::tweaks.task_latency,
             ekg::action::drag,
-            this->descriptor.actions
+            this->descriptor.actions,
+            this->properties
           );
 
           new_rect.x = interact.x - this->rect_delta.x;
@@ -112,7 +115,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
           ekg::io::trigger(
             ekg::timing_t::second > ekg::tweaks.task_latency,
             ekg::action::resize,
-            this->descriptor.actions
+            this->descriptor.actions,
+            this->properties
           );
 
           if (ekg::has(this->target_dock_resize, ekg::dock::left)) {
@@ -213,7 +217,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
           ekg::io::trigger(
             this->states.is_hovering,
             ekg::action::release,
-            this->descriptor.actions
+            this->descriptor.actions,
+this->properties
           );
         }
 

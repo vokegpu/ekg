@@ -96,7 +96,8 @@ void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
             (ekg::timing_t::second > ekg::tweaks.task_latency)
           ),
           ekg::action::motion,
-          this->descriptor.actions
+          this->descriptor.actions,
+          this->properties
         );
       }
     
@@ -112,7 +113,8 @@ void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
         ekg::io::trigger(
           true,
           ekg::action::press,
-          this->descriptor.actions
+          this->descriptor.actions,
+          this->properties
         );
     
         ekg::io::set<bool>(this->states.is_active, true);
@@ -120,7 +122,8 @@ void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
         ekg::io::trigger(
           this->states.is_hovering,
           ekg::action::release,
-          this->descriptor.actions
+          this->descriptor.actions,
+          this->properties
         );
 
         ekg::io::trigger(
@@ -130,7 +133,8 @@ void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
             (this->descriptor.value.set_value(!this->descriptor.value.get_value()) || true)
           ),
           ekg::action::active,
-          this->descriptor.actions
+          this->descriptor.actions,
+          this->properties
         );
 
         ekg::io::set<bool>(

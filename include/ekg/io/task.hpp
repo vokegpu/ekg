@@ -72,7 +72,8 @@ namespace ekg::io {
   void trigger(
     bool must_trigger,
     ekg::action action,
-    ekg::actions actions
+    ekg::actions actions,
+    ekg::properties_t *p_properties
   );
 
   template<typename t>
