@@ -1,6 +1,6 @@
 # 🐄 EKG 🐈
 
-EKG is a descriptor-based low-latency UI-toolkit for desktop-app(s), mobile-app(s) and high-performance rendering runtime(s). Offers platform(s) interface support and graphic(s) API interace support.
+EKG is a descriptor-based low-latency UI-toolkit for desktop-apps, mobile-apps, and high-performance apps. Offers multi-support for platforms and graphics API(s).
 
 **Note: EKG is not stable yet.**
 
