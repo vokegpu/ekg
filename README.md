@@ -86,5 +86,3 @@ ekg::init(&ekg_runtime, &ekg_runtime_property);
 Supported GPU API(s): OpenGL3+, OpenGLES3.
 
 Supported platform(s): SDL2, GLFW.
-
-EKG does not have yet dynamic multi-face font-rendering, but soon.
