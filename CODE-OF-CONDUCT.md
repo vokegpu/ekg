@@ -15,6 +15,8 @@ Maintaing EKG is a voluntary work, BUT VokeGpu does not allow any of these thing
 ### Coding-Guide Style 🦭
 
 As mentioned PR(s) MUST follow the coding-guide style, it is very important to follow, so, the code-design fit as should be VokeGpu standard.
+
+Coding-guide style:  
 https://github.com/vokegpu/code-of-conduct-and-style-guide
 
 🐮
