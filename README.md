@@ -1,8 +1,12 @@
 # 🐄 EKG 🐈
 
-High-performance, descriptor-based, low-latency, multi-platform, modular GPU-accelerated GUI library written for C++.
+EKG is a descriptor-based low-latency UI-toolkit for desktop-app(s), mobile-app(s) and high-performance rendering runtime(s). Offers platform(s) interface support and graphic(s) API interace support.
 
 **Note: EKG is not stable yet.**
+
+Contributing for EKG is nicely welcome, just take a look on [code of conduct](./CODE-OF-CONDUCT) and [VokeGpu library coding-guide style](https://github.com/vokegpu/code-of-conduct-and-style-guide).
+
+### GUIs with EKG
 
 Creating a simple frame:
 
@@ -63,11 +67,7 @@ Others widgets are being re-implemented in this new memory-model, also new futur
 May you want to know about this new memory-model or about EKG more, go here.  
 [EKG Docs](https://github.com/vokegpu/ekg-docs)
 
-# Contributing
-
-[EKG Code of Conduct and Guide-Style](https://github.com/vokegpu/code-of-conduct-and-style-guide)
-
-# Using
+### Initializing EKG
 
 EKG is a modular library, which does not necessary have one unique base, for example the platform used, supporting SDL2, GLFW and soon others.
 
