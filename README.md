@@ -66,3 +66,25 @@ May you want to know about this new memory-model or about EKG more, go here.
 # Contributing
 
 [EKG Code of Conduct and Guide-Style](https://github.com/vokegpu/code-of-conduct-and-style-guide)
+
+# Using
+
+EKG is a modular library, which does not necessary have one unique base, for example the platform used, supporting SDL2, GLFW and soon others.
+
+```cpp
+ekg::runtime_property_t ekg_runtime_property {
+  .font_path = "default.ttf",
+  .font_path_emoji = "default-emoji.ttf",
+  .p_gpu_api = new ekg::opengl(),
+  .p_os_platform = new ekg::sdl(p_win_sdl)
+};
+
+ekg::runtime ekg_runtime {};
+ekg::init(&ekg_runtime, &ekg_runtime_property);
+```
+
+Supported GPU API(s): OpenGL3+, OpenGLES3.
+
+Supported platform(s): SDL2, GLFW.
+
+EKG does not have yet dynamic multi-face font-rendering, but soon.
