@@ -7,5 +7,9 @@ libglfw3-dev \
 cmake \
 gcc \
 git \
+make \
+g++ \
+build-essential \
+ninja-build \
 libxft-dev && \
 git clone https://github.com/vokegpu/ekg-ui-library.git

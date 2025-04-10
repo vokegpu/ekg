@@ -14,7 +14,6 @@ if [[ "$EKG_BUILD_MODE" ==  "$MODE_BUILD_AND_TEST" ]]; then
     -B ./cmake-build \
     -G Ninja \
     -D CMAKE_EXPORT_COMPILE_COMMANDS=1 \
-    -D CMAKE_CXX_COMPILER=$EKG_BUILD_COMPILER \
     -D CMAKE_BUILD_TYPE=Release \
     -D CMAKE_INSTALL_PREFIX=./ekg-cmake-install
 
