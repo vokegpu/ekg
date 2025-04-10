@@ -12,7 +12,7 @@ namespace ekg {
     ekg::vec4_t<float> background {};
     ekg::vec4_t<float> border {};
     ekg::vec4_t<float> outline {};
-    float margin_actions_offset {};
+    ekg::pixel_thickness_t actions_margin_pixel_thickness {};
 
     /**
      * [0] ekg::frame_t;

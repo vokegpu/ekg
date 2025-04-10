@@ -13,7 +13,7 @@ namespace ekg {
     ekg::vec4_t<float> outline {};
     ekg::vec4_t<float> highlight {};
     ekg::vec4_t<float> active {};
-    int32_t pixel_thickness {};
+    ekg::pixel_thickness_t pixel_thickness {};
     float min_bar_size {};
 
     /**

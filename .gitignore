@@ -9,7 +9,9 @@ test/cmake-build-cache
 lib/
 .sublime-project.sublime-workspace
 *.sublime-workspace
+
 ekg-ui-library.sublime-workspace
 ekg-sandbox
+ekg-docs
 ekg-cmake-install
 a.out # idk wha damn is this

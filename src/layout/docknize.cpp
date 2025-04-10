@@ -260,27 +260,32 @@ void ekg::layout::docknize_widget(
 
   ekg::rect_t<float> container_rect {abs_parent_rect};
   ekg::theme_t &current_global_theme {ekg::theme()};
-  float initial_offset {static_cast<float>(current_global_theme.scrollbar.pixel_thickness)};
+
+  float margin {static_cast<float>(current_global_theme.layout_margin_thickness) * 2.0f};
+  container_rect.w -= margin;
+  container_rect.h -= margin;
+
+  /**
+   * Pixel correction to make margin aligned and symmetric. 
+   **/
+  container_rect.w -= (
+    static_cast<ekg::pixel_thickness_t>(abs_parent_rect.w - container_rect.w)
+    -
+    current_global_theme.layout_margin_thickness
+  );
 
   if (
     p_widget_parent->states.is_scrolling.z
     ||
     p_widget_parent->states.is_scrolling.w
   ) {
-    initial_offset *= static_cast<float>(!current_global_theme.symmetric_layout);
-    container_rect.w -= initial_offset * static_cast<float>(p_widget_parent->states.is_scrolling.z);
-    container_rect.h -= initial_offset * static_cast<float>(p_widget_parent->states.is_scrolling.w);
+    float nearest_scroll_bar_thickness {
+      static_cast<float>(p_widget_parent->states.nearest_scroll_bar_thickness)
+    };
+
+    container_rect.w -= nearest_scroll_bar_thickness * static_cast<float>(p_widget_parent->states.is_scrolling.w);
+    container_rect.h -= nearest_scroll_bar_thickness * static_cast<float>(p_widget_parent->states.is_scrolling.z);
   }
-
-  initial_offset = (
-    static_cast<float>(current_global_theme.scrollbar.pixel_thickness)
-    *
-    static_cast<float>(current_global_theme.symmetric_layout)
-  );
-
-  float container_size_offset {(initial_offset + current_global_theme.layout_offset) * 2.0f};
-  container_rect.w -= container_size_offset;
-  container_rect.h -= container_size_offset;
 
   ekg::ui::abstract *p_widgets {};
   ekg::flags_t flags {};
@@ -291,8 +296,8 @@ void ekg::layout::docknize_widget(
   int32_t count {};
 
   ekg::rect_t<float> parent_offset {
-    current_global_theme.layout_offset + initial_offset,
-    current_global_theme.layout_offset + initial_offset,
+    margin,
+    margin,
     0.0f,
     0.0f
   };
@@ -334,7 +339,7 @@ void ekg::layout::docknize_widget(
   );
 
   float align {};
-  float imperfect_pixel_max_bounding {pixel_perfect_projection.x + ekg::pixel * 5.0f};
+  float imperfect_pixel_max_bounding {pixel_perfect_projection.x + ekg::one_pixel * 5.0f};
   float projected_pixel_perfect_width {pixel_perfect_projection.x + pixel_perfect_projection.w};
   float unsolved_pixel_position {};
 

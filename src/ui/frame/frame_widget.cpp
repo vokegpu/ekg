@@ -46,8 +46,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
         ) {
 
         ekg::vec2_t<float> margin {
-          this->descriptor.theme.margin_actions_offset,
-          this->descriptor.theme.margin_actions_offset
+          static_cast<float>(this->descriptor.theme.actions_margin_pixel_thickness),
+          static_cast<float>(this->descriptor.theme.actions_margin_pixel_thickness)
         };
 
         ekg::scale_docker_by_margin<float>(
@@ -175,8 +175,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
         !this->states.is_active
       ) {
         ekg::vec2_t<float> margin {
-          this->descriptor.theme.margin_actions_offset,
-          this->descriptor.theme.margin_actions_offset
+          static_cast<float>(this->descriptor.theme.actions_margin_pixel_thickness),
+          static_cast<float>(this->descriptor.theme.actions_margin_pixel_thickness)
         };
 
         const float margin_factor {4.0f};

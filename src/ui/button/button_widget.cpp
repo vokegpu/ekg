@@ -25,7 +25,7 @@ void ekg::ui::button::on_reload() {
     aligned_dimension
   );
 
-  this->descriptor.rect.scaled_height = ekg::clamp_min<float>(this->descriptor.rect.scaled_height, ekg::pixel);
+  this->descriptor.rect.scaled_height = ekg::clamp_min<float>(this->descriptor.rect.scaled_height, ekg::one_pixel);
   
   if (this->properties.must_refresh_size) {
     this->descriptor.rect.w = ekg::clamp_min<float>(aligned_dimension.w, this->descriptor.rect.w);
