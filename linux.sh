@@ -1,10 +1,11 @@
+#!/bin/bash
 echo EKG building starting...
 
 MODE_BUILD_AND_TEST="build-and-test"
 MODE_BUILD_ONLY="build-only"
 MODE_COMPILER_EMSCRIPTEN="emscripten"
 
-echo "Building EKG in mode: $EKG_BUILD_MODE; with following compiler: $EKG_BUILD_COMPILER"
+echo -e "Building EKG in mode: $EKG_BUILD_MODE; with following compiler: $EKG_BUILD_COMPILER"
 
 if [[ "$EKG_BUILD_MODE" ==  "$MODE_BUILD_AND_TEST" ]]; then
 
