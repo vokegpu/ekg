@@ -22,9 +22,17 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
       ekg::input_t &input {ekg::p_core->service_input.input};
       ekg::flags_t resize_over_dock {};
 
-      this->action(
-        input.has_motion && this->states.is_hovering && (ekg::timing_t::second > ekg::tweaks.task_latency),
-        ekg::action::motion
+      ekg::io::trigger(
+        (
+          input.has_motion
+          &&
+          this->states.is_hovering
+          &&
+          (ekg::timing_t::second > ekg::tweaks.task_latency)
+        ),
+        ekg::action::motion,
+        this->descriptor.actions,
+        this->properties
       );
 
       if (
@@ -38,8 +46,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
         ) {
 
         ekg::vec2_t<float> margin {
-          this->descriptor.theme.margin_actions_offset,
-          this->descriptor.theme.margin_actions_offset
+          static_cast<float>(this->descriptor.theme.actions_margin_pixel_thickness),
+          static_cast<float>(this->descriptor.theme.actions_margin_pixel_thickness)
         };
 
         ekg::scale_docker_by_margin<float>(
@@ -78,9 +86,11 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
         this->states.is_active = this->target_dock_drag != ekg::dock::none || this->target_dock_resize != ekg::dock::none;
         this->states.is_absolute = this->states.is_active;
 
-        this->action(
+        ekg::io::trigger(
           true,
-          ekg::action::press
+          ekg::action::press,
+          this->descriptor.actions,
+          this->properties
         );
       } else if (input.has_motion && this->states.is_active) {
         ekg::rect_t<float> new_rect {rect};
@@ -89,9 +99,11 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
         resize_over_dock = this->target_dock_resize;
 
         if (this->target_dock_drag != ekg::dock::none && this->target_dock_resize == ekg::dock::none) {
-          this->action(
+          ekg::io::trigger(
             ekg::timing_t::second > ekg::tweaks.task_latency,
-            ekg::action::drag
+            ekg::action::drag,
+            this->descriptor.actions,
+            this->properties
           );
 
           new_rect.x = interact.x - this->rect_delta.x;
@@ -100,9 +112,11 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
         }
 
         if (this->target_dock_resize != ekg::dock::none) {
-          this->action(
+          ekg::io::trigger(
             ekg::timing_t::second > ekg::tweaks.task_latency,
-            ekg::action::resize
+            ekg::action::resize,
+            this->descriptor.actions,
+            this->properties
           );
 
           if (ekg::has(this->target_dock_resize, ekg::dock::left)) {
@@ -161,8 +175,8 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
         !this->states.is_active
       ) {
         ekg::vec2_t<float> margin {
-          this->descriptor.theme.margin_actions_offset,
-          this->descriptor.theme.margin_actions_offset
+          static_cast<float>(this->descriptor.theme.actions_margin_pixel_thickness),
+          static_cast<float>(this->descriptor.theme.actions_margin_pixel_thickness)
         };
 
         const float margin_factor {4.0f};
@@ -200,9 +214,11 @@ void ekg::ui::frame::on_event(ekg::io::stage stage) {
         if (this->states.is_active) {
           this->states.is_absolute = false;
 
-          this->action(
+          ekg::io::trigger(
             this->states.is_hovering,
-            ekg::action::release
+            ekg::action::release,
+            this->descriptor.actions,
+this->properties
           );
         }
 

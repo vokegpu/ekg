@@ -39,6 +39,11 @@ namespace ekg::ui {
      **/
     ekg::vec4_t<bool> is_scrolling {};
 
+    /**
+     * The nearest-bar pixel-thicnkess;
+     **/
+    ekg::pixel_thickness_t nearest_scroll_bar_thickness {};
+
     bool is_active {};
     bool is_focused {};
 

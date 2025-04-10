@@ -5,6 +5,7 @@
 #include "ekg/io/typography.hpp"
 #include "ekg/io/gpu.hpp"
 #include "ekg/ui/types.hpp"
+#include "ekg/io/task.hpp"
 
 namespace ekg {
   struct button_theme_t {
@@ -17,7 +18,7 @@ namespace ekg {
     ekg::vec4_t<float> highlight {};
 
     /**
-     * [0] ekg::button_t
+     * [0] ekg::button_t;
      **/
     ekg::layer_t<1> layers {};
   };
@@ -32,6 +33,7 @@ namespace ekg {
     ekg::font text_font_size {ekg::font::normal};
     ekg::rect_t<float> rect {};
     ekg::type type {ekg::type::button};
+    ekg::actions actions {};
     ekg::button_theme_t theme {};
   };
 }

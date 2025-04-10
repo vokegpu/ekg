@@ -30,7 +30,7 @@ void ekg::ui::checkbox::on_reload() {
     aligned_dimension
   );
 
-  this->descriptor.rect.scaled_height = ekg::clamp_min<float>(this->descriptor.rect.scaled_height, ekg::pixel);
+  this->descriptor.rect.scaled_height = ekg::clamp_min<float>(this->descriptor.rect.scaled_height, ekg::one_pixel);
   
   if (this->properties.must_refresh_size) {
     this->descriptor.rect.w = ekg::clamp_min<float>(aligned_dimension.w, this->descriptor.rect.w);
@@ -87,13 +87,17 @@ void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
           )
         );
 
-        this->action(
-          input.has_motion
-          &&
-          this->states.is_hovering
-          &&
-          ekg::timing_t::second > ekg::tweaks.task_latency,
-          ekg::action::motion
+        ekg::io::trigger(
+          (
+            input.has_motion
+            &&
+            this->states.is_hovering
+            &&
+            (ekg::timing_t::second > ekg::tweaks.task_latency)
+          ),
+          ekg::action::motion,
+          this->descriptor.actions,
+          this->properties
         );
       }
     
@@ -106,25 +110,33 @@ void ekg::ui::checkbox::on_event(ekg::io::stage stage) {
           &&
           ekg::fire("checkbox-active")
       ) {
-        this->action(
+        ekg::io::trigger(
           true,
-          ekg::action::press
+          ekg::action::press,
+          this->descriptor.actions,
+          this->properties
         );
     
         ekg::io::set<bool>(this->states.is_active, true);
       } else if (input.was_released && this->states.is_active) {
-        this->action(
+        ekg::io::trigger(
           this->states.is_hovering,
-          ekg::action::release
+          ekg::action::release,
+          this->descriptor.actions,
+          this->properties
         );
 
-        this->action(
-          this->states.is_hovering
-          &&
-          (this->descriptor.value.set_value(!this->descriptor.value.get_value()) || false),
-          ekg::action::active
+        ekg::io::trigger(
+          (
+            this->states.is_hovering
+            &&
+            (this->descriptor.value.set_value(!this->descriptor.value.get_value()) || true)
+          ),
+          ekg::action::active,
+          this->descriptor.actions,
+          this->properties
         );
-    
+
         ekg::io::set<bool>(
           this->states.is_active,
           false

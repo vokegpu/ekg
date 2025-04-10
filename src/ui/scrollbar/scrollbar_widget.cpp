@@ -302,13 +302,15 @@ void ekg::ui::scrollbar::on_event(ekg::io::stage stage) {
         );
       }
 
-      if (
+      this->bar_horizontal_states.is_scrolling.x = (
         input.has_motion
         &&
         this->bar_horizontal_states.is_active
         &&
         !is_scroll_fired
-      ) {
+      );
+
+      if (this->bar_horizontal_states.is_scrolling.x) {
         this->states.is_scrolling.x = true;
         ekg::rect_t<float> bar_horizontal {this->bar_horizontal};
         bar_horizontal.x = input.interact.x - this->delta.x;
@@ -332,13 +334,15 @@ void ekg::ui::scrollbar::on_event(ekg::io::stage stage) {
         ekg::viewport.redraw = true;
       }
 
-      if (
+      this->bar_vertical_states.is_scrolling.y = (
         input.has_motion
         &&
         this->bar_vertical_states.is_active
         &&
         !is_scroll_fired
-      ) {
+      );
+
+      if (this->bar_vertical_states.is_scrolling.y) {
         this->states.is_scrolling.y = true;
         ekg::rect_t<float> bar_vertical {this->bar_horizontal};
         bar_vertical.y = input.interact.y - this->delta.y;
@@ -362,6 +366,21 @@ void ekg::ui::scrollbar::on_event(ekg::io::stage stage) {
       }
 
       if (input.was_released) {
+        ekg::io::trigger(
+          (
+            input.was_pressed
+            &&
+            (
+              this->bar_horizontal_states.is_active
+              ||
+              this->bar_vertical_states.is_active
+            )
+          ),
+          ekg::action::release,
+          this->descriptor.actions,
+          &this->properties
+        );
+
         ekg::io::set<bool>(
           this->bar_horizontal_states.is_active,
           (this->states.is_scrolling.x = false)
@@ -374,8 +393,13 @@ void ekg::ui::scrollbar::on_event(ekg::io::stage stage) {
       }
 
       if (this->properties.p_parent && this->properties.p_parent->p_widget) {
-        static_cast<ekg::ui::abstract*>(this->properties.p_parent->p_widget)
-          ->states.is_scrolling = this->states.is_scrolling;
+        ekg::ui::abstract *p_parent_widget {
+          static_cast<ekg::ui::abstract*>(this->properties.p_parent->p_widget)
+        };
+
+        p_parent_widget->states.is_scrolling.z = this->states.is_scrolling.z;
+        p_parent_widget->states.is_scrolling.w = this->states.is_scrolling.w;
+        p_parent_widget->states.nearest_scroll_bar_thickness = this->descriptor.theme.pixel_thickness;
       }
 
       if ((this->states.is_active || this->states.is_absolute) && !this->states.is_high_frequency) {
@@ -389,6 +413,55 @@ void ekg::ui::scrollbar::on_event(ekg::io::stage stage) {
       if (this->states.is_scrolling.x || this->states.is_scrolling.y) {
         ekg::viewport.redraw = true;
       }
+
+      ekg::io::trigger(
+        (
+          input.has_motion
+          &&
+          (
+            this->bar_horizontal_states.is_scrolling.x
+            ||
+            this->bar_vertical_states.is_scrolling.y
+          )
+          &&
+          (ekg::timing_t::second > ekg::tweaks.task_latency)
+        ),
+        ekg::action::drag,
+        this->descriptor.actions,
+        &this->properties
+      );
+
+      ekg::io::trigger(
+        (
+          input.has_motion
+          &&
+          (
+            this->bar_horizontal_states.is_hovering
+            ||
+            this->bar_vertical_states.is_hovering
+          )
+          &&
+          (ekg::timing_t::second > ekg::tweaks.task_latency)
+        ),
+        ekg::action::hover,
+        this->descriptor.actions,
+        &this->properties
+      );
+
+      ekg::io::trigger(
+        (
+          input.was_pressed
+          &&
+          (
+            this->bar_horizontal_states.is_active
+            ||
+            this->bar_vertical_states.is_active
+          )
+        ),
+        ekg::action::press,
+        this->descriptor.actions,
+        &this->properties
+      );
 
       break;
     }
@@ -461,6 +534,7 @@ void ekg::ui::scrollbar::on_draw() {
   }
 
   this->bar_vertical.w = static_cast<float>(this->descriptor.theme.pixel_thickness * this->states.is_scrolling.w);
+
   this->bar_vertical.x = (
     this->descriptor.p_binded_rect->x
     +
@@ -527,7 +601,7 @@ void ekg::ui::scrollbar::on_draw() {
     this->bar_vertical.w,
     this->bar_vertical.h,
     this->descriptor.theme.outline,
-    ekg::draw_mode::filled
+    ekg::draw_mode::outline
   );
 
   this->bar_horizontal.h = static_cast<float>(this->descriptor.theme.pixel_thickness * this->states.is_scrolling.z);

@@ -60,11 +60,10 @@ void ekg::service::theme::init() {
     .description = "Pasted dark-theme... mwm",
   };
 
-  dark_theme.symmetric_layout = true;
   dark_theme.frame.background = ekg::color<int32_t>(43, 43, 43, 255);
   dark_theme.frame.outline = ekg::color<int32_t>(190, 190, 190, 0);
   dark_theme.frame.outline = ekg::color<int32_t>(30, 40, 60, 100);
-  dark_theme.frame.margin_actions_offset = 18;
+  dark_theme.frame.actions_margin_pixel_thickness = 18;
   dark_theme.button.background = ekg::color<int32_t>(85, 85, 85, 50);
   dark_theme.button.text = ekg::color<int32_t>(202, 202, 202, 255);
   dark_theme.button.outline = ekg::color<int32_t>(202, 207, 222, 0);
@@ -132,11 +131,10 @@ void ekg::service::theme::init() {
     .description = "Pasted light-theme... moow",
   };
 
-  light_theme.symmetric_layout = true;
   light_theme.frame.background = ekg::color<int32_t>(242, 242, 242, 255);
   light_theme.frame.outline = ekg::color<int32_t>(190, 190, 190, 0);
   light_theme.frame.outline = ekg::color<int32_t>(202, 207, 222, 150);
-  light_theme.frame.margin_actions_offset = 18;
+  light_theme.frame.actions_margin_pixel_thickness = 18;
   light_theme.button.text = ekg::color<int32_t>(141, 141, 141, 255);
   light_theme.button.background = ekg::color<int32_t>(204, 204, 204, 50);
   light_theme.button.active = ekg::color<int32_t>(44, 166, 255, 100);
@@ -204,11 +202,10 @@ void ekg::service::theme::init() {
     .description = "Pasted light-theme... moow",
   };
 
-  light_pinky_theme.symmetric_layout = true;
   light_pinky_theme.frame.background = ekg::color<int32_t>(242, 242, 242, 255);
   light_pinky_theme.frame.outline = ekg::color<int32_t>(190, 190, 190, 0);
   light_pinky_theme.frame.outline = ekg::color<int32_t>(202, 207, 222, 150);
-  light_pinky_theme.frame.margin_actions_offset = 18;
+  light_pinky_theme.frame.actions_margin_pixel_thickness = 18;
   light_pinky_theme.button.text = ekg::color<int32_t>(141, 141, 141, 255);
   light_pinky_theme.button.background = ekg::color<int32_t>(204, 204, 204, 50);
   light_pinky_theme.button.active = ekg::color<int32_t>(245, 169, 184, 100);
@@ -276,11 +273,10 @@ void ekg::service::theme::init() {
     .description = "Pasted dark-theme... mooo mwm",
   };
 
-  dark_pinky_theme.symmetric_layout = true;
   dark_pinky_theme.frame.background = ekg::color<int32_t>(43, 43, 43, 255);
   dark_pinky_theme.frame.outline = ekg::color<int32_t>(190, 190, 190, 0);
   dark_pinky_theme.frame.outline = ekg::color<int32_t>(30, 40, 60, 100);
-  dark_pinky_theme.frame.margin_actions_offset = 18;
+  dark_pinky_theme.frame.actions_margin_pixel_thickness = 18;
   dark_pinky_theme.button.background = ekg::color<int32_t>(85, 85, 85, 50);
   dark_pinky_theme.button.text = ekg::color<int32_t>(202, 202, 202, 255);
   dark_pinky_theme.button.outline = ekg::color<int32_t>(202, 207, 222, 0);

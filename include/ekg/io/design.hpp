@@ -23,9 +23,8 @@ namespace ekg {
     std::string_view description {};
     std::string_view path {};
   public:
-    bool symmetric_layout {};
-    float min_widget_size {5};
-    float layout_offset {2.0f};
+    ekg::pixel_t layout_offset {2.0f};
+    ekg::pixel_thickness_t layout_margin_thickness {2};
 
     ekg::button_theme_t button {};
     ekg::checkbox_theme_t checkbox {};

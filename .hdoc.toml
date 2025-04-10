@@ -10,8 +10,8 @@ compile_commands = "cmake-build/compile_commands.json"
 
 [pages]
 
-homepage = "docs/homepage.md"
+homepage = "ekg-docs/readme.md"
 paths = [
-  "docs/gettingstarted.md",
-  "docs/devlog.md"
+  "ekg-docs/model/*.md",
+  "ekg-docs/tutorial/*.md"
 ]

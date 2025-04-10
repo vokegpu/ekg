@@ -4,6 +4,7 @@
 #include "ekg/math/geometry.hpp"
 #include "ekg/ui/properties.hpp"
 #include "ekg/io/gpu.hpp"
+#include "ekg/io/task.hpp"
 
 namespace ekg {
   struct scrollbar_theme_t {
@@ -12,12 +13,12 @@ namespace ekg {
     ekg::vec4_t<float> outline {};
     ekg::vec4_t<float> highlight {};
     ekg::vec4_t<float> active {};
-    int32_t pixel_thickness {};
+    ekg::pixel_thickness_t pixel_thickness {};
     float min_bar_size {};
 
     /**
-     * [0] ekg::scrollbar_t::horizontal
-     * [1] ekg::scrollbar_t::vertical
+     * [0] ekg::scrollbar_t::horizontal;
+     * [1] ekg::scrollbar_t::vertical;
      **/
     ekg::layer_t<2> layers {};
   };
@@ -31,6 +32,7 @@ namespace ekg {
     std::vector<ekg::properties_t*> *p_binded_children {};
     ekg::rect_t<float> *p_binded_rect {};
     ekg::type type {ekg::type::scrollbar};
+    ekg::actions actions {};
     ekg::scrollbar_theme_t theme {};
   };
 }

@@ -9,27 +9,6 @@ ekg::rect_t<float> &ekg::ui::abstract::get_abs_rect() {
   );
 }
 
-void ekg::ui::abstract::action(
-  bool must_trigger,
-  ekg::action action
-) {
-  if (!must_trigger) {
-    return;
-  }
-
-  ekg::task_t *p_task {
-    this->properties.actions.at(static_cast<size_t>(action))
-  };
-
-  if (p_task == nullptr) {
-    return;
-  } 
-
-  ekg::p_core->service_handler.dispatch(
-    p_task
-  );
-}
-
 void ekg::ui::abstract::on_create() {
   if (this->p_parent_rect == nullptr) {
     this->p_parent_rect = &this->_blank_parent_rect;

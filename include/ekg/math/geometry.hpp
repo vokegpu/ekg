@@ -6,6 +6,12 @@
 #include <string>
 
 namespace ekg {
+  typedef int32_t pixel_thickness_t;
+  typedef float pixel_t;
+
+  constexpr float one_pixel {1.0000000f};
+  constexpr float half_pixel {0.5000000f};
+
   enum dock {
     none   = 2 << 1,
     free   = 2 << 2,
@@ -24,6 +30,12 @@ namespace ekg {
   enum axis {
     vertical   = 2 << 13,
     horizontal = 2 << 14
+  };
+
+  template<typename t>
+  struct vec1_t {
+  public:
+    t x {};
   };
 
   template<typename t>

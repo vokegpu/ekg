@@ -38,3 +38,27 @@ void ekg::io::dispatch(
     break;
   }
 }
+
+void ekg::io::trigger(
+  bool must_trigger,
+  ekg::action action,
+  ekg::actions actions,
+  ekg::properties_t *p_properties
+) {
+  ekg::task_t *&p_task {
+    actions[action]
+  };
+
+  if (
+    p_task == nullptr
+    ||
+    p_properties == nullptr
+    ||
+    !must_trigger
+  ) {
+    return;
+  }
+
+  p_task->info.p_properties = p_properties;
+  p_task->function(p_task->info);
+}

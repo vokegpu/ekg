@@ -6,8 +6,6 @@
 
 namespace ekg {
   constexpr float pi {3.1415927f};
-  constexpr float pixel {1.0000000f};
-  constexpr float pixel_div_2 {0.5000000f};
 
   constexpr bool fequalsf(float compare, float compared) {
     return (
