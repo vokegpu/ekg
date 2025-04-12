@@ -33,6 +33,7 @@
 #include "ekg/ui/label/label_widget.hpp"
 #include "ekg/ui/checkbox/checkbox_widget.hpp"
 #include "ekg/ui/scrollbar/scrollbar_widget.hpp"
+#include "ekg/ui/slider/slider_widget.hpp"
 
 namespace ekg::io {
   template<typename t>
