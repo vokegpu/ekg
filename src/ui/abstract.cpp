@@ -38,7 +38,7 @@ void ekg::ui::abstract::on_event(ekg::io::stage stage) {
 
   switch (stage) {
     case ekg::io::stage::pre: {
-      if (input.was_pressed || input.was_released || input.has_motion || input.was_wheel) {
+      if (input.was_pressed || input.was_released || input.has_motion || input.was_wheel) {      
         ekg::rect_t<float> &rect {this->get_abs_rect()};
         ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
@@ -54,6 +54,7 @@ void ekg::ui::abstract::on_event(ekg::io::stage stage) {
           )
         );
       }
+
       break;
     }
 

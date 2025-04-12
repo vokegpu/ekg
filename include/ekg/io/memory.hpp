@@ -35,6 +35,50 @@ namespace ekg {
   typedef uint64_t id_t;
   typedef uint64_t flags_t;
 
+  enum class number {
+    f64,
+    f32,
+    u64,
+    i64,
+    u32,
+    i32,
+    u16,
+    i16,
+    u8,
+    i8
+  };
+
+  template<typename t>
+  void retreive_number_type_from_variable_type(
+    ekg::number &type_number
+  ) {
+    const std::type_info &info {
+      typeid(t)
+    };
+
+    if (info == typeid(float)) {
+      type_number = ekg::number::f32;
+    } else if (info == typeid(double)) {
+      type_number = ekg::number::f64;
+    } else if (info == typeid(int64_t)) {
+      type_number = ekg::number::i64;
+    } else if (info == typeid(uint64_t)) {
+      type_number = ekg::number::u64;
+    } else if (info == typeid(int32_t)) {
+      type_number = ekg::number::i32;
+    } else if (info == typeid(uint32_t)) {
+      type_number = ekg::number::u32;
+    } else if (info == typeid(int16_t)) {
+      type_number = ekg::number::i16;
+    } else if (info == typeid(uint16_t)) {
+      type_number = ekg::number::u16;
+    } else if (info == typeid(int8_t)) {
+      type_number = ekg::number::i8;
+    } else if (info == typeid(uint8_t)) {
+      type_number = ekg::number::u8;
+    }
+  }
+
   enum result {
     success           = 2 << 1,
     failed            = 2 << 2,

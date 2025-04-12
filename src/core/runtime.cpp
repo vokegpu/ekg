@@ -41,7 +41,7 @@ void ekg::runtime::init() {
 
       for (std::unique_ptr<ekg::ui::abstract> &p_widget : this->loaded_widget_list) {
         if (
-            p_widget->properties.p_abs_parent == nullptr
+            p_widget->properties.p_parent != nullptr
             ||
             /**
              * TODO: check this right
