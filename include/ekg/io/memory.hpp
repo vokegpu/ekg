@@ -160,6 +160,13 @@ namespace ekg {
       return this->get_value();
     }
 
+    /**
+     * static_cast fails
+     **/
+    operator ekg::value<t>() {
+      return ekg::value<t> {};
+    }
+
     template<typename s>
     ekg::value<t> &operator = (s value) {
       this->get_value() = value;
