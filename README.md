@@ -4,7 +4,7 @@ EKG is a descriptor-based low-latency UI-toolkit for desktop-apps, mobile-apps, 
 
 **Note: EKG is not stable yet.**
 
-Contributing for EKG is nicely welcome, just take a look on [code of conduct](./CODE-OF-CONDUCT) and [VokeGpu library coding-guide style](https://github.com/vokegpu/code-of-conduct-and-style-guide).
+Contributing for EKG is nicely welcome, just take a look on [Vokegpu standard](https://github.com/vokegpu/standard), thanks.
 
 ### GUIs with EKG
 
