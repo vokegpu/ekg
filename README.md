@@ -1,10 +1,9 @@
 # 🐄 EKG 🐈
 
-EKG is a descriptor-based low-latency UI-toolkit for desktop-apps, mobile-apps, and high-performance apps. Offers multi-support for platforms and graphics API(s).
+EKG is a descriptor-based low-latency modular UI-toolkit for desktop-apps, mobile-apps, and high-performance apps. 
 
-Supported GPU API(s): OpenGL3+, OpenGLES3.
-
-Supported platform(s): SDL2, GLFW.
+Platforms: SDL2, GLFW.  
+GPU APIs: OpenGL3+, OpenGLES3.
 
 **Note: EKG is not stable yet.**
 
