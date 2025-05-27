@@ -2,13 +2,11 @@
 
 EKG is a descriptor-based low-latency UI-toolkit for desktop-apps, mobile-apps, and high-performance apps. Offers multi-support for platforms and graphics API(s).
 
-**Note: EKG is not stable yet.**
-
-## Specifications
-
 Supported GPU API(s): OpenGL3+, OpenGLES3.
 
 Supported platform(s): SDL2, GLFW.
+
+**Note: EKG is not stable yet.**
 
 ## GUIs with EKG
 
