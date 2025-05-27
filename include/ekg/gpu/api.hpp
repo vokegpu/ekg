@@ -1,50 +1,20 @@
-/**
- * MIT License
- * 
- * Copyright (c) 2022-2024 Rina Wilk / vokegpu@gmail.com
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+#ifndef EKG_GPU_API_HPP
+#define EKG_GPU_API_HPP
 
-#ifndef EKG_GPU_BASE_IMPL_HPP
-#define EKG_GPU_BASE_IMPL_HPP
-
-#include <iostream>
-#include <cstdint>
-#include <string_view>
-#include <vector>
-#include <unordered_map>
-
-#include "ekg/math/geometry.hpp"
-#include "ekg/io/typography.hpp"
-#include "ekg/io/gpu.hpp"
+namespace ekg {
+  enum class which_gpu_api {
+    opengl,
+    opengles,
+    vulkan
+  };
+}
 
 namespace ekg::gpu {
   class api {
   protected:
-    std::string_view rendering_shader_fragment_source {};
-    float projection_matrix[16] {};
+    float mat4x4_proj_matrix[16] {}; 
   public:
-    ekg::gpu_api gpu_api {};
-    ekg::rect_t<float> viewport {};
-  public:
-    void set_rendering_shader_fragment_source(std::string_view source);
+    ekg::which_gpu_api which_gpu_api {};
   public:
     virtual void log_vendor_details() {};
     virtual void init() {};
@@ -91,6 +61,7 @@ namespace ekg::gpu {
     virtual ekg::flags_t bind_sampler(
       ekg::sampler_t *p_sampler
     ) { return ekg::result::not_implemented; };
+  };
   };
 }
 

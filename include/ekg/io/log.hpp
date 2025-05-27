@@ -27,22 +27,6 @@ namespace ekg {
         ekg::log::buffered = false;
       }
     }
-
-    static void print(std::string_view msg) {
-      std::cout << "[EKG-PRINT] " << msg << std::endl;
-    }
-
-    template<typename t>
-    static void trace(bool should, t trace, bool interrupt_runtime = false) {
-      if (!should) {
-        return;
-      }
-
-      std::cout << "[EKG-TRACE] " << trace << std::endl;
-      if (interrupt_runtime) {
-        std::terminate();
-      }
-    }
   public:
     template<typename t>
     explicit log(t content) {
@@ -51,7 +35,7 @@ namespace ekg {
 
     explicit log() {
       ekg::log::buffered = true;
-      ekg::log::buffer << "[EKG-INFO] ";
+      ekg::log::buffer << "[EKG] ";
     }
 
     ~log() {
@@ -69,46 +53,6 @@ namespace ekg {
       return *this;
     }
   };
-
-  struct timing_t {
-  public:
-    /**
-     * The 1 second counter in ms.
-     */
-    static int64_t second;
-
-    /**
-     * The total running ticks since the application was started.
-     */
-    static int64_t ticks;
-  public:
-    int64_t elapsed_ticks {};
-    int64_t current_ticks {};
-    int64_t ticks_going_on {};
-  };
-
-  bool reach(
-    ekg::timing_t *p_timing,
-    int64_t ms
-  );
-
-  bool reset_if_reach(
-    ekg::timing_t *p_timing,
-    int64_t ms
-  );
-
-  bool reset(
-    ekg::timing_t *p_timing
-  );
-
-  bool extend(
-    ekg::timing_t *p_timing,
-    int64_t ms
-  );
-
-  int64_t interval(
-    ekg::timing_t *p_timing
-  );
 }
 
 #endif
