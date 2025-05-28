@@ -9,7 +9,7 @@ namespace ekg {
   typedef size_t flags_t;
   typedef size_t id_t;
 
-  constexpr size_t not_found {29496526662939};
+  constexpr ekg::id_t not_found {29496526662939};
 
   enum result {
     success,
@@ -22,6 +22,7 @@ namespace ekg {
     ekg::flags_t type {};
     ekg::id_t unique_id {};
     size_t index {};
+    ekg::flags_t flags {};
   };
 
   template<typename t>
@@ -35,7 +36,7 @@ namespace ekg {
     pool(ekg::flags_t type, const t &not_found)
       : type(type), not_found(not_found) {}
 
-    ekg::at_t push_back(const t &copy) {
+    t &push_back(const t &copy) {
       this->loaded.push_back(copy);
 
       size_t index {this->loaded.size() - 1};
@@ -44,21 +45,20 @@ namespace ekg {
       ref.at.unique_id = this->highest_unique_id++;
       ref.at.type = this->type;
       ref.at.index = index;
-      ref.unique_id = ref.at.unique_id;
 
-      return ref.at;
+      return ref;
     }
 
     t &query(ekg::at_t &at) {
       if (
         at.index >= this->loaded.size()
         ||
-        this->loaded.at(at.index).unique_id != at.unique_id
+        this->loaded.at(at.index).at.unique_id != at.unique_id
       ) {
         size_t size {this->loaded.size()};
         for (size_t it {}; it < size; it++) {
           t &element {this->loaded.at(it)};
-          if (element.unique_id == at.unique_id) {
+          if (element.at.unique_id == at.unique_id) {
             at.index = it;
             return element;
           }
@@ -97,5 +97,7 @@ namespace ekg::io {
     return *static_cast<t*>(p_any);
   }
 }
+
+ekg::make<meow_t>({});
 
 #endif

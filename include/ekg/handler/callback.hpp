@@ -1,5 +1,9 @@
-#ifndef EKG_CALLBACK_HPP
-#define EKG_CALLBACK_HPP
+#ifndef EKG_HANDLER_CALLBACK_HPP
+#define EKG_HANDLER_CALLBACK_HPP
+
+#include "ekg/io/memory.hpp"
+#include "ekg/io/descriptor.hpp"
+#include <string>
 
 namespace ekg {
   struct info_t {
@@ -12,16 +16,14 @@ namespace ekg {
 
   struct callback_t {
   public:
-    static const ekg::type type {/* type */};
-    static descriptor_t not_found;
-  public:
-    ekg::id_t unique_id {};
-    ekg::at_t other_descriptor_at {};
-    ekg::at_t at {};
+    static constexpr ekg::type type {ekg::type::callback};
+    static ekg::callback_t not_found;
   public:
     ekg::info_t info {};
     std::function(void(ekg::info_t&)) lambda {};
     ekg::callback_function_t function {nullptr};
+  public:
+    EKG_DESCRIPTOR(ekg::callback_t);
   };
 }
 

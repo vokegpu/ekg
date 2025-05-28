@@ -1,7 +1,7 @@
 #ifndef EKG_IO_EVENT_HPP
 #define EKG_IO_EVENT_HPP
 
-#include "input.hpp"
+#include "ekg/handler/input.hpp"
 
 namespace ekg::io {
   enum class event_type {
@@ -40,13 +40,6 @@ namespace ekg::io {
 
     float finger_dx {};
     float finger_dy {};
-  };
-
-  struct input_bind_t {
-  public:
-    std::vector<strd::string> registry {};
-    bool state {};
-    bool *p_address {};
   };
 }
 

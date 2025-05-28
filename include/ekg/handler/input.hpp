@@ -1,5 +1,5 @@
-#ifndef EKG_INPUT_HPP
-#define EKG_INPUT_HPP
+#ifndef EKG_HANDLER_INPUT_HPP
+#define EKG_HANDLER_INPUT_HPP
 
 #include "ekg/io/timing.hpp"
 #include "ekg/math/geometry.hpp"
@@ -49,11 +49,20 @@ namespace ekg {
     bool was_wheel {};
     bool was_typed {};
   };
+}
 
-  struct input_ke-y_t {
+namespace ekg::io {
+  struct input_key_t {
   public:
     int32_t key {};
     int32_t scancode {};
+  };
+
+  struct input_bind_t {
+  public:
+    std::vector<strd::string> registry {};
+    bool state {};
+    bool *p_address {};
   };
 }
 

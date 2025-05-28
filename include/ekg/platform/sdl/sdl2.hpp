@@ -25,8 +25,8 @@ namespace ekg {
     void quit() override;
     void update_display_size() override;
     void update() override;
-    void get_key_name(ekg::input_key_t &key, std::string &name) override;
-    void get_special_key(ekg::input_key_t &key, ekg::special_key &special_key) override;
+    void get_key_name(ekg::io::input_key_t &key, std::string &name) override;
+    void get_special_key(ekg::io::input_key_t &key, ekg::special_key &special_key) override;
     const char *get_clipboard_text() override;
     void set_clipboard_text(const char *p_text) override;
     bool has_clipboard_text() override;
