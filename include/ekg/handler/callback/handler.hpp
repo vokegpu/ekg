@@ -20,7 +20,7 @@ namespace ekg::handler {
     void init();
     ekg::at_t &load();
     void dispatch(size_t index);
-    void dispatch(const ekg::at_t &at);
+    void dispatch(ekg::at_t &at);
     void update();
   }
 }

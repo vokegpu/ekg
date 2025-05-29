@@ -25,7 +25,7 @@ namespace ekg {
       return !(*this == descriptor); \
     } \
 \
-    &operator ekg::at_t() { \
+    operator ekg::at_t() { \
       return this->at; \
     }
 

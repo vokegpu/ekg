@@ -23,6 +23,14 @@ namespace ekg {
     ekg::id_t unique_id {};
     size_t index {};
     ekg::flags_t flags {};
+  public:
+    bool operator == (const ekg::at_t &at) {
+      return this->at.unique_id == at.unique_id;
+    }
+
+    bool operator != (const ekg::at_t &at) {
+      return !(*this == at);
+    }
   };
 
   template<typename t>
@@ -58,6 +66,7 @@ namespace ekg {
         size_t size {this->loaded.size()};
         for (size_t it {}; it < size; it++) {
           t &element {this->loaded.at(it)};
+          element.at.index = it;
           if (element.at.unique_id == at.unique_id) {
             at.index = it;
             return element;

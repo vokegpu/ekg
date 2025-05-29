@@ -11,13 +11,14 @@ namespace ekg {
     ekg::gpu::api *p_gpu_api {};
   };
 
-  struct runtime_t {
+  extern struct runtime_t {
   public:
     ekg::platform::base *p_platform_base {};
     ekg::gpu::api *p_gpu_api {};
   public:
-    ekg::input::handler input_handler {};
-  };
+    ekg::handler::input handler_input {};
+    ekg::handler::callback handler_callback {};
+  } *p_core;
 }
 
 namespace ekg::core {

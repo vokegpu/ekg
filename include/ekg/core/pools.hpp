@@ -3,10 +3,12 @@
 
 #include "ekg/io/memory.hpp"
 #include "ekg/handler/callback.hpp"
+#include "ekg"
 
 namespace ekg {
   extern struct pools_t {
   public:
+    ekg::pool<ekg::callback_t> callback {ekg::callback_t::not_found};
     ekg::pool<ekg::callback_t> callback {ekg::callback_t::not_found};
   } pools;
 

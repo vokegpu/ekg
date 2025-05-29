@@ -2,7 +2,6 @@
 #include "ekg/io/log.hpp"
 
 ekg::runtime_t ekg::p_core {nullptr};
-
 std::ostringstream ekg::log::buffer {};
 bool ekg::log::buffered {};
 

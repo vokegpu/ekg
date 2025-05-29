@@ -1,6 +1,16 @@
 #ifndef EKG_GPU_API_HPP
 #define EKG_GPU_API_HPP
 
+#include <iostream>
+#include <cstdint>
+#include <string_view>
+#include <vector>
+#include <unordered_map>
+
+#include "sampler.hpp"
+#include "data.hpp"
+#include "ekg/math/geometry.hpp"
+
 namespace ekg {
   enum class which_gpu_api {
     opengl,
@@ -34,11 +44,11 @@ namespace ekg::gpu {
     ) {};
 
     virtual void draw(
-      std::vector<ekg::io::gpu_data_t> &loaded_gpu_data_list
+      std::vector<ekg::gpu::data_t> &loaded_gpu_data_list
     ) {};
 
     virtual ekg::flags_t gen_font_atlas_and_map_glyph(
-      ekg::sampler_t *p_sampler,
+      ekg::sampler_t &sampler,
       ekg::io::font_face_t *p_font_face_text,
       ekg::io::font_face_t *p_font_face_emoji,
       ekg::io::font_face_t *p_font_face_kanjis,
@@ -49,17 +59,17 @@ namespace ekg::gpu {
     ) { return ekg::result::not_implemented; };
 
     virtual ekg::flags_t allocate_sampler(
-      ekg::sampler_allocate_info_t *p_sampler_allocate_info,
-      ekg::sampler_t *p_sampler
+      ekg::sampler_allocate_info_t &sampler_allocate_info,
+      ekg::sampler_t &sampler
     )  { return ekg::result::not_implemented; }
 
     virtual ekg::flags_t fill_sampler(
-      ekg::sampler_fill_info_t *p_sampler_fill_info,
-      ekg::sampler_t *p_sampler
+      ekg::sampler_fill_info_t &sampler_fill_info,
+      ekg::sampler_t &sampler
     ) { return ekg::result::not_implemented; };
 
     virtual ekg::flags_t bind_sampler(
-      ekg::sampler_t *p_sampler
+      ekg::sampler_t &sampler
     ) { return ekg::result::not_implemented; };
   };
   };
