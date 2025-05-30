@@ -1,7 +1,30 @@
 /**
  * MIT License
  * 
- * Copyright (c) 2022-2024 Rina Wilk / vokegpu@gmail.com
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +48,9 @@
 #include "ekg/gpu/allocator.hpp"
 #include "ekg/core/runtime.hpp"
 
-// TODO: add capacity mapped-gbuffer
+bool ekg::allocator::enable_high_priority {};
 
-bool ekg::gpu::allocator::high_priority {};
-float ekg::gpu::allocator::concave {-2.0f};
-uint64_t ekg::gpu::allocator::current_rendering_data_count {};
-
-void ekg::gpu::allocator::invoke() {
+void ekg::allocator::invoke() {
   this->data_instance = 0;
   this->stride_instance.x = 0;
   this->stride_instance.y = 0;
@@ -56,7 +75,7 @@ void ekg::gpu::allocator::invoke() {
   this->stride_instance.y = 0;
 }
 
-void ekg::gpu::allocator::bind_texture(ekg::sampler_t &sampler) {
+void ekg::allocator::bind_texture(ekg::sampler_t &sampler) {
   if (sampler == ekg::sampler_t::not_found) {
     return;
   }
@@ -65,10 +84,10 @@ void ekg::gpu::allocator::bind_texture(ekg::sampler_t &sampler) {
   data.sampler_at = ekg::p_core->p_gpu_api->bind_sampler(sampler);
 }
 
-void ekg::gpu::allocator::dispatch() {
+void ekg::allocator::dispatch() {
   ekg::gpu::data_t *p_data {};
 
-  if (ekg::gpu::allocator::high_priority) {
+  if (ekg::allocator::enable_high_priority) {
     if (this->high_priority_data_instance >= this->loaded_high_priority_data_list.size()) {
       this->loaded_high_priority_data_list.emplace_back();
     }
@@ -88,10 +107,10 @@ void ekg::gpu::allocator::dispatch() {
    * Scissor must be synchned externally to update the scissor context.
    **/
 
-  p_data->buffer_content[8] = this->scissor_instance.x;
-  p_data->buffer_content[9] = this->scissor_instance.y;
-  p_data->buffer_content[10] = this->scissor_instance.w;
-  p_data->buffer_content[11] = this->scissor_instance.h;
+  p_data->buffer[8] = this->scissor_instance.x;
+  p_data->buffer[9] = this->scissor_instance.y;
+  p_data->buffer[10] = this->scissor_instance.w;
+  p_data->buffer[11] = this->scissor_instance.h;
 
   /**
    * the point of re-using a simple shape stride makes performance a little better,
@@ -99,9 +118,9 @@ void ekg::gpu::allocator::dispatch() {
    **/
 
   this->simple_shape = (
-    static_cast<int32_t>(p_data->buffer_content[2]) != static_cast<int32_t>(ekg::gpu::allocator::concave)
+    static_cast<int32_t>(p_data->buffer[2]) != static_cast<int32_t>(ekg::allocator::concave)
     &&
-    static_cast<int32_t>(p_data->buffer_content[3]) != static_cast<int32_t>(ekg::gpu::allocator::concave)
+    static_cast<int32_t>(p_data->buffer[3]) != static_cast<int32_t>(ekg::allocator::concave)
   );
 
   if (this->simple_shape) {
@@ -126,7 +145,7 @@ void ekg::gpu::allocator::dispatch() {
   this->data_instance++;
 }
 
-void ekg::gpu::allocator::revoke() {
+void ekg::allocator::revoke() {
   this->data_instance -= this->data_instance > 0;
 
   if (!this->loaded_high_priority_data_list.empty()) {
@@ -183,24 +202,23 @@ void ekg::gpu::allocator::revoke() {
   }
 
   this->previous_geometry_buffer_size = geometry_buffer_size;
-  ekg::gpu::allocator::current_rendering_data_count = this->gpu_data_buffer.size();
 }
 
-void ekg::gpu::allocator::on_update() {
+void ekg::allocator::on_update() {
 }
 
-void ekg::gpu::allocator::draw() {
+void ekg::allocator::draw() {
   ekg::p_core->p_gpu_api->draw(
     this->gpu_data_buffer
   );
 }
 
-void ekg::gpu::allocator::init() {
+void ekg::allocator::init() {
   ekg::log() << "Initializing GPU allocator";
 }
 
-void ekg::gpu::allocator::clear_current_data() {  
-  if (!ekg::gpu::allocator::high_priority && this->data_instance >= this->gpu_data_buffer.size()) {
+void ekg::allocator::clear_current_data() {  
+  if (!ekg::allocator::enable_high_priority && this->data_instance >= this->gpu_data_buffer.size()) {
     this->gpu_data_buffer.emplace_back();
   }
 
@@ -212,16 +230,16 @@ void ekg::gpu::allocator::clear_current_data() {
   this->previous_factor = data.factor;
 }
 
-ekg::gpu::data_t &ekg::gpu::allocator::bind_current_data() {
+ekg::gpu::data_t &ekg::allocator::bind_current_data() {
   this->clear_current_data();
   return this->gpu_data_buffer.at(this->data_instance);
 }
 
-uint32_t ekg::gpu::allocator::get_current_data_id() {
+uint32_t ekg::allocator::get_current_data_id() {
   return this->data_instance;
 }
 
-ekg::gpu::data_t *ekg::gpu::allocator::get_data_by_id(int32_t id) {
+ekg::gpu::data_t *ekg::allocator::get_data_by_id(int32_t id) {
   if (id < 0 || static_cast<uint64_t>(id) > this->data_instance) {
     return nullptr;
   }
@@ -229,11 +247,11 @@ ekg::gpu::data_t *ekg::gpu::allocator::get_data_by_id(int32_t id) {
   return &this->gpu_data_buffer[id];
 }
 
-void ekg::gpu::allocator::quit() {
+void ekg::allocator::quit() {
   ekg::log() << "Quitting GPU allocator";
 }
 
-bool ekg::gpu::allocator::sync_scissor(
+bool ekg::allocator::sync_scissor(
   ekg::rect_t<float> &scissor,
   ekg::rect_t<float> &rect_child,
   ekg::rect_t<float> *p_parent_scissor
@@ -284,7 +302,7 @@ bool ekg::gpu::allocator::sync_scissor(
   return true;
 }
 
-void ekg::gpu::allocator::unsafe_set_scissor_placement(
+void ekg::allocator::unsafe_set_scissor_placement(
   float x,
   float y,
   float w,
@@ -296,7 +314,7 @@ void ekg::gpu::allocator::unsafe_set_scissor_placement(
   this->scissor_instance.h = h;
 }
 
-void ekg::gpu::allocator::push_back_geometry(
+void ekg::allocator::push_back_geometry(
   const ekg::vec2_t<float> &position,
   const ekg::vec2_t<float> &uv
 ) {

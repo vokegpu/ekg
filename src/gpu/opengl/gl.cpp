@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #include <cstdio>
 #include <unordered_map>
 #include <iostream>
@@ -229,8 +252,8 @@ void ekg::opengl::re_alloc_geometry_resources(
   const float *p_data,
   uint64_t size
 ) {
-  // TODO: add capacity to gbuffers instead buffer data directly
-  // also use mapped buffers to get ptr directly.
+  // @TODO: add capacity mapped-gbuffer
+  // @TODO: add capacity to gbuffers instead buffer data directly
 
   glBindVertexArray(this->vbo_array);
 
@@ -270,19 +293,35 @@ ekg::flags_t ekg::opengl::allocate_sampler(
   sampler.h = sampler_allocate_info.h;
 
   if (sampler_allocate_info.gl_wrap_modes[0]) {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler_allocate_info.gl_wrap_modes[0]);
+    glTexParameteri(
+      GL_TEXTURE_2D,
+      GL_TEXTURE_WRAP_S,
+      sampler_allocate_info.gl_wrap_modes[0]
+    );
   }
 
   if (sampler_allocate_info.gl_wrap_modes[1]) {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler_allocate_info.gl_wrap_modes[1]);
+    glTexParameteri(
+      GL_TEXTURE_2D,
+      GL_TEXTURE_WRAP_T,
+      sampler_allocate_info.gl_wrap_modes[1]
+    );
   }
 
   if (sampler_allocate_info.gl_parameter_filter[0]) {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler_allocate_info.gl_parameter_filter[0]);
+    glTexParameteri(
+      GL_TEXTURE_2D,
+      GL_TEXTURE_MIN_FILTER,
+      sampler_allocate_info.gl_parameter_filter[0]
+    );
   }
 
   if (sampler_allocate_info.gl_parameter_filter[1]) {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler_allocate_info.gl_parameter_filter[1]);
+    glTexParameteri(
+      GL_TEXTURE_2D,
+      GL_TEXTURE_MAG_FILTER,
+      sampler_allocate_info.gl_parameter_filter[1]
+    );
   }
 
   glTexImage2D(
@@ -346,6 +385,10 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
   std::unordered_map<char32_t, ekg::io::glyph_char_t> &mapped_gpu_data_char_glyph,
   float &non_swizzlable_range
 ) {
+  if (sampler == ekg::sampler_t::not_found) {
+    return ekg::result::failed;
+  }
+
   ekg::io::font_face_t *faces[ekg::io::supported_faces_size] {
     p_font_face_text,
     p_font_face_emoji,
@@ -613,8 +656,8 @@ void ekg::opengl::draw(
     }
 
     glUniform1i(this->uniform_line_thickness, data.line_thickness);
-    glUniform4fv(this->uniform_rect, GL_TRUE, data.buffer_content);
-    glUniform1fv(this->uniform_content, 8, &data.buffer_content[4]);
+    glUniform4fv(this->uniform_rect, GL_TRUE, data.buffer);
+    glUniform1fv(this->uniform_content, 8, &data.buffer[4]);
 
     switch (data.begin_stride) {
       case 0: {

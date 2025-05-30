@@ -21,37 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_DRAW_ALLOCATOR_HPP
-#define EKG_DRAW_ALLOCATOR_HPP
+#ifndef EKG_DRAW_TYPOGRAPHY_FONT_HPP
+#define EKG_DRAW_TYPOGRAPHY_FONT_HPP
 
-#include <vector>
-
-#include "ekg/math/geometry.hpp"
-#include "ekg/gpu/data.hpp"
-#include "ekg/gpu/sampler.hpp"
-
-namespace ekg {
-  class allocator {
+namespace ekg::draw {
+  class font {
   public:
-    static bool enable_high_priority;
-  protected:
-    size_t data_instance {};
-    ekg::vec2_t<size_t> stride_instance {};
-    size_t simple_shape_instance {};
-    size_t geometry_instance {};
-    ekg::rect_t<float> scissor_instance {};
 
-    std::vector<ekg::gpu::data_t> gpu_data_buffer {};
-    std::vector<ekg::gpu::data_t> loaded_high_priority_data_list {};
-    std::vector<float> geometry_buffer {};
-  public:
-    void invoke();
-    void revoke();
-
-    void push_back_geometry(
-      const ekg::vec2_t<float> &position,
-      const ekg::vec2_t<float> &uv
-    );
   };
 }
 
