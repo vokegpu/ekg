@@ -15,6 +15,9 @@ ekg::flags_t ekg::init(
   }
 
   ekg::p_core = p_runtime;
+  ekg::p_core->handler_callback.init();
+  ekg::p_core->handler_input.init();
+
   return ekg::result::success;
 }
 

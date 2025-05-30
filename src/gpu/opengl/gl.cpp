@@ -18,9 +18,9 @@ ekg::opengl::opengl(std::string_view set_glsl_version) {
   std::regex es_re {"es"};
 
   if (std::regex_search(glsl_version, es_re)) {
-    this->gpu_api = ekg::gpu_api::opengles;
+    this->gpu_api = ekg::which_gpu_api::opengles;
   } else {
-    this->gpu_api = ekg::gpu_api::opengl;
+    this->gpu_api = ekg::which_gpu_api::opengl;
   }
 
   std::regex number_re {"\\d+"};  
@@ -96,15 +96,33 @@ void ekg::opengl::init() {
   glBindBuffer(GL_ARRAY_BUFFER, this->geometry_buffer);
 
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, nullptr);
+  glVertexAttribPointer(
+    0, 2,
+    GL_FLOAT,
+    GL_FALSE,
+    sizeof(float) * 4,
+    nullptr
+  );
 
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void *) (sizeof(float) * 2));
+  glVertexAttribPointer(
+    1, 2,
+    GL_FLOAT,
+    GL_FALSE,
+    sizeof(float) * 4,
+    (void *) (sizeof(float) * 2)
+  );
   /* End of geometry resources buffer attributes. */
 
   /* Start of simple shape indexing buffer bind to VAO. */
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo_simple_shape);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(simple_shape_mesh_indices), simple_shape_mesh_indices, GL_STATIC_DRAW);
+  glBufferData(
+    GL_ELEMENT_ARRAY_BUFFER,
+    sizeof(simple_shape_mesh_indices),
+    simple_shape_mesh_indices,
+    GL_STATIC_DRAW
+  );
+
   glBindVertexArray(0);
   /* End  of simple shape indexing buffer bind to VAO. */
 
@@ -130,26 +148,29 @@ void ekg::opengl::pre_re_alloc() {
 }
 
 void ekg::opengl::update_viewport(int32_t w, int32_t h) {
-  this->viewport.x = 0.0f;
-  this->viewport.y = 0.0f;
-  this->viewport.w = static_cast<float>(w);
-  this->viewport.h = static_cast<float>(h);
+  ekg::context.viewport.x = 0.0f;
+  ekg::context.viewport.y = 0.0f;
+  ekg::context.viewport.w = static_cast<float>(w);
+  ekg::context.viewport.h = static_cast<float>(h);
 
   ekg::ortho(
     this->projection_matrix,
     0,
-    this->viewport.w,
-    this->viewport.h,
+    ekg::context.viewport.w,
+    ekg::context.viewport.h,
     0
   );
 
   glUseProgram(this->pipeline_program);
   glUniformMatrix4fv(this->uniform_projection, GL_TRUE, 0, this->projection_matrix);
-  glUniform1f(this->uniform_viewport_height, this->viewport.h);
+  glUniform1f(this->uniform_viewport_height, ekg::context.viewport.h);
   glUseProgram(0);
 }
 
-bool ekg::opengl::create_pipeline_program(uint32_t &program, const std::unordered_map<std::string_view, uint32_t> &resources) {
+bool ekg::opengl::create_pipeline_program(
+  uint32_t &program,
+  const std::unordered_map<std::string_view, uint32_t> &resources
+) {
   if (resources.empty()) {
     ekg::log() << "Error: Invalid shader, empty resources";
     return true;
@@ -241,48 +262,48 @@ ekg::flags_t ekg::opengl::allocate_sampler(
     sampler.gl_id
   );
 
-  if (sampler_allocate_info->gl_unpack_alignment) {
+  if (sampler_allocate_info.gl_unpack_alignment) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   }
 
-  sampler.w = sampler_allocate_info->w;
-  sampler.h = sampler_allocate_info->h;
+  sampler.w = sampler_allocate_info.w;
+  sampler.h = sampler_allocate_info.h;
 
-  if (sampler_allocate_info->gl_wrap_modes[0]) {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler_allocate_info->gl_wrap_modes[0]);
+  if (sampler_allocate_info.gl_wrap_modes[0]) {
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler_allocate_info.gl_wrap_modes[0]);
   }
 
-  if (sampler_allocate_info->gl_wrap_modes[1]) {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler_allocate_info->gl_wrap_modes[1]);
+  if (sampler_allocate_info.gl_wrap_modes[1]) {
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler_allocate_info.gl_wrap_modes[1]);
   }
 
-  if (sampler_allocate_info->gl_parameter_filter[0]) {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler_allocate_info->gl_parameter_filter[0]);
+  if (sampler_allocate_info.gl_parameter_filter[0]) {
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler_allocate_info.gl_parameter_filter[0]);
   }
 
-  if (sampler_allocate_info->gl_parameter_filter[1]) {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler_allocate_info->gl_parameter_filter[1]);
+  if (sampler_allocate_info.gl_parameter_filter[1]) {
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler_allocate_info.gl_parameter_filter[1]);
   }
 
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
-    sampler_allocate_info->gl_internal_format,
-    sampler_allocate_info->w,
-    sampler_allocate_info->h,
+    sampler_allocate_info.gl_internal_format,
+    sampler_allocate_info.w,
+    sampler_allocate_info.h,
     0,
-    sampler_allocate_info->gl_format,
-    sampler_allocate_info->gl_type,
-    sampler_allocate_info->p_data
+    sampler_allocate_info.gl_format,
+    sampler_allocate_info.gl_type,
+    sampler_allocate_info.p_data
   );
 
-  if (sampler_allocate_info->gl_generate_mipmap) {
+  if (sampler_allocate_info.gl_generate_mipmap) {
     glGenerateMipmap(GL_TEXTURE_2D);
   }
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  sampler.p_tag = sampler_allocate_info->p_tag;
+  sampler.p_tag = sampler_allocate_info.p_tag;
   return ekg::result::success;
 }
 
@@ -290,7 +311,7 @@ ekg::flags_t ekg::opengl::fill_sampler(
   ekg::sampler_fill_info_t &sampler_fill_info,
   ekg::sampler_t &sampler
 ) {
-  if (sampler == nullptr || !sampler.gl_id) {
+  if (sampler == ekg::sampler_t::not_found || !sampler.gl_id) {
     return ekg::result::failed;
   }
 
@@ -302,13 +323,13 @@ ekg::flags_t ekg::opengl::fill_sampler(
   glTexSubImage2D(
     GL_TEXTURE_2D,
     0,
-    sampler_fill_info->offset[0],
-    sampler_fill_info->offset[1],
-    sampler_fill_info->w,
-    sampler_fill_info->h,
-    sampler_fill_info->gl_format,
-    sampler_fill_info->gl_type,
-    sampler_fill_info->p_data
+    sampler_fill_info.offset[0],
+    sampler_fill_info.offset[1],
+    sampler_fill_info.w,
+    sampler_fill_info.h,
+    sampler_fill_info.gl_format,
+    sampler_fill_info.gl_type,
+    sampler_fill_info.p_data
   );
 
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -362,7 +383,7 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
   };
 
   bool is_current_gpu_api_gl_es {
-    this->gpu_api == ekg::gpu_api::opengles
+    this->gpu_api == ekg::which_gpu_api::opengles
   };
 
   std::vector<unsigned char> r8_to_r8g8b8a8_swizzled_image {};
@@ -494,12 +515,12 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
   return ekg::result::success;
 }
 
-ekg::flags_t ekg::opengl::bind_sampler(ekg::sampler_t &sampler) {
+ekg::at_t &ekg::opengl::bind_sampler(ekg::sampler_t &sampler) {
   uint64_t size {this->bound_sampler_list.size()};
   for (uint64_t it {}; it < this->bound_sampler_list.size(); it++) {
     ekg::at_t &at {this->bound_sampler_list.at(it)};
     if (at == sampler.at) {
-      return it;
+      return sampler.at;
     }
   }
 
@@ -510,11 +531,11 @@ ekg::flags_t ekg::opengl::bind_sampler(ekg::sampler_t &sampler) {
   }
 
   this->bound_sampler_list.emplace_back() = sampler;
-  return size;
+  return sampler.at;
 }
 
 void ekg::opengl::draw(
-  std::vector<ekg::io::gpu_data_t> &loaded_gpu_data_list
+  std::vector<ekg::gpu::data_t> &loaded_gpu_data_list
 ) {
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
@@ -529,8 +550,9 @@ void ekg::opengl::draw(
    * this reason the active index only increase
    * when THIS is a protected sampler.
    **/
-  for (ekg::sampler_t *&sampler : this->bound_sampler_list) {
-    if (!sampler.is_protected) continue;
+  for (ekg::at_t &at : this->bound_sampler_list) {
+    ekg::sampler_t &sampler {ekg::query<ekg::sampler_t>(at)};
+    if (sampler == ekg::sampler_t::not_found || !sampler.is_protected) continue;
 
     glActiveTexture(
       GL_TEXTURE0 + sampler.gl_protected_active_index
@@ -541,39 +563,53 @@ void ekg::opengl::draw(
 
   glActiveTexture(GL_TEXTURE0 + this->protected_texture_active_index);
 
-  int32_t previous_sampler_bound {INT32_MAX};
+  ekg::at_t previous_sampler_bound {.unique_id = ekg::not_found};
   bool sampler_going_on {};
 
-  for (ekg::io::gpu_data_t &data : loaded_gpu_data_list) {
-    sampler_going_on = data.sampler_index > -1;
+  for (ekg::gpu::data_t &data : loaded_gpu_data_list) {
+    sampler_going_on = data.sampler_at != ekg::at_t::not_found;
 
     if (
         sampler_going_on
         &&
-        (
-          previous_sampler_bound != data.sampler_index
-          ||
-          !this->bound_sampler_list.at(data.sampler_index)->is_protected
-        )
+        previous_sampler_bound != data.sampler_at
+        &&
+        ekg::query<ekg::sampler_t>(data.sampler_t) != ekg::sampler_t::not_found
       ) {
 
-      ekg::sampler_t *&sampler {
-        this->bound_sampler_list.at(data.sampler_index)
-      };
+      ekg::sampler_t &sampler {ekg::query<ekg::sampler_t>(data.sampler_t)};
 
       if (sampler.is_protected) {
-        glUniform1i(this->uniform_active_tex_slot, sampler.gl_protected_active_index);
-        glUniform1i(this->uniform_active_texture, EKG_ENABLE_TEXTURE_PROTECTED);
+        glUniform1i(
+          this->uniform_active_tex_slot,
+          sampler.gl_protected_active_index
+        );
+
+        glUniform1i(
+          this->uniform_active_texture,
+          EKG_ENABLE_TEXTURE_PROTECTED
+        );
       } else {
-        glBindTexture(GL_TEXTURE_2D, sampler.gl_id);
-        glUniform1i(this->uniform_active_tex_slot, this->protected_texture_active_index);
-        glUniform1i(this->uniform_active_texture, EKG_ENABLE_TEXTURE);
+        glBindTexture(
+          GL_TEXTURE_2D,
+          sampler.gl_id
+        );
+        
+        glUniform1i(
+          this->uniform_active_tex_slot,
+          this->protected_texture_active_index
+        );
+        
+        glUniform1i(
+          this->uniform_active_texture,
+          EKG_ENABLE_TEXTURE
+        );
       }
 
-      previous_sampler_bound = data.sampler_index;
+      previous_sampler_bound = data.sampler_at;
     } else if (!sampler_going_on && previous_sampler_bound > -1) {
       glUniform1i(this->uniform_active_texture, EKG_DISABLE_TEXTURE);
-      previous_sampler_bound = -1;
+      previous_sampler_bound = ekg::at_t::not_found;
     }
 
     glUniform1i(this->uniform_line_thickness, data.line_thickness);

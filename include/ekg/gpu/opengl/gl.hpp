@@ -82,7 +82,7 @@ namespace ekg {
       float &non_swizzlable_range
     ) override;
 
-    ekg::flags_t bind_sampler(
+    ekg::at_t &bind_sampler(
       ekg::sampler_t &sampler
     ) override;
   };

@@ -19,12 +19,15 @@ namespace ekg {
 
   struct at_t {
   public:
+    static ekg::at_t not_found;
+  public:
     ekg::flags_t type {};
     ekg::id_t unique_id {};
     size_t index {};
     ekg::flags_t flags {};
   public:
     bool operator == (const ekg::at_t &at) {
+      ekg::at_t::not_found.unique_id = ekg::not_found;
       return this->at.unique_id == at.unique_id;
     }
 
@@ -106,7 +109,5 @@ namespace ekg::io {
     return *static_cast<t*>(p_any);
   }
 }
-
-ekg::make<meow_t>({});
 
 #endif
