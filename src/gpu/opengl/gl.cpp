@@ -64,7 +64,7 @@ ekg::opengl::opengl(std::string_view set_glsl_version) {
     }
   } else {
     ekg::log() << "[GPU][API] not viable glsl version, unknown number, must: 330 higher for core-profile or 300 higher for ES";
-    return; 
+    return;
   }
 
   this->glsl_version = set_glsl_version;

@@ -27,12 +27,33 @@
 #include "ekg/io/memory.hpp"
 #include "ekg/handler/callback.hpp"
 #include "ekg/gpu/sampler.hpp"
+#include "ekg/ui/property.hpp"
+
+#define ekg_abstract_todo(property, todo) \
+  switch (property.type) { \
+    case ekg::type::button: { \
+      ekg::button_t &descriptor { \
+        ekg::query<ekg::button_t>(property.descriptor_at) \
+      }; \
+      if (descriptor == ekg::button_t::not_found) { \
+        break; \
+      } \
+      todo \
+      break; \
+    } \
+  } \
+
+namespace ekg::core {
+  void registry(ekg::property_t &property);
+}
 
 namespace ekg {
   extern struct pools_t {
   public:
     ekg::pool<ekg::callback_t> callback {ekg::callback_t::not_found};
     ekg::pool<ekg::sampler_t> sampler {ekg::sampler_t::not_found};
+    ekg::pool<ekg::property> button_property {ekg::property::not_found};
+    ekg::pool<ekg::button_t> button {ekg::button_t::not_found};
   } pools;
 
   template<typename t>
@@ -48,6 +69,25 @@ namespace ekg {
       return ekg::pools.sampler.push_back(
         ekg::io::any_static_cast<ekg::sampler_t>(&descriptor)
       );
+    case ekg::type::button:
+      ekg::button_t &button {
+        ekg::pools.button.push_back(
+          ekg::io::any_static_cast<ekg::button_t>(&descriptor)
+        )
+      };
+
+      ekg::property_t &property {
+        ekg::pools.button_property.push_back({})
+      };
+
+      button.at.flags = t::type;
+      property.descriptor_at = button.at;
+
+      property.at.flags = t::type;
+      button.property_at = property.at;
+
+      ekg::core::registry(property);
+      return button;
     }
 
     return t::not_found;
@@ -65,6 +105,24 @@ namespace ekg {
     case ekg::type::sampler:
       return ekg::io::any_static_cast<ekg::sampler_t>(
         &ekg::pools.sampler.query(at)
+      );
+    case ekg::type::property:
+      ekg::pool<ekg::property_t> *p_property_pool {nullptr};
+
+      switch (at.type) {
+      case ekg::type::button:
+        p_property_pool = &ekg::pools.button_property;
+        break;
+      }
+
+      if (p_property_pool == nullptr) {
+        return t::not_found;
+      }
+
+      return p_property_pool.query(at);
+    case ekg::type::button:
+      return ekg::io::any_static_cast<ekg::button_t>(
+        &ekg::pools.button.query(at)
       );
     }
 

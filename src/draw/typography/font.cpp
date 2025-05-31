@@ -582,6 +582,8 @@ void ekg::draw::font::blit(
   }
 
   this->flush();
+
+  ekg::allocator::is_simple_shape = false;
   ekg::p_core->draw_allocator.bind_texture(&this->atlas_texture_sampler);
   ekg::p_core->draw_allocator.dispatch();
 }

@@ -40,6 +40,8 @@ ekg::flags_t ekg::init(
     return ekg::result::failed;
   }
 
+  ekg::log() << "[EKG] Initializing...";
+
   ekg::p_core = p_runtime;
 
   ekg::p_core->p_platform_base = runtime_properties_info.p_platform_base;
@@ -48,6 +50,26 @@ ekg::flags_t ekg::init(
 
   ekg::p_core->handler_callback.init();
   ekg::p_core->handler_input.init();
+  ekg::p_core->draw_allocator.init();
+
+  /* deprecated soon */
+
+  ekg::p_core->draw_font_small.init();
+  ekg::p_core->draw_font_small.set_font(runtime_properties_info.font_path_text);
+  ekg::p_core->draw_font_small.set_font_emoji(runtime_properties_info.font_path_emoji);
+  ekg::p_core->draw_font_small.get_atlas_texture_sampler().gl_protected_active_index = true;;
+
+  ekg::p_core->draw_font_medium.init();
+  ekg::p_core->draw_font_medium.set_font(runtime_properties_info.font_path_text);
+  ekg::p_core->draw_font_medium.set_font_emoji(runtime_properties_info.font_path_emoji);
+  ekg::p_core->draw_font_medium.get_atlas_texture_sampler().gl_protected_active_index = true;;
+
+  ekg::p_core->draw_font_big.init();
+  ekg::p_core->draw_font_big.set_font(runtime_properties_info.font_path_text);
+  ekg::p_core->draw_font_big.set_font_emoji(runtime_properties_info.font_path_emoji);
+  ekg::p_core->draw_font_big.get_atlas_texture_sampler().gl_protected_active_index = true;;
+
+  ekg::log() << "[EKG] Successfully initialized";
 
   return ekg::result::success;
 }

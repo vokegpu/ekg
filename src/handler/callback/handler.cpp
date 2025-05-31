@@ -24,13 +24,36 @@
 #include "ekg/handler/callback/handler.hpp"
 #include "ekg/io/log.hpp"
 #include "ekg/core/pools.hpp"
+#include "ekg/core/runtime.hpp"
 
 void ekg::handler::callback::init() {
   ekg::log() << "Initialising callback-handler";
+
+  ekg::task_t &swap {this->load()};
+  swap.info.tag = "swap";
+  swap.function = &ekg::core::swap;
+
+  ekg::task_t &reload {this->load()};
+  reload.info.tag = "reload";
+  reload.function = &ekg::core::reload;
+
+  ekg::task_t &docknize {this->load()};
+  docknize.info.tag = "docknize";
+  docknize.function = &ekg::core::docknize;
+
+  ekg::task_t &scale {this->load()};
+  scale.info.tag = "scale";
+  scale.function = &ekg::core::scale;
+
+  ekg::task_t &high_frequency {this->load()};
+  high_frequency.info.tag = "high-frequency";
+  high_frequency.function = &ekg::core::high_frequency;
 }
 
-ekg::task_t *&ekg::handler::callback::load() {
-  return this->loaded.emplace_back();
+ekg::task_t &ekg::handler::callback::load() {
+  ekg::task_t &task {ekg::make<ekg::task_t>({})};
+  this->loaded.emplace_back() = task.at;
+  return task;
 }
 
 void ekg::handler::callback::dispatch(ekg::at_t &at) {

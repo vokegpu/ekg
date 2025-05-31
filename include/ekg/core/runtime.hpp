@@ -32,6 +32,8 @@
 namespace ekg {
   struct ekg_runtime_properties_info_t {
   public:
+    std::string_view font_path_text {};
+    std::string_view font_path_emoji {};
     ekg::platform::base *p_platform_base {};
     ekg::gpu::api *p_gpu_api {};
     ekg::ft_library ft_library {};
@@ -50,10 +52,24 @@ namespace ekg {
     ekg::draw::font draw_font_small {};
     ekg::draw::font draw_font_medium {};
     ekg::draw::font draw_font_big {};
+  public:
+    std::vector<ekg::at_t> register {};
+    std::vector<ekg::at_t> stack {};
+    std::vector<ekg::at_t> top_level_stack {};
+    
+    std::vector<ekg::at_t> collector {};
+    ekg::at_t swap_target_at {ekg::at_t::not_found};
   } *p_core;
 }
 
 namespace ekg::core {
+  void swap_collector(bool &was_found, ekg::at_t &property_at);
+  void swap(ekg::info_t &info);
+
+  void reload(ekg::info_t &info);
+  void docknize(ekg::info_t &info);
+  void scale(ekg::info_t &info);
+  void high_frequency(ekg::info_t &info);
   void poll_events();
 }
 

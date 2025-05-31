@@ -51,7 +51,8 @@ namespace ekg {
   public:
     bool operator == (const ekg::at_t &at) {
       ekg::at_t::not_found.unique_id = ekg::not_found;
-      return this->at.unique_id == at.unique_id;
+      ekg::at_t::not_found.flags = ekg::not_found;
+      return this->at.flags == at.flags && this->at.unique_id == at.unique_id;
     }
 
     bool operator != (const ekg::at_t &at) {
@@ -73,13 +74,13 @@ namespace ekg {
       this->loaded.push_back(copy);
 
       size_t index {this->loaded.size() - 1};
-      t &ref {this->loaded.at(index)};
+      t &descriptor {this->loaded.at(index)};
 
-      ref.at.unique_id = this->highest_unique_id++;
-      ref.at.type = t::type;
-      ref.at.index = index;
+      descriptor.at.unique_id = this->highest_unique_id++;
+      descriptor.at.type = t::type;
+      descriptor.at.index = index;
 
-      return ref;
+      return descriptor;
     }
 
     t &query(ekg::at_t &at) {
@@ -90,18 +91,19 @@ namespace ekg {
       ) {
         size_t size {this->loaded.size()};
         for (size_t it {}; it < size; it++) {
-          t &element {this->loaded.at(it)};
-          element.at.index = it;
-          if (element.at.unique_id == at.unique_id) {
+          t &descriptor {this->loaded.at(it)};
+          descriptor.at.index = it;
+          if (descriptor.at.unique_id == at.unique_id) {
             at.index = it;
-            return element;
+            return descriptor;
           }
         }
     
         return this->not_found;
       }
-    
-      return this->loaded.at(at.index);
+
+      t &descriptor {this->loaded.at(at.index)};
+      return descriptor;
     }
   };
 

@@ -21,12 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "ekg/core/runtime.hpp"
+#ifndef EKG_UI_BUTTON_HPP
+#define EKG_UI_BUTTON_HPP
 
-void ekg::core::poll_events() {
-  if (ekg::p_core == nullptr) {
-    return;
-  }
+#include "ekg/io/memory.hpp"
+#include "ekg/io/descriptor.hpp"
 
-  
+namespace ekg {
+  struct button_t {
+  public:
+    static ekg::button_t not_found;
+    static constexpr ekg::type type {ekg::type::button};
+  public:
+    ekg::at_t property_at {};
+  public:
+    ekg_descriptor(ekg::button_t);
+  };
 }
+
+#endif

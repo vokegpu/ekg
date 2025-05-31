@@ -65,6 +65,7 @@ void ekg::draw::rect(
   data.line_thickness = static_cast<int8_t>(line_thickness);
   data.hash = 1;
 
+  ekg::allocator::is_simple_shape = true;
   ekg::p_core->gpu_allocator.bind_texture(sampler);
   ekg::p_core->gpu_allocator.dispatch();
 }
