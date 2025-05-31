@@ -68,6 +68,18 @@ namespace ekg::io {
   ekg::flags_t font(
     ekg::io::font_face_t &font_face
   );
+
+  struct glyph_t {
+  public:
+    float x {};
+    float wsize {};
+    float w {};
+    float h {};
+    float top {};
+    float left {};
+    float kerning {};
+    bool was_sampled {};
+  };
 }
 
 #endif

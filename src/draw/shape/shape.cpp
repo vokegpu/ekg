@@ -63,7 +63,7 @@ void ekg::draw::rect(
   data.buffer[7] = color.w;
 
   data.line_thickness = static_cast<int8_t>(line_thickness);
-  data.factor = 1;
+  data.hash = 1;
 
   ekg::p_core->gpu_allocator.bind_texture(sampler);
   ekg::p_core->gpu_allocator.dispatch();
@@ -72,7 +72,7 @@ void ekg::draw::rect(
 void ekg::draw::scissor(
   const ekg::vec4_t<float> &rect
 ) {
-  ekg::p_core->gpu_allocator.unsafe_set_scissor_placement(
+  ekg::p_core->gpu_allocator.unsafe_set_scissor_rect(
     rect.x, rect.y, rect.w, rect.h
   );  
 }
@@ -81,7 +81,7 @@ void ekg::draw::scissor(
 void ekg::draw::scissor(
   float x, float y, float w, float h
 ) {
-  ekg::p_core->gpu_allocator.unsafe_set_scissor_placement(
+  ekg::p_core->gpu_allocator.unsafe_set_scissor_rect(
     x, y, w, h
   );  
 }

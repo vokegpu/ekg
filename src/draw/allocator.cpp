@@ -118,8 +118,8 @@ void ekg::allocator::dispatch() {
     p_data->end_stride = this->stride_instance.y;
   }
 
-  if (!this->was_factor_changed) {
-    this->was_factor_changed = (
+  if (!this->was_hash_changed) {
+    this->was_hash_changed = (
       this->previous_factor != p_data->factor
     );
   }
@@ -151,7 +151,7 @@ void ekg::allocator::revoke() {
   if (
       this->last_geometry_buffer_size != this->geometry_instance
       ||
-      this->was_factor_changed
+      this->was_hash_changed
     ) {
     ekg::p_core->p_gpu_api->pass_geometry_buffer_to_gpu(
       this->geometry_buffer.data(),
@@ -160,7 +160,7 @@ void ekg::allocator::revoke() {
   }
 
   this->last_geometry_buffer_size = geometry_buffer_size;
-  this->was_factor_changed = false;
+  this->was_hash_changed = false;
 }
 
 void ekg::allocator::to_gpu() {
@@ -179,7 +179,7 @@ void ekg::allocator::clear_current_data() {
   data.line_thickness = 0;
   data.sampler_at = ekg::sampler_t::not_found;
 
-  this->previous_factor = data.factor;
+  this->previous_factor = data.hash;
 }
 
 ekg::gpu::data_t &ekg::allocator::bind_current_data() {
@@ -252,7 +252,7 @@ bool ekg::allocator::sync_scissor(
   return true;
 }
 
-void ekg::allocator::unsafe_set_scissor_placement(
+void ekg::allocator::unsafe_set_scissor_rect(
   float x,
   float y,
   float w,

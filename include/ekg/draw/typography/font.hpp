@@ -30,7 +30,6 @@
 #include <unordered_map>
 #include <array>
 
-#include "glyph.hpp"
 #include "ekg/math/geometry.hpp"
 #include "ekg/io/font.hpp"
 
@@ -40,7 +39,7 @@ namespace ekg::draw {
     std::vector<char32_t> new_glyphs_to_atlas {};
     size_t last_sampler_generate_list_size {};
 
-    std::unordered_map<char32_t, ekg::draw::glyph_t> mapped_glyph {};
+    std::unordered_map<char32_t, ekg::io::glyph_t> mapped_glyph {};
     std::array<ekg::io::font_face_t, ekg::io::supported_faces_size> faces {};
 
     ekg::at_t atlas_texture_sampler {ekg::at_t::not_found};

@@ -77,7 +77,7 @@ namespace ekg::gpu {
       ekg::io::font_face_t *p_font_face_kanjis,
       ekg::rect_t<int32_t> &atlas_rect,
       std::vector<char32_t> &char_to_gen_sampler_list,
-      std::unordered_map<char32_t, ekg::io::glyph_char_t> &mapped_gpu_data_char_glyph,
+      std::unordered_map<char32_t, ekg::io::glyph_t> &mapped_gpu_data_char_glyph,
       float &non_swizzlable_range
     ) { return ekg::result::not_implemented; };
 

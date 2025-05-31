@@ -383,7 +383,7 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
   ekg::io::font_face_t *p_font_face_kanjis,
   ekg::rect_t<int32_t> &atlas_rect,
   std::vector<char32_t> &char_to_gen_sampler_list,
-  std::unordered_map<char32_t, ekg::io::glyph_char_t> &mapped_gpu_data_char_glyph,
+  std::unordered_map<char32_t, ekg::io::glyph_t> &mapped_gpu_data_char_glyph,
   float &non_swizzlable_range
 ) {
   if (sampler == ekg::sampler_t::not_found) {
@@ -498,7 +498,7 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
       continue;
     }
 
-    ekg::io::glyph_char_t &char_data {mapped_gpu_data_char_glyph[char32]};
+    ekg::io::glyph_t &char_data {mapped_gpu_data_char_glyph[char32]};
     char_data.x = offset / static_cast<float>(atlas_rect.w);
 
     p_current_image_buffer = ft_glyph_slot->bitmap.buffer;

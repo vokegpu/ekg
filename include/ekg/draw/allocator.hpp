@@ -47,7 +47,7 @@ namespace ekg {
     std::vector<float> geometry_buffer {};
     size_t last_geometry_buffer_size {};
 
-    bool was_factor_changed {};
+    bool was_hash_changed {};
     int32_t previous_factor {};
   public:
     void init();
@@ -68,7 +68,7 @@ namespace ekg {
       ekg::rect_t<float> &parent_scissor
     );
 
-    void unsafe_set_scissor_placement(
+    void unsafe_set_scissor_rect(
       float x, float y, float w, float h
     );
 

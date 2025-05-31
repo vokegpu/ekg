@@ -105,7 +105,7 @@ float ekg::draw::font::get_text_width(
 
   for (uint64_t it {}; it < text_size; it++) {
     char8 = static_cast<uint8_t>(text.at(it));
-    it += ekg::utf_check_sequence(char8, char32, utf_string, text, it);
+    it += ekg::utf8_check_sequence(char8, char32, utf_string, text, it);
     break_text = char8 == '\n';
     if (break_text || (r_n_break_text = (char8 == '\r' && it < text_size && text.at(it + 1) == '\n'))) {
       it += static_cast<uint64_t>(r_n_break_text);
@@ -134,7 +134,7 @@ float ekg::draw::font::get_text_width(
       text_width += static_cast<float>(ft_vector_previous_char.x >> 6);
     }
 
-    ekg::draw::glyph_t &glyph {this->mapped_glyph[char32]};
+    ekg::io::glyph_t &glyph {this->mapped_glyph[char32]};
 
     if (!glyph.was_sampled) {
       if (
@@ -193,7 +193,7 @@ float ekg::draw::font::get_text_width(const std::string_view &text) {
 
   for (uint64_t it {}; it < text_size; it++) {
     char8 = static_cast<uint8_t>(text.at(it));
-    it += ekg::utf_check_sequence(char8, char32, utf_string, text, it);
+    it += ekg::utf8_check_sequence(char8, char32, utf_string, text, it);
 
     break_text = char8 == '\n';
     if (break_text || (r_n_break_text = (char8 == '\r' && it < text_size && text.at(it + 1) == '\n'))) {
@@ -222,7 +222,7 @@ float ekg::draw::font::get_text_width(const std::string_view &text) {
       text_width += static_cast<float>(ft_vector_previous_char.x >> 6);
     }
 
-    ekg::draw::glyph_t &glyph {this->mapped_glyph[char32]};
+    ekg::io::glyph_t &glyph {this->mapped_glyph[char32]};
 
     if (!glyph.was_sampled) {
       if (
@@ -373,7 +373,7 @@ void ekg::draw::font::reload() {
       continue;
     }
 
-    ekg::draw::glyph_t &glyph {
+    ekg::io::glyph_t &glyph {
       this->mapped_glyph[char32]
     };
 
@@ -453,7 +453,7 @@ void ekg::draw::font::blit(
   x = 0.0f;
   y = 0.0f;
 
-  data.factor = 1;
+  data.hash = 1;
   char32_t char32 {};
   uint8_t char8 {};
 
@@ -473,7 +473,7 @@ void ekg::draw::font::blit(
 
   for (uint64_t it {}; it < text_size; it++) {
     char8 = static_cast<uint8_t>(text.at(it));
-    it += ekg::utf_check_sequence(char8, char32, utf_string, text, it);
+    it += ekg::utf8_check_sequence(char8, char32, utf_string, text, it);
 
     break_text = char8 == '\n';
     if (
@@ -486,10 +486,10 @@ void ekg::draw::font::blit(
         )
       ) {
 
-      ekg::draw::glyph_t &glyph {this->mapped_glyph[char32]};
+      ekg::io::glyph_t &glyph {this->mapped_glyph[char32]};
 
       it += static_cast<uint64_t>(r_n_break_text);
-      data.factor += ekg::draw::generate_factor_hash(y, char32, glyph.x);
+      data.hash += ekg::draw::generate_factor_hash(y, char32, glyph.x);
 
       y += this->text_height;
       x = 0.0f;
@@ -513,7 +513,7 @@ void ekg::draw::font::blit(
       x += static_cast<float>(ft_vector_previous_char.x >> 6);
     }
 
-    ekg::draw::glyph_t &glyph {this->mapped_glyph[char32]};
+    ekg::io::glyph_t &glyph {this->mapped_glyph[char32]};
 
     if (!glyph.was_sampled) {
       this->new_glyphs_to_atlas.emplace_back(char32);
@@ -576,9 +576,9 @@ void ekg::draw::font::blit(
     ft_uint_previous = char32;
 
     /**
-     * Peek `ekg/io/memory.hpp`.
+     * Peek `ekg/io/memory.hpp` for better hash definition and purpose.
      **/
-    data.factor += ekg_generate_hash(x, char32, glyph.x);
+    data.hash += ekg_generate_hash(x, char32, glyph.x);
   }
 
   this->flush();
