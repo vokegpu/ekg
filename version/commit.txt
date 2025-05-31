@@ -234,27 +234,39 @@
 -- Added WASM build-type compatibility.
 -- Fixed GLES3 font format, GLES3 is stricly about image format, so now for GLES3 (applies: Android, Emscripten, and desktop GLES3), texture is swizzle by CPU-side and not in the driver (like desktop OpenGL core-profile does).
 
+2.0.0-deprecated 25/01/25
+
+-- ~~Added properties, stack, and new IO features.~~
+-- ~~Added bitwise op on `io/memory.hpp` template.~~
+-- ~~Added properties overload operator for casting widget and descriptor.~~
+-- ~~Refactored and optimized input-service with addressed input bind without useless hash queries.~~
+-- ~~New individual-theme-scheme system for service theme.~~
+-- ~~Refactored font-renderer and moved part of implementations to `io/` package.~~
+-- ~~Refactored layout docknization, extentinzation, and scale. Separated into individuals headers.~~
+-- ~~Rendering Hardware-Interface (RHI): OpenGL module refactored.~~
+-- ~~OS Platform-Interface (OPI): SDL2, GLFW modules refactored.~~
+-- ~~Added floating point features and algebra linear features.~~
+-- ~~Properties can be cast to reference and ptr, both with different reasons and complete utility.~~
+-- ~~Added new reload, layout docknization, and scale update runtime operation tasks. ~~
+-- ~~Properties has a visible absolute rect to user-programmer.~~
+-- ~~Unsafe properties linked to the descriptor also.~~
+-- ~~Dynamic widget-text rendering via `ekg::value` wrapper.~~
+-- ~~Frame widget impl. on new memory-model.~~
+-- ~~Button widget impl. on new memory-model.~~
+-- ~~Label widget impl. on new memory-model.~~
+-- ~~Scrollbar widget impl. on new memory-model.~~
+-- ~~Scrollbar scrolling speed fix.~~
+-- ~~Moved callback-actions to descriptors instead as before in properties, also actions are type-based named `ekg::actions`.~~
+-- ~~Fixed pixel align on container docknization, margin layout and offset layout both are separed now.~~
+
 2.0.0 25/01/25
 
--- Added properties, stack, and new IO features.
--- Added bitwise op on `io/memory.hpp` template.
--- Added properties overload operator for casting widget and descriptor.
--- Refactored and optimized input-service with addressed input bind without useless hash queries.
--- New individual-theme-scheme system for service theme.
--- Refactored font-renderer and moved part of implementations to `io/` package.
--- Refactored layout docknization, extentinzation, and scale. Separated into individuals headers.
--- Rendering Hardware-Interface (RHI): OpenGL module refactored.
--- OS Platform-Interface (OPI): SDL2, GLFW modules refactored.
--- Added floating point features and algebra linear features.
--- Properties can be cast to reference and ptr, both with different reasons and complete utility.
--- Added new reload, layout docknization, and scale update runtime operation tasks. 
--- Properties has a visible absolute rect to user-programmer.
--- Unsafe properties linked to the descriptor also.
--- Dynamic widget-text rendering via `ekg::value` wrapper.
--- Frame widget impl. on new memory-model.
--- Button widget impl. on new memory-model.
--- Label widget impl. on new memory-model.
--- Scrollbar widget impl. on new memory-model.
--- Scrollbar scrolling speed fix.
--- Moved callback-actions to descriptors instead as before in properties, also actions are type-based named `ekg::actions`.
--- Fixed pixel align on container docknization, margin layout and offset layout both are separed now.
+-- IO Memory. 
+-- Memory pools fundamentals: `ekg::pool<t>` it self, `ekg::callback_t`, `ekg::sampler_t`.
+-- Query `ekg::query<t>` and make `ekg::make<t>` fundamentals functions.
+-- Descriptors: `ekg::callback_t`, `ekg::callback_t`.
+-- Base platform and base rendering-hardware interface.
+-- Platform `SDL2`.
+-- API `OpenGL`.
+-- Allocator.
+-- Font rendering.

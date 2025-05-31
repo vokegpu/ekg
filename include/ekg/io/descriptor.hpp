@@ -35,7 +35,7 @@ namespace ekg {
   };
 }
 
-#define EKG_DESCRIPTOR(descriptor_t) \
+#define ekg_descriptor(descriptor_t) \
   public: \
     ekg::at_t at {}; \
   public: \

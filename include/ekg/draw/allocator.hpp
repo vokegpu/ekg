@@ -73,7 +73,7 @@ namespace ekg {
     );
 
     void push_back_geometry(
-      const ekg::vec2_t<float> &position,
+      const ekg::vec2_t<float> &vertex,
       const ekg::vec2_t<float> &uv
     );
   };

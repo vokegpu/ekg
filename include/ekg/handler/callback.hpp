@@ -23,7 +23,7 @@ namespace ekg {
     std::function(void(ekg::info_t&)) lambda {};
     ekg::callback_function_t function {nullptr};
   public:
-    EKG_DESCRIPTOR(ekg::callback_t);
+    ekg_descriptor(ekg::callback_t);
   };
 }
 

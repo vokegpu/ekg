@@ -29,11 +29,50 @@
 #include "ekg/core/runtime.hpp"
 #include "ekg/core/context.hpp"
 
-ekg::sampler_t *ekg::draw::font_renderer::get_atlas_texture_sampler() {
-  return &this->atlas_texture_sampler;
+void ekg::draw::font::init() {
+  if (this->was_initialized) {
+    return;
+  }
+
+  this->was_initialized = true;
+
+  this->new_glyphs_to_atlas.resize(256);
+  for (char32_t char32 {}; char32 < 256; char32++) {
+    this->new_glyphs_to_atlas.at(char32) = char32;
+  }
+
+  ekg::log() << "Initializing 256 default chars!";
 }
 
-float ekg::draw::font_renderer::get_text_width(std::string_view text, int32_t &lines) {
+void ekg::draw::font::quit() {
+  ekg::io::font_face_t &text_font_face {this->faces[ekg::io::font_face_type::text]};
+  ekg::io::font_face_t &emojis_font_face {this->faces[ekg::io::font_face_type::emojis]};
+  ekg::io::font_face_t &kanjis_font_face {this->faces[ekg::io::font_face_type::kanjis]};
+
+  if (text_font_face.was_loaded) {
+    FT_Done_Face(text_font_face.ft_face);
+    text_font_face.was_loaded = false;
+  }
+
+  if (emojis_font_face.was_loaded) {
+    FT_Done_Face(emojis_font_face.ft_face);
+    emojis_font_face.was_loaded = false;
+  }
+
+  if (kanjis_font_face.was_loaded) {
+    FT_Done_Face(kanjis_font_face.ft_face);
+    kanjis_font_face.was_loaded = false;
+  }
+}
+
+ekg::sampler_t &ekg::draw::font::get_atlas_texture_sampler() {
+  return ekg::query<ekg::sampler_t>(this->atlas_texture_sampler_at);
+}
+
+float ekg::draw::font::get_text_width(
+  const std::string_view &text,
+  int32_t &lines
+) {
   if (
       text.empty()
       ||
@@ -95,9 +134,9 @@ float ekg::draw::font_renderer::get_text_width(std::string_view text, int32_t &l
       text_width += static_cast<float>(ft_vector_previous_char.x >> 6);
     }
 
-    ekg::io::glyph_char_t &char_data {this->mapped_glyph_char_data[char32]};
+    ekg::draw::glyph_t &glyph {this->mapped_glyph[char32]};
 
-    if (!char_data.was_sampled) {
+    if (!glyph.was_sampled) {
       if (
           FT_Load_Char(
             ft_face,
@@ -108,13 +147,13 @@ float ekg::draw::font_renderer::get_text_width(std::string_view text, int32_t &l
         continue;
       }
 
-      char_data.wsize = static_cast<float>(static_cast<int32_t>(ft_glyph_slot->advance.x >> 6));
-      this->loaded_sampler_generate_list.emplace_back(char32);
-      char_data.was_sampled = true;
+      glyph.wsize = static_cast<float>(static_cast<int32_t>(ft_glyph_slot->advance.x >> 6));
+      this->new_glyphs_to_atlas.emplace_back(char32);
+      glyph.was_sampled = true;
     }
 
     ft_uint_previous = char32;
-    text_width += this->mapped_glyph_char_data[char32].wsize;
+    text_width += this->mapped_glyph[char32].wsize;
   }
 
   lines = ekg::clamp_min(lines, lines_count);
@@ -123,7 +162,7 @@ float ekg::draw::font_renderer::get_text_width(std::string_view text, int32_t &l
   return largest_text_width;
 }
 
-float ekg::draw::font_renderer::get_text_width(std::string_view text) {
+float ekg::draw::font::get_text_width(const std::string_view &text) {
   if (
       text.empty()
       ||
@@ -183,9 +222,9 @@ float ekg::draw::font_renderer::get_text_width(std::string_view text) {
       text_width += static_cast<float>(ft_vector_previous_char.x >> 6);
     }
 
-    ekg::io::glyph_char_t &char_data {this->mapped_glyph_char_data[char32]};
+    ekg::draw::glyph_t &glyph {this->mapped_glyph[char32]};
 
-    if (!char_data.was_sampled) {
+    if (!glyph.was_sampled) {
       if (
           FT_Load_Char(
             ft_face,
@@ -196,24 +235,24 @@ float ekg::draw::font_renderer::get_text_width(std::string_view text) {
         continue;
       }
 
-      char_data.wsize = static_cast<float>(static_cast<int32_t>(ft_glyph_slot->advance.x >> 6));
-      this->loaded_sampler_generate_list.emplace_back(char32);
-      char_data.was_sampled = true;
+      glyph.wsize = static_cast<float>(static_cast<int32_t>(ft_glyph_slot->advance.x >> 6));
+      this->new_glyphs_to_atlas.emplace_back(char32);
+      glyph.was_sampled = true;
     }
 
     ft_uint_previous = char32;
-    text_width += char_data.wsize;
+    text_width += glyph.wsize;
   }
 
   largest_text_width = ekg::clamp_min(largest_text_width, text_width);
   return largest_text_width;
 }
 
-float ekg::draw::font_renderer::get_text_height() {
+float ekg::draw::font::get_text_height() {
   return this->text_height;
 }
 
-void ekg::draw::font_renderer::set_font(std::string_view path) {
+void ekg::draw::font::set_font(const std::string_view &path) {
   ekg::io::font_face_t &font_face {
     this->faces[ekg::io::font_face_type::text]
   };
@@ -227,7 +266,7 @@ void ekg::draw::font_renderer::set_font(std::string_view path) {
   }
 }
 
-void ekg::draw::font_renderer::set_font_emoji(std::string_view path) {
+void ekg::draw::font::set_font_emoji(const std::string_view &path) {
   ekg::io::font_face_t &font_face {
     this->faces[ekg::io::font_face_type::emojis]
   };
@@ -241,7 +280,7 @@ void ekg::draw::font_renderer::set_font_emoji(std::string_view path) {
   }
 }
 
-void ekg::draw::font_renderer::set_size(uint32_t size) {
+void ekg::draw::font::set_size(uint32_t size) {
   if (this->font_size != size) {
     for (size_t it {}; it < ekg::io::supported_faces_size; it++) {
       ekg::io::font_face_t &font_face {
@@ -257,9 +296,14 @@ void ekg::draw::font_renderer::set_size(uint32_t size) {
   }
 }
 
-void ekg::draw::font_renderer::reload() {
+void ekg::draw::font::reload() {
   if (this->font_size == 0) {
     return;
+  }
+
+  if (this->atlas_texture_sampler_at == ekg::at_t::not_found) {
+    ekg::sampler_t &sampler {ekg::make<ekg::sampler_t>({})};
+    this->atlas_texture_sampler_at = sampler.at;
   }
 
   size_t functional_fonts {};
@@ -306,7 +350,7 @@ void ekg::draw::font_renderer::reload() {
   FT_Face ft_face {};
 
   ekg::io::font_face_t *p_font_face_picked {};
-  for (char32_t &char32 : this->loaded_sampler_generate_list) {
+  for (char32_t &char32 : this->new_glyphs_to_atlas) {
     switch (char32 < 256 || !emojis_font_face.was_loaded) {
       case true: {
         ft_face = text_font_face.ft_face;
@@ -329,28 +373,28 @@ void ekg::draw::font_renderer::reload() {
       continue;
     }
 
-    ekg::io::glyph_char_t &char_data {
-      this->mapped_glyph_char_data[char32]
+    ekg::draw::glyph_t &glyph {
+      this->mapped_glyph[char32]
     };
 
-    char_data.w = static_cast<float>(ft_glyph_slot->bitmap.width);
-    char_data.h = static_cast<float>(ft_glyph_slot->bitmap.rows);
+    glyph.w = static_cast<float>(ft_glyph_slot->bitmap.width);
+    glyph.h = static_cast<float>(ft_glyph_slot->bitmap.rows);
 
-    char_data.left = static_cast<float>(ft_glyph_slot->bitmap_left);
-    char_data.top = static_cast<float>(ft_glyph_slot->bitmap_top);
-    char_data.wsize = static_cast<float>(static_cast<int32_t>(ft_glyph_slot->advance.x >> 6));
+    glyph.left = static_cast<float>(ft_glyph_slot->bitmap_left);
+    glyph.top = static_cast<float>(ft_glyph_slot->bitmap_top);
+    glyph.wsize = static_cast<float>(static_cast<int32_t>(ft_glyph_slot->advance.x >> 6));
 
-    this->atlas_rect.w += static_cast<int32_t>(char_data.w);
-    this->atlas_rect.h = ekg::clamp_min<int32_t>(this->atlas_rect.h, static_cast<int32_t>(char_data.h));
+    this->atlas_rect.w += static_cast<int32_t>(glyph.w);
+    this->atlas_rect.h = ekg::clamp_min<int32_t>(this->atlas_rect.h, static_cast<int32_t>(glyph.h));
 
     p_font_face_picked->highest_glyph_size.x = ekg::clamp_min(
       static_cast<int32_t>(p_font_face_picked->highest_glyph_size.x),
-      static_cast<int32_t>(char_data.w)
+      static_cast<int32_t>(glyph.w)
     );
 
     p_font_face_picked->highest_glyph_size.y = ekg::clamp_min(
       static_cast<int32_t>(p_font_face_picked->highest_glyph_size.y),
-      static_cast<int32_t>(char_data.h)
+      static_cast<int32_t>(glyph.h)
     );
   }
 
@@ -358,35 +402,33 @@ void ekg::draw::font_renderer::reload() {
   this->offset_text_height = static_cast<int32_t>(this->text_height / 6) / 2;
 
   ekg::p_core->p_gpu_api->gen_font_atlas_and_map_glyph(
-    &this->atlas_texture_sampler,
+    ekg::query<ekg::sampler_t>(this->atlas_texture_sampler_at),
     &text_font_face,
     &emojis_font_face,
-    nullptr, // must impl kanjis
+    nullptr, // must impl kanjis wmwmwm
     this->atlas_rect,
-    this->loaded_sampler_generate_list,
-    this->mapped_glyph_char_data,
+    this->new_glyphs_to_atlas,
+    this->mapped_glyph,
     this->non_swizzlable_range
   );
 }
 
-void ekg::draw::font_renderer::bind_allocator(ekg::gpu::allocator *p_allocator_bind) {
-  this->p_allocator = p_allocator_bind;
+void ekg::draw::font::bind_allocator(ekg::gpu::allocator *p_allocator_bind) {
+  ekg::p_core->draw_allocator = p_allocator_bind;
 }
 
-void ekg::draw::font_renderer::blit(
-  std::string_view text,
+void ekg::draw::font::blit(
+  const std::string_view &text,
   float x,
   float y,
-  const ekg::vec4_t<float> &color
+  const ekg::rgba_t<float> &color
 ) {
   if (
-      this->p_allocator == nullptr
+      !this->is_any_functional_font_face_loaded
       ||
       color.w < 0.1f 
       ||
       text.empty()
-      ||
-      !this->is_any_functional_font_face_loaded
   ) {
     return;
   }
@@ -394,20 +436,19 @@ void ekg::draw::font_renderer::blit(
   x = static_cast<float>(static_cast<int32_t>(x));
   y = static_cast<float>(static_cast<int32_t>(y - this->offset_text_height));
 
-  ekg::io::gpu_data_t &data {this->p_allocator->bind_current_data()};
+  ekg::gpu::data_t &data {ekg::p_core->draw_allocator.bind_current_data()};
 
-  data.buffer_content[0] = x;
-  data.buffer_content[1] = y;
-  data.buffer_content[2] = static_cast<float>(-this->non_swizzlable_range);
-  data.buffer_content[3] = static_cast<float>(ekg::gpu::allocator::concave);
+  data.buffer[0] = x;
+  data.buffer[1] = y;
+  data.buffer[2] = static_cast<float>(-this->non_swizzlable_range);
 
-  data.buffer_content[4] = color.x;
-  data.buffer_content[5] = color.y;
-  data.buffer_content[6] = color.z;
-  data.buffer_content[7] = color.w;
+  data.buffer[4] = color.x;
+  data.buffer[5] = color.y;
+  data.buffer[6] = color.z;
+  data.buffer[7] = color.w;
 
-  ekg::rect_t<float> vertices {};
-  ekg::rect_t<float> coordinates {};
+  ekg::rect_t<float> vertex {};
+  ekg::rect_t<float> uv {};
 
   x = 0.0f;
   y = 0.0f;
@@ -444,10 +485,11 @@ void ekg::draw::font_renderer::blit(
           )
         )
       ) {
-      ekg::io::glyph_char_t &char_data {this->mapped_glyph_char_data[char32]};
+
+      ekg::draw::glyph_t &glyph {this->mapped_glyph[char32]};
 
       it += static_cast<uint64_t>(r_n_break_text);
-      data.factor += ekg::draw::generate_factor_hash(y, char32, char_data.x);
+      data.factor += ekg::draw::generate_factor_hash(y, char32, glyph.x);
 
       y += this->text_height;
       x = 0.0f;
@@ -471,78 +513,81 @@ void ekg::draw::font_renderer::blit(
       x += static_cast<float>(ft_vector_previous_char.x >> 6);
     }
 
-    ekg::io::glyph_char_t &char_data {this->mapped_glyph_char_data[char32]};
+    ekg::draw::glyph_t &glyph {this->mapped_glyph[char32]};
 
-    if (!char_data.was_sampled) {
-      this->loaded_sampler_generate_list.emplace_back(char32);
-      char_data.was_sampled = true;
+    if (!glyph.was_sampled) {
+      this->new_glyphs_to_atlas.emplace_back(char32);
+      glyph.was_sampled = true;
     }
 
-    vertices.x = x + char_data.left;
-    vertices.y = y + this->atlas_rect.h - char_data.top;
+    vertex.x = x + glyph.left;
+    vertex.y = y + this->atlas_rect.h - glyph.top;
 
-    vertices.w = char_data.w;
-    vertices.h = char_data.h;
+    vertex.w = glyph.w;
+    vertex.h = glyph.h;
 
-    coordinates.x = char_data.x;
-    coordinates.w = vertices.w / this->atlas_rect.w;
-    coordinates.h = vertices.h / this->atlas_rect.h;
+    uv.x = glyph.x;
+    uv.w = vertex.w / this->atlas_rect.w;
+    uv.h = vertex.h / this->atlas_rect.h;
 
-    this->p_allocator->push_back_geometry(
-      vertices.x,
-      vertices.y,
-      coordinates.x,
-      coordinates.y
+    ekg::p_core->draw_allocator.push_back_geometry(
+      vertex.x,
+      vertex.y,
+      uv.x,
+      uv.y
     );
 
-    this->p_allocator->push_back_geometry(
-      vertices.x,
-      vertices.y + vertices.h,
-      coordinates.x,
-      coordinates.y + coordinates.h
+    ekg::p_core->draw_allocator.push_back_geometry(
+      vertex.x,
+      vertex.y + vertex.h,
+      uv.x,
+      uv.y + uv.h
     );
 
-    this->p_allocator->push_back_geometry(
-      vertices.x + vertices.w,
-      vertices.y + vertices.h,
-      coordinates.x + coordinates.w,
-      coordinates.y + coordinates.h
+    ekg::p_core->draw_allocator.push_back_geometry(
+      vertex.x + vertex.w,
+      vertex.y + vertex.h,
+      uv.x + uv.w,
+      uv.y + uv.h
     );
 
-    this->p_allocator->push_back_geometry(
-      vertices.x + vertices.w,
-      vertices.y + vertices.h,
-      coordinates.x + coordinates.w,
-      coordinates.y + coordinates.h
+    ekg::p_core->draw_allocator.push_back_geometry(
+      vertex.x + vertex.w,
+      vertex.y + vertex.h,
+      uv.x + uv.w,
+      uv.y + uv.h
     );
 
-    this->p_allocator->push_back_geometry(
-      vertices.x + vertices.w,
-      vertices.y,
-      coordinates.x + coordinates.w,
-      coordinates.y
+    ekg::p_core->draw_allocator.push_back_geometry(
+      vertex.x + vertex.w,
+      vertex.y,
+      uv.x + uv.w,
+      uv.y
     );
 
-    this->p_allocator->push_back_geometry(
-      vertices.x,
-      vertices.y,
-      coordinates.x,
-      coordinates.y
+    ekg::p_core->draw_allocator.push_back_geometry(
+      vertex.x,
+      vertex.y,
+      uv.x,
+      uv.y
     );
 
-    x += char_data.wsize;
+    x += glyph.wsize;
     ft_uint_previous = char32;
 
-    data.factor += ekg::draw::generate_factor_hash(x, char32, char_data.x);
+    /**
+     * Peek `ekg/io/memory.hpp`.
+     **/
+    data.factor += ekg_generate_hash(x, char32, glyph.x);
   }
 
   this->flush();
-  this->p_allocator->bind_texture(&this->atlas_texture_sampler);
-  this->p_allocator->dispatch();
+  ekg::p_core->draw_allocator.bind_texture(&this->atlas_texture_sampler);
+  ekg::p_core->draw_allocator.dispatch();
 }
 
-void ekg::draw::font_renderer::flush() {
-  uint64_t size {this->loaded_sampler_generate_list.size()};
+void ekg::draw::font::flush() {
+  uint64_t size {this->new_glyphs_to_atlas.size()};
   if (this->last_sampler_generate_list_size != size) {
     ekg::log() << "Sampler updated from-to: " << this->last_sampler_generate_list_size << " " << size;
 
@@ -553,51 +598,15 @@ void ekg::draw::font_renderer::flush() {
   }
 }
 
-void ekg::draw::font_renderer::init() {
-  if (this->was_initialized) {
-    return;
-  }
-
-  this->was_initialized = true;
-
-  this->loaded_sampler_generate_list.resize(256);
-  for (char32_t char32 {}; char32 < 256; char32++) {
-    this->loaded_sampler_generate_list.at(char32) = char32;
-  }
-
-  ekg::log() << "Initializing 256 default chars!";
-}
-
-void ekg::draw::font_renderer::quit() {
-  ekg::io::font_face_t &text_font_face {this->faces[ekg::io::font_face_type::text]};
-  ekg::io::font_face_t &emojis_font_face {this->faces[ekg::io::font_face_type::emojis]};
-  ekg::io::font_face_t &kanjis_font_face {this->faces[ekg::io::font_face_type::kanjis]};
-
-  if (text_font_face.was_loaded) {
-    FT_Done_Face(text_font_face.ft_face);
-    text_font_face.was_loaded = false;
-  }
-
-  if (emojis_font_face.was_loaded) {
-    FT_Done_Face(emojis_font_face.ft_face);
-    emojis_font_face.was_loaded = false;
-  }
-
-  if (kanjis_font_face.was_loaded) {
-    FT_Done_Face(kanjis_font_face.ft_face);
-    kanjis_font_face.was_loaded = false;
-  }
-}
-
-ekg::draw::font_renderer &ekg::draw::get_font_renderer(ekg::font font) {
+ekg::draw::font &ekg::draw::get_font_renderer(ekg::font font) {
   switch (font) {
   case ekg::font::small:
-    return ekg::p_core->draw_fr_small;
+    return ekg::p_core->draw_font_small;
   case ekg::font::big:
-    return ekg::p_core->draw_fr_big;
+    return ekg::p_core->draw_font_big;
   default:
     break;
   }
 
-  return ekg::p_core->draw_fr_normal;
+  return ekg::p_core->draw_font_medium;;
 }

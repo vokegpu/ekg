@@ -27,6 +27,7 @@
 #include "ekg/platform/base.hpp"
 #include "ekg/gpu/api.hpp"
 #include "ekg/draw/typography/font.hpp"
+#include "ekg/draw/allocator.hpp"
 
 namespace ekg {
   struct ekg_runtime_properties_info_t {
@@ -44,6 +45,11 @@ namespace ekg {
   public:
     ekg::handler::input handler_input {};
     ekg::handler::callback handler_callback {};
+  public:
+    ekg::draw::allocator draw_allocator {};
+    ekg::draw::font draw_font_small {};
+    ekg::draw::font draw_font_medium {};
+    ekg::draw::font draw_font_big {};
   } *p_core;
 }
 

@@ -41,7 +41,7 @@ namespace ekg {
     int8_t gl_protected_active_index {-1};
     bool is_protected {};
   public:
-    EKG_DESCRIPTOR(ekg::sampler_t);
+    ekg_descriptor(ekg::sampler_t);
   };
 
   struct sampler_info_t {

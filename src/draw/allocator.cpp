@@ -57,7 +57,6 @@ void ekg::allocator::invoke() {
     this->gpu_data_buffer.emplace_back();
   }
 
-  //this->gpu_data_buffer.at(this->data_instance).begin_stride = this->stride_instance.y;
   this->stride_instance.x += this->stride_instance.y;
   this->stride_instance.y = 0;
 }
@@ -72,7 +71,7 @@ void ekg::allocator::bind_texture(ekg::sampler_t &sampler) {
 }
 
 void ekg::allocator::dispatch() {
-  ekg::gpu::data_t *p_data {};
+  ekg::gpu::data_t *p_data {/* stupid */};
 
   if (ekg::allocator::enable_high_priority) {
     this->high_priority_gpu_data_buffer.push_back(this->gpu_data_buffer.at(this->data_instance));
@@ -88,9 +87,8 @@ void ekg::allocator::dispatch() {
   }
 
   /**
-   * Scissor must be synchned externally to update the scissor context.
+   * Scissor must be externally synchned.
    **/
-
   p_data->buffer[8] = this->scissor_instance.x;
   p_data->buffer[9] = this->scissor_instance.y;
   p_data->buffer[10] = this->scissor_instance.w;
@@ -102,15 +100,23 @@ void ekg::allocator::dispatch() {
    **/
 
   if (ekg::allocator::is_simple_shape) {
-    p_data->begin_stride = this->simple_shape_instance;
-    p_data->end_stride = 4; // simple shape contains ony 4 vertices
     this->stride_instance.y = 0;
+
+    /**
+     * Peek `ekg/gpu/gl/shaders.cpp`.
+     * Any value less than -1.0 is considered a concave by the vertex shader.
+     **/
+    p_data->buffer[3] = -1.1f;
+
+    /**
+     * Simple shade contains only 4 vertices because it is indexed-rendered.
+     **/
+    p_data->begin_stride = this->simple_shape_instance;
+    p_data->end_stride = 4;
   } else {    
     p_data->begin_stride = this->stride_instance.x;
     p_data->end_stride = this->stride_instance.y;
   }
-
-  /* flag re alloc buffers if factor changed */
 
   if (!this->was_factor_changed) {
     this->was_factor_changed = (
@@ -259,12 +265,12 @@ void ekg::allocator::unsafe_set_scissor_placement(
 }
 
 void ekg::allocator::push_back_geometry(
-  const ekg::vec2_t<float> &position,
+  const ekg::vec2_t<float> &vertex,
   const ekg::vec2_t<float> &uv
 ) {
   this->stride_instance.y++;
-  this->geometry_buffer.push_back(position.x);
-  this->geometry_buffer.push_back(position.y);
+  this->geometry_buffer.push_back(vertex.x);
+  this->geometry_buffer.push_back(vertex.y);
   this->geometry_buffer.push_back(uv.x);
   this->geometry_buffer.push_back(uv.y);
   this->geometry_instance += 4;

@@ -31,6 +31,7 @@
 namespace ekg {
   typedef size_t flags_t;
   typedef size_t id_t;
+  typedef int32_t hash_t;
 
   constexpr ekg::id_t not_found {29496526662939};
 
@@ -130,5 +131,11 @@ namespace ekg::io {
     return *static_cast<t*>(p_any);
   }
 }
+
+/**
+ * This is a macro because hash should enjoy of compile-time for generate valid hashes.
+ * Not really an expensive job for CPU.
+ **/
+#define ekg_generate_hash(distance, c32, u) static_cast<ekg::hash_t>(distance + c34 + u * 100);
 
 #endif
