@@ -26,18 +26,21 @@
 
 #include "ekg/platform/base.hpp"
 #include "ekg/gpu/api.hpp"
+#include "ekg/draw/typography/font.hpp"
 
 namespace ekg {
   struct ekg_runtime_properties_info_t {
   public:
     ekg::platform::base *p_platform_base {};
     ekg::gpu::api *p_gpu_api {};
+    ekg::ft_library ft_library {};
   };
 
   extern struct runtime_t {
   public:
     ekg::platform::base *p_platform_base {};
     ekg::gpu::api *p_gpu_api {};
+    ekg::ft_library ft_library {};
   public:
     ekg::handler::input handler_input {};
     ekg::handler::callback handler_callback {};

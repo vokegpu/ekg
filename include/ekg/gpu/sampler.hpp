@@ -62,6 +62,12 @@ namespace ekg {
 
   typedef sampler_info_t sampler_allocate_info_t;
   typedef sampler_info_t sampler_fill_info_t;
+
+  ekg::flags_t sampler_src_r8_to_r8g8b8a8(
+    const ekg::vec2_t<int23_t> &size,
+    const unsigned char *p_src,
+    std::vector<unsigned char> &dst>
+  );
 }
 
 #endif

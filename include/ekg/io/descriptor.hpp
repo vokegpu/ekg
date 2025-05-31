@@ -40,8 +40,8 @@ namespace ekg {
     ekg::at_t at {}; \
   public: \
     bool operator == (descriptor_t &descriptor) { \
-      descriptor_t::not_found.unique_id = ekg::not_found; \
-      return this->at.unique_id == descriptor.at.unique_id; \
+      descriptor_t::not_found.at = ekg::at_t::not_found; \
+      return this->at == descriptor.at; \
     }
 \
     bool operator != (descriptor_t &descriptor) { \

@@ -61,13 +61,13 @@ namespace ekg::gpu {
       int32_t h
     ) {};
     
-    virtual void re_alloc_geometry_resources(
+    virtual void pass_geometry_buffer_to_gpu(
       const float *p_data,
       uint64_t size
     ) {};
 
-    virtual void draw(
-      std::vector<ekg::gpu::data_t> &loaded_gpu_data_list
+    virtual void pass_gpu_data_buffer_to_gpu(
+      std::vector<ekg::gpu::data_t> &gpu_data_buffer
     ) {};
 
     virtual ekg::flags_t gen_font_atlas_and_map_glyph(

@@ -26,7 +26,7 @@
 
 #include "ekg/io/memory.hpp"
 #include "ekg/handler/callback.hpp"
-#include "ekg"
+#include "ekg/gpu/sampler.hpp"
 
 namespace ekg {
   extern struct pools_t {

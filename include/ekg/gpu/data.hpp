@@ -29,6 +29,8 @@
 namespace ekg::gpu {
   struct data_t {
   public:
+    static ekg::gpu::data_t not_found;
+  public:
     float buffer[12] {};
     int32_t sampler_index {-1};
     int8_t line_thickness {};
@@ -36,6 +38,8 @@ namespace ekg::gpu {
     int32_t end_stride {};
     int32_t factor {};
     int32_t scissor_id {-1};
+  public:
+    EKG_DESCRIPTOR(ekg::gpu::data_t);
   };
 }
 

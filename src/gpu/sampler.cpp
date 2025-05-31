@@ -21,48 +21,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "ekg/ekg.hpp"
-#include "ekg/io/log.hpp"
+#include "ekg/gpu/sampler.hpp"
 
-ekg::runtime_t ekg::p_core {nullptr};
-std::ostringstream ekg::log::buffer {};
-bool ekg::log::buffered {};
-
-ekg::flags_t ekg::init(
-  ekg::ekg_runtime_properties_info_t &runtime_properties_info,
-  ekg::runtime_t *p_runtime
+ekg::flags_t ekg::sampler_src_r8_to_r8g8b8a8(
+  const ekg::vec2_t<int23_t> &size,
+  const unsigned char *p_src,
+  std::vector<unsigned char> &dst
 ) {
-  if (p_runtime == nullptr) {
-    ekg::log("[EKG] ~ERROR~ invalid (?) `ekg::runtime_t` pointer address: nullptr");
+  if (
+    p_src == nullptr
+    ||
+    size.x == 0
+    ||
+    size.y == 0
+    ||
+    dst.size() != (size.x * size.y)
+  ) {
     return ekg::result::failed;
   }
 
-  ekg::p_core = p_runtime;
+  size_t index {};
+  size_t size {size.x * size.y};
 
-  ekg::p_core->p_platform_base = runtime_properties_info.p_platform_base;
-  ekg::p_core->p_gpu_api = runtime_properties_info.p_gpu_api;
-  ekg::p_core->ft_library = runtime_properties_info.ft_library;
+  for (size_t it {}; it < size; it++) {
+    const unsigned char &char8_red_color {
+      p_src[it]
+    };
 
-  ekg::p_core->handler_callback.init();
-  ekg::p_core->handler_input.init();
+    index = it * 4;
+
+    if (index == dst.size()) {
+      break;
+    }
+
+    /**
+     * may I be wrong? but the format is ARGB and not RGBA,
+     * I do not know.
+     **/
+
+    dst.at(index + 0) = char8_red_color;
+    dst.at(index + 1) = 255;
+    dst.at(index + 2) = 255;
+    dst.at(index + 3) = 255;
+  } 
 
   return ekg::result::success;
-}
-
-void ekg::quit() {
-  if (ekg::p_core == nullptr) {
-    return;
-  }
-}
-
-void ekg::update() {
-  if (ekg::p_core == nullptr) {
-    return;
-  }
-}
-
-void ekg::render() {
-  if (ekg::p_core == nullptr) {
-    return;
-  }
 }

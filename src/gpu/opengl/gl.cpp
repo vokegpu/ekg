@@ -29,6 +29,7 @@
 #include "ekg/gpu/opengl/gl.hpp"
 #include "ekg/gpu/opengl/shaders.hpp"
 #include "ekg/core/runtime.hpp"
+#include "ekg/io/log.hpp"
 
 ekg::opengl::opengl(std::string_view set_glsl_version) {
   if (set_glsl_version.empty()) {
@@ -248,7 +249,7 @@ bool ekg::opengl::create_pipeline_program(
   return false;
 }
 
-void ekg::opengl::re_alloc_geometry_resources(
+void ekg::opengl::pass_geometry_buffer_to_gpu(
   const float *p_data,
   uint64_t size
 ) {
@@ -517,7 +518,7 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
 
       if (
           ekg::has(
-            ekg::image_src_r8_convert_to_r8g8b8a8(
+            ekg::sampler_src_r8_to_r8g8b8a8(
               highest_glyph_size,
               p_src_copy,
               r8_to_r8g8b8a8_swizzled_image
@@ -577,8 +578,8 @@ ekg::at_t &ekg::opengl::bind_sampler(ekg::sampler_t &sampler) {
   return sampler.at;
 }
 
-void ekg::opengl::draw(
-  std::vector<ekg::gpu::data_t> &loaded_gpu_data_list
+void ekg::opengl::pass_gpu_data_buffer_to_gpu(
+  std::vector<ekg::gpu::data_t> &gpu_data_buffer
 ) {
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
@@ -609,7 +610,7 @@ void ekg::opengl::draw(
   ekg::at_t previous_sampler_bound {.unique_id = ekg::not_found};
   bool sampler_going_on {};
 
-  for (ekg::gpu::data_t &data : loaded_gpu_data_list) {
+  for (ekg::gpu::data_t &data : gpu_data_buffer) {
     sampler_going_on = data.sampler_at != ekg::at_t::not_found;
 
     if (

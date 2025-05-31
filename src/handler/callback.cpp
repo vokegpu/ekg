@@ -1,7 +1,7 @@
 /**
  * MIT License
  * 
- * Copyright (c) 2022-2024 Rina Wilk / vokegpu@gmail.com
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,5 @@
 #include "ekg/handler/callback.hpp"
 
 ekg::callback_t ekg::callback_t::not_found {
-  .at = {
-    .unique_id = ekg::not_found
-  }
+  .at = ekg::at_t::not_found
 };

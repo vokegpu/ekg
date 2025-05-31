@@ -34,6 +34,7 @@ namespace ekg {
   class allocator {
   public:
     static bool enable_high_priority;
+    static bool is_simple_shape;
   protected:
     size_t data_instance {};
     ekg::vec2_t<size_t> stride_instance {};
@@ -42,11 +43,34 @@ namespace ekg {
     ekg::rect_t<float> scissor_instance {};
 
     std::vector<ekg::gpu::data_t> gpu_data_buffer {};
-    std::vector<ekg::gpu::data_t> loaded_high_priority_data_list {};
+    std::vector<ekg::gpu::data_t> high_priority_gpu_data_buffer {};
     std::vector<float> geometry_buffer {};
+    size_t last_geometry_buffer_size {};
+
+    bool was_factor_changed {};
+    int32_t previous_factor {};
   public:
+    void init();
+    void quit();
+
     void invoke();
     void revoke();
+    void to_gpu();
+
+    ekg::gpu::data_t &bind_current_data();
+    size_t get_current_data_id();
+    ekg::gpu::data_t &get_data_by_index(size_t index);
+    void clear_current_data();
+
+    bool sync_scissor(
+      ekg::rect_t<float> &scissor,
+      ekg::rect_t<float> &rect_child,
+      ekg::rect_t<float> &parent_scissor
+    );
+
+    void unsafe_set_scissor_placement(
+      float x, float y, float w, float h
+    );
 
     void push_back_geometry(
       const ekg::vec2_t<float> &position,

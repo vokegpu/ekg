@@ -1,7 +1,7 @@
 /**
  * MIT License
  * 
- * Copyright (c) 2022-2024 Rina Wilk / vokegpu@gmail.com
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,4 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 #include "ekg/io/font.hpp"
+#include "ekg/core/runtime.hpp"
+
+ekg::flags_t ekg::io::font(
+  ekg::io::font_face_t &font_face
+) {
+  if (font_face.was_face_changed) {
+    if (font_face.was_loaded) {
+      FT_Done_Face(font_face.ft_face);
+      font_face.was_loaded = false;
+    }
+
+    font_face.was_loaded = FT_New_Face(
+      ekg::p_core->,
+      font_face.path.data(),
+      0,
+      &font_face.ft_face
+    );
+
+    if (font_face.was_loaded) {
+      ekg::log() << "Could not load font " << font_face.path;
+      return ekg::result::failed;
+    }
+
+    ekg::log() << "Font '" << font_face.path << "' loaded!"; 
+
+    font_face.was_loaded = true;
+    font_face.was_face_changed = false;
+  }
+
+  if (font_face.was_loaded && font_face.was_size_changed) {
+    FT_Set_Pixel_Sizes(font_face.ft_face, 0, font_face.size);
+    font_face.was_size_changed = false;
+  }
+
+  return ekg::result::success;
+}

@@ -21,34 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/**
- * MIT License
- * 
- * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 
 #include "ekg/gpu/allocator.hpp"
 #include "ekg/core/runtime.hpp"
+#include "ekg/io/log.hpp"
 
 bool ekg::allocator::enable_high_priority {};
+bool ekg::allocator::is_simple_shape {};
+
+void ekg::allocator::init() {
+  ekg::log() << "Initializing GPU allocator";
+}
+
+void ekg::allocator::quit() {
+  ekg::log() << "Quitting GPU allocator";
+}
 
 void ekg::allocator::invoke() {
   this->data_instance = 0;
@@ -88,17 +75,14 @@ void ekg::allocator::dispatch() {
   ekg::gpu::data_t *p_data {};
 
   if (ekg::allocator::enable_high_priority) {
-    if (this->high_priority_data_instance >= this->loaded_high_priority_data_list.size()) {
-      this->loaded_high_priority_data_list.emplace_back();
-    }
+    this->high_priority_gpu_data_buffer.push_back(this->gpu_data_buffer.at(this->data_instance));
 
-    p_data = &(
-      this->loaded_high_priority_data_list.at(this->high_priority_data_instance++) = (
-        ekg::gpu::data_t {this->gpu_data_buffer.at(this->data_instance)}
-      )
+    p_data = (
+      &this->high_priority_gpu_data_buffer.at(this->high_priority_data_instance)
     );
 
     this->data_instance -= this->data_instance > 0;
+    this->high_priority_data_instance++;
   } else {
     p_data = &this->gpu_data_buffer.at(this->data_instance);
   }
@@ -117,15 +101,9 @@ void ekg::allocator::dispatch() {
    * due the index rendering, with only one triangle for rectangles.
    **/
 
-  this->simple_shape = (
-    static_cast<int32_t>(p_data->buffer[2]) != static_cast<int32_t>(ekg::allocator::concave)
-    &&
-    static_cast<int32_t>(p_data->buffer[3]) != static_cast<int32_t>(ekg::allocator::concave)
-  );
-
-  if (this->simple_shape) {
+  if (ekg::allocator::is_simple_shape) {
     p_data->begin_stride = this->simple_shape_instance;
-    p_data->end_stride = 4; // simple shape contains 4 vertices.
+    p_data->end_stride = 4; // simple shape contains ony 4 vertices
     this->stride_instance.y = 0;
   } else {    
     p_data->begin_stride = this->stride_instance.x;
@@ -134,8 +112,8 @@ void ekg::allocator::dispatch() {
 
   /* flag re alloc buffers if factor changed */
 
-  if (!this->factor_changed) {
-    this->factor_changed = (
+  if (!this->was_factor_changed) {
+    this->was_factor_changed = (
       this->previous_factor != p_data->factor
     );
   }
@@ -148,76 +126,44 @@ void ekg::allocator::dispatch() {
 void ekg::allocator::revoke() {
   this->data_instance -= this->data_instance > 0;
 
-  if (!this->loaded_high_priority_data_list.empty()) {
-    uint64_t loaded_high_priority_data_list_size {this->loaded_high_priority_data_list.size()};
-
-    /**
-     * So, I do not trust this code by the performanceless,
-     * usually I would use a refill, but if the refill necessary part
-     * is larger than the data list size, then it requires a re-allocation;
-     * and so I do not know how code it performanceness.
-     * 
-     * Rina.
-     **/
-    this->gpu_data_buffer.erase(
-      this->gpu_data_buffer.begin() + this->data_instance + 1,
-      this->gpu_data_buffer.end()
-    );
+  if (!this->high_priority_gpu_data_buffer.empty()) {
+    uint64_t high_priority_gpu_data_buffer_size {
+      this->high_priority_gpu_data_buffer.size()
+    };
 
     this->gpu_data_buffer.insert(
-      this->gpu_data_buffer.end(),
-      this->loaded_high_priority_data_list.begin(),
-      this->loaded_high_priority_data_list.end()
+      this->gpu_data_buffer.begin() + this->data_instance + 1,
+      this->high_priority_gpu_data_buffer.begin(),
+      this->high_priority_gpu_data_buffer.end()
     );
 
-    this->data_instance += loaded_high_priority_data_list_size;
-    this->loaded_high_priority_data_list.clear();
+    this->data_instance += high_priority_gpu_data_buffer_size;
+    this->high_priority_gpu_data_buffer.clear();
     this->high_priority_data_instance = 0;
   }
 
-  uint64_t geometry_buffer_size {this->geometry_instance};
-  bool should_re_alloc_buffers {this->previous_geometry_buffer_size != geometry_buffer_size};
-
-  if (this->data_instance < this->gpu_data_buffer.size()) {
-    this->gpu_data_buffer.erase(
-      this->gpu_data_buffer.begin() + this->data_instance + 1,
-      this->gpu_data_buffer.end()
-    );
-  }
-
-  if (should_re_alloc_buffers || this->factor_changed) {
-    ekg::p_core->p_gpu_api->re_alloc_geometry_resources(
+  if (
+      this->last_geometry_buffer_size != this->geometry_instance
+      ||
+      this->was_factor_changed
+    ) {
+    ekg::p_core->p_gpu_api->pass_geometry_buffer_to_gpu(
       this->geometry_buffer.data(),
       this->geometry_buffer.size()
     );
   }
 
-  this->factor_changed = false;
-
-  if (this->geometry_buffer.size() < this->previous_geometry_buffer_size) {
-    this->geometry_buffer.erase(
-      this->geometry_buffer.begin() + geometry_buffer_size + 1,
-      this->geometry_buffer.end()
-    );
-  }
-
-  this->previous_geometry_buffer_size = geometry_buffer_size;
+  this->last_geometry_buffer_size = geometry_buffer_size;
+  this->was_factor_changed = false;
 }
 
-void ekg::allocator::on_update() {
-}
-
-void ekg::allocator::draw() {
-  ekg::p_core->p_gpu_api->draw(
+void ekg::allocator::to_gpu() {
+  ekg::p_core->p_gpu_api->pass_gpu_data_buffer_to_gpu(
     this->gpu_data_buffer
   );
 }
 
-void ekg::allocator::init() {
-  ekg::log() << "Initializing GPU allocator";
-}
-
-void ekg::allocator::clear_current_data() {  
+void ekg::allocator::clear_current_data() {
   if (!ekg::allocator::enable_high_priority && this->data_instance >= this->gpu_data_buffer.size()) {
     this->gpu_data_buffer.emplace_back();
   }
@@ -235,48 +181,46 @@ ekg::gpu::data_t &ekg::allocator::bind_current_data() {
   return this->gpu_data_buffer.at(this->data_instance);
 }
 
-uint32_t ekg::allocator::get_current_data_id() {
+size_t ekg::allocator::get_current_data_id() {
   return this->data_instance;
 }
 
-ekg::gpu::data_t *ekg::allocator::get_data_by_id(int32_t id) {
-  if (id < 0 || static_cast<uint64_t>(id) > this->data_instance) {
-    return nullptr;
+ekg::gpu::data_t *ekg::allocator::get_data_by_index(size_t index) {
+  if (index >= this->gpu_data_buffer.size()) {
+    return ekg::gpu::data_t::not_found;
   }
 
-  return &this->gpu_data_buffer[id];
-}
-
-void ekg::allocator::quit() {
-  ekg::log() << "Quitting GPU allocator";
+  return this->gpu_data_buffer[index];
 }
 
 bool ekg::allocator::sync_scissor(
   ekg::rect_t<float> &scissor,
   ekg::rect_t<float> &rect_child,
-  ekg::rect_t<float> *p_parent_scissor
+  ekg::rect_t<float> &parent_scissor
 ) {
   scissor.x = rect_child.x;
   scissor.y = rect_child.y;
   scissor.w = rect_child.w;
   scissor.h = rect_child.h;
 
-  if (p_parent_scissor) {
+  if (parent_scissor) {
     bool only_if {};
 
-    only_if = scissor.x < p_parent_scissor->x;
-    scissor.w -= only_if * (p_parent_scissor->x - scissor.x);
-    scissor.x = (only_if * p_parent_scissor->x) + (scissor.x * !only_if);
+    only_if = scissor.x < parent_scissor.x;
+    scissor.w -= only_if * (parent_scissor.x - scissor.x);
+    scissor.x = (
+      (only_if * parent_scissor.x) + (scissor.x * !only_if)
+    );
 
-    only_if = scissor.y < p_parent_scissor->y;
-    scissor.h -= only_if * (p_parent_scissor->y - scissor.y);
-    scissor.y = (only_if * p_parent_scissor->y) + (scissor.y * !only_if);
+    only_if = scissor.y < parent_scissor.y;
+    scissor.h -= only_if * (parent_scissor.y - scissor.y);
+    scissor.y = (only_if * parent_scissor.y) + (scissor.y * !only_if);
 
-    only_if = scissor.x + scissor.w > p_parent_scissor->x + p_parent_scissor->w;
-    scissor.w -= only_if * ((scissor.x + scissor.w) - (p_parent_scissor->x + p_parent_scissor->w));
+    only_if = scissor.x + scissor.w > parent_scissor.x + parent_scissor.w;
+    scissor.w -= only_if * ((scissor.x + scissor.w) - (parent_scissor.x + parent_scissor.w));
 
-    only_if = scissor.y + scissor.h > p_parent_scissor->y + p_parent_scissor->h;
-    scissor.h -= only_if * ((scissor.y + scissor.h) - (p_parent_scissor->y + p_parent_scissor->h));
+    only_if = scissor.y + scissor.h > parent_scissor.y + parent_scissor.h;
+    scissor.h -= only_if * ((scissor.y + scissor.h) - (parent_scissor.y + parent_scissor.h));
 
     this->scissor_instance.x = scissor.x;
     this->scissor_instance.y = scissor.y;
@@ -284,13 +228,13 @@ bool ekg::allocator::sync_scissor(
     this->scissor_instance.h = scissor.h;
 
     return (
-      scissor.x < p_parent_scissor->x + p_parent_scissor->w
+      scissor.x < parent_scissor.x + parent_scissor.w
       &&
-      scissor.x + scissor.w > p_parent_scissor->x
+      scissor.x + scissor.w > parent_scissor.x
       &&
-      scissor.y < p_parent_scissor->y + p_parent_scissor->h
+      scissor.y < parent_scissor.y + parent_scissor.h
       &&
-      scissor.y + scissor.h > p_parent_scissor->y
+      scissor.y + scissor.h > parent_scissor.y
     );
   }
 

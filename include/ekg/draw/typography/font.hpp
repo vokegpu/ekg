@@ -24,10 +24,57 @@
 #ifndef EKG_DRAW_TYPOGRAPHY_FONT_HPP
 #define EKG_DRAW_TYPOGRAPHY_FONT_HPP
 
+#include <iostream>
+#include <cstdint>
+#include <vector>
+#include <unordered_map>
+#include <array>
+
+#include "glyph.hpp"
+#include "ekg/math/geometry.hpp"
+#include "ekg/io/font.hpp"
+
 namespace ekg::draw {
   class font {
   public:
+    std::vector<char32_t> loaded_sampler_generate_list {};
+    size_t last_sampler_generate_list_size {};
 
+    std::unordered_map<char32_t, ekg::io::glyph_char_t> mapped_glyph_char_data {};
+    std::array<ekg::io::font_face_t, ekg::io::supported_faces_size> faces {};
+
+    ekg::at_t atlas_texture_sampler {};
+    ekg::rect_t<int32_t> atlas_rect {};
+    float offset_text_height {};
+
+    uint32_t font_size {};
+    float text_height {};
+    float non_swizzlable_range {};
+    FT_Bool ft_bool_kerning {};
+
+    bool font_size_changed {};
+    bool was_initialized {};
+    bool is_any_functional_font_face_loaded {};
+  public:
+    void init();
+    void quit();
+    void flush();
+
+    ekg::sampler_t &get_atlas_texture_sampler();
+    float get_text_width(const std::string_view &text);
+    float get_text_width(const std::string_view &text, int32_t &lines);
+    float get_text_height();
+
+    void set_font_emoji(std::string_view font_face_emoji_path);
+    void set_font(std::string_view font_face_path);
+    void set_size(uint32_t font_face_size);
+    void reload();
+
+    void blit(
+      const std::string_view &text,
+      float x, float y,
+      const ekg::vec4_t<float> &color
+    );
   };
 }
 

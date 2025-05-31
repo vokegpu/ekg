@@ -39,7 +39,9 @@ namespace ekg {
     small,
     medium,
     big
-  }
+  };
+
+  typedef FT_Library ft_library;
 }
 
 namespace ekg::io {

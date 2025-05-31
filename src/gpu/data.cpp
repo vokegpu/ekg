@@ -21,48 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "ekg/ekg.hpp"
-#include "ekg/io/log.hpp"
+#include "ekg/gpu/data.hpp"
 
-ekg::runtime_t ekg::p_core {nullptr};
-std::ostringstream ekg::log::buffer {};
-bool ekg::log::buffered {};
-
-ekg::flags_t ekg::init(
-  ekg::ekg_runtime_properties_info_t &runtime_properties_info,
-  ekg::runtime_t *p_runtime
-) {
-  if (p_runtime == nullptr) {
-    ekg::log("[EKG] ~ERROR~ invalid (?) `ekg::runtime_t` pointer address: nullptr");
-    return ekg::result::failed;
-  }
-
-  ekg::p_core = p_runtime;
-
-  ekg::p_core->p_platform_base = runtime_properties_info.p_platform_base;
-  ekg::p_core->p_gpu_api = runtime_properties_info.p_gpu_api;
-  ekg::p_core->ft_library = runtime_properties_info.ft_library;
-
-  ekg::p_core->handler_callback.init();
-  ekg::p_core->handler_input.init();
-
-  return ekg::result::success;
-}
-
-void ekg::quit() {
-  if (ekg::p_core == nullptr) {
-    return;
-  }
-}
-
-void ekg::update() {
-  if (ekg::p_core == nullptr) {
-    return;
-  }
-}
-
-void ekg::render() {
-  if (ekg::p_core == nullptr) {
-    return;
-  }
-}
+ekg::gpu::data_t ekg::gpu::data_t {
+  .at = ekg::at_t::not_found
+};
