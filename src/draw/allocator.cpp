@@ -161,6 +161,7 @@ void ekg::allocator::revoke() {
 
   this->last_geometry_buffer_size = geometry_buffer_size;
   this->was_hash_changed = false;
+  ekg::conterxt.gpu_data_count = this->data_instance;
 }
 
 void ekg::allocator::to_gpu() {

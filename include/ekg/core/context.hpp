@@ -27,12 +27,12 @@
 #include "ekg/math/geometry.hpp"
 
 namespace ekg {
-  struct context_t {
+  extern struct context_t {
   public:
     ekg::rect_t<float> viewport {};
     float dt {};
     size_t gpu_data_count {};
-  };  
+  } context;
 }
 
 #endif

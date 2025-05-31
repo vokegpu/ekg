@@ -23,8 +23,11 @@
  */
 #include "ekg/ekg.hpp"
 #include "ekg/io/log.hpp"
+#include "ekg/core/context.hpp"
 
 ekg::runtime_t ekg::p_core {nullptr};
+ekg::context_t ekg::context {};
+
 std::ostringstream ekg::log::buffer {};
 bool ekg::log::buffered {};
 
