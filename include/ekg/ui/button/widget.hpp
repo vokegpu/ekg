@@ -21,40 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_UI_PROPERTY_HPP
-#define EKG_UI_PROPERTY_HPP
+#ifndef EKG_UI_BUTTON_WIDGET_HPP
+#define EKG_UI_BUTTON_WIDGET_HPP
 
-#include "ekg/io/descriptor.hpp"
-#include "ekg/math/geometry.hpp"
+#include "button.hpp"
+#include "ekg/ui/property.hpp"
+#include "ekg/io/event.hpp"
 
-namespace ekg {
-  struct scroll_t {
-  public:
-    ekg::vec2_t<bool> is_enabled {};
-    ekg::vec2_t<bool> is_scrolling {};
-    ekg::pixel_thickness_t nearest_scroll_bar_thickness {}
-  };
+namespace ekg::ui {
+  void reload(
+    ekg::property_t &property,
+    ekg::button_t &button
+  );
 
-  struct property_t {
-  public:
-    static ekg::property_t not_found;
-    static constexpr ekg::type type {ekg::type::property};
-  public:
-    ekg::at_t parent_at {ekg::at_t::not_found};
-    ekg::at_t abs_parent_at {ekg::at_t::not_found};
-    ekg::at_t descriptor_at {};
-  public:
-    ekg::rect_t<float> rect {};
-    ekg::vec4_t scroll {};
+  void event(
+    ekg::property_t &property,
+    ekg::button_t &button,
+    const ekg::io::stage &stage
+  );
 
-    bool is_childnizate {};
-    bool is_children_docknizable {};
-    bool is_targeting_absolute_parent {};
+  void update(
+    ekg::property_t &property,
+    ekg::button_t &button
+  );
 
-    ekg::scroll_t scroll {};
-  public:
-    ekg_descriptor(ekg::property_t);
-  };
+  void draw(
+    ekg::property_t &property,
+    ekg::button_t &button
+  );
 }
 
 #endif

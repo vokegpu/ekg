@@ -27,7 +27,7 @@
 
 void ekg::draw::rect(
   const ekg::rect_t<float> &rect,
-  const ekg::rgba_t<float> &color,
+  const ekg::rgba_t<uint8_t> &color,
   ekg::pixel_thickness_t line_thickness,
   ekg::sampler_t &sampler
 ) {
@@ -41,11 +41,11 @@ void ekg::draw::rect(
 
 void ekg::draw::rect(
   float x, float y, float w, float h,
-  const ekg::rgba_t<float> &color,
+  const ekg::rgba_t<uint8_t> &color,
   ekg::pixel_thickness_t line_thickness,
   ekg::sampler_t &sampler
 ) {
-  if (color.w < 0.1f) {
+  if (color.w < 10) {
     return;
   }
 
@@ -57,10 +57,10 @@ void ekg::draw::rect(
   data.buffer[1] = y;
   data.buffer[2] = w;
   data.buffer[3] = h;
-  data.buffer[4] = color.x;
-  data.buffer[5] = color.y;
-  data.buffer[6] = color.z;
-  data.buffer[7] = color.w;
+  data.buffer[4] = static_cast<float>(color.x / 255);
+  data.buffer[5] = static_cast<float>(color.y / 255);
+  data.buffer[6] = static_cast<float>(color.z / 255);
+  data.buffer[7] = static_cast<float>(color.w / 255);
 
   data.line_thickness = static_cast<int8_t>(line_thickness);
   data.hash = 1;
@@ -77,7 +77,6 @@ void ekg::draw::scissor(
     rect.x, rect.y, rect.w, rect.h
   );  
 }
-
 
 void ekg::draw::scissor(
   float x, float y, float w, float h

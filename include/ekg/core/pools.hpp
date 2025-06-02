@@ -29,20 +29,6 @@
 #include "ekg/gpu/sampler.hpp"
 #include "ekg/ui/property.hpp"
 
-#define ekg_abstract_todo(property, todo) \
-  switch (property.type) { \
-    case ekg::type::button: { \
-      ekg::button_t &descriptor { \
-        ekg::query<ekg::button_t>(property.descriptor_at) \
-      }; \
-      if (descriptor == ekg::button_t::not_found) { \
-        break; \
-      } \
-      todo \
-      break; \
-    } \
-  } \
-
 namespace ekg::core {
   void registry(ekg::property_t &property);
 }
@@ -50,6 +36,7 @@ namespace ekg::core {
 namespace ekg {
   extern struct pools_t {
   public:
+    ekg::pool<ekg::stack_t> stack {ekg::stack_t::not_found};
     ekg::pool<ekg::callback_t> callback {ekg::callback_t::not_found};
     ekg::pool<ekg::sampler_t> sampler {ekg::sampler_t::not_found};
     ekg::pool<ekg::property> button_property {ekg::property::not_found};
@@ -61,6 +48,10 @@ namespace ekg {
     t descriptor
   ) {
     switch (t::type) {
+    case ekg::type::stack:
+      return ekg::pools.stack.push_back(
+        ekg::io::any_static_cast<ekg::sampler_t>(&descriptor)
+      );
     case ekg::type::callback:
       return ekg::pools.callback.push_back(
         ekg::io::any_static_cast<ekg::callback_t>(&descriptor)
@@ -80,6 +71,9 @@ namespace ekg {
         ekg::pools.button_property.push_back({})
       };
 
+      property.is_childnizate = false;
+      property.is_children_docknizable = false;
+
       button.at.flags = t::type;
       property.descriptor_at = button.at;
 
@@ -97,7 +91,10 @@ namespace ekg {
   t &query(
     ekg::at_t &at
   ) {
-    switch (t::type) {
+    switch (t::type) {`
+      return ekg::io::any_static_cast<ekg::sampler_t>(
+        &ekg::pools.sampler.query(at)
+      );
     case ekg::type::callback:
       return ekg::io::any_static_cast<ekg::callback_t>(
         &ekg::pools.callback.query(at)
@@ -129,5 +126,19 @@ namespace ekg {
     return t::not_found;
   }
 }
+
+#define ekg_abstract_todo(property, todo) \
+  switch (property.type) { \
+    case ekg::type::button: { \
+      ekg::button_t &descriptor { \
+        ekg::query<ekg::button_t>(property.descriptor_at) \
+      }; \
+      if (descriptor == ekg::button_t::not_found) { \
+        break; \
+      } \
+      todo \
+      break; \
+    } \
+  } \
 
 #endif

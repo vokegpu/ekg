@@ -21,40 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_UI_PROPERTY_HPP
-#define EKG_UI_PROPERTY_HPP
+#include "ekg/ui/stack.hpp"
 
-#include "ekg/io/descriptor.hpp"
-#include "ekg/math/geometry.hpp"
-
-namespace ekg {
-  struct scroll_t {
-  public:
-    ekg::vec2_t<bool> is_enabled {};
-    ekg::vec2_t<bool> is_scrolling {};
-    ekg::pixel_thickness_t nearest_scroll_bar_thickness {}
-  };
-
-  struct property_t {
-  public:
-    static ekg::property_t not_found;
-    static constexpr ekg::type type {ekg::type::property};
-  public:
-    ekg::at_t parent_at {ekg::at_t::not_found};
-    ekg::at_t abs_parent_at {ekg::at_t::not_found};
-    ekg::at_t descriptor_at {};
-  public:
-    ekg::rect_t<float> rect {};
-    ekg::vec4_t scroll {};
-
-    bool is_childnizate {};
-    bool is_children_docknizable {};
-    bool is_targeting_absolute_parent {};
-
-    ekg::scroll_t scroll {};
-  public:
-    ekg_descriptor(ekg::property_t);
-  };
-}
-
-#endif
+ekg::stack_t ekg::stack_t::not_found {
+  .at = ekg::at_t::not_found
+};

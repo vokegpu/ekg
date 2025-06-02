@@ -27,13 +27,44 @@
 #include "ekg/io/memory.hpp"
 #include "ekg/io/descriptor.hpp"
 
+#define ekg_button_free_value() \
+  for (ekg::)
+
 namespace ekg {
+  struct button_color_scheme_t {
+  public:
+    ekg::rgba_t<uint8_t> text_foreground {};
+
+    ekg::rgba_t<uint8_t> background {};
+    ekg::rgba_t<uint8_t> outline {};
+    ekg::rgba_t<uint8_t> highlight {};
+
+    ekg::rgba_t<uint8_t> box_background {};
+    ekg::rgba_t<uint8_t> box_outline {};
+    ekg::rgba_t<uint8_t> box_highlight {};
+    ekg::rgba_t<uint8_t> box_active {};
+  };
+
   struct button_t {
   public:
+    struct check_t {
+    public:
+      ekg::value<std::string> text {};
+      bool is_check_box {};
+      ekg::flags_t dock {};
+    public:
+      ekg::rect_t<float> rect_text {};
+      ekg::rect_t<float> rect_box {};
+    };
+
     static ekg::button_t not_found;
     static constexpr ekg::type type {ekg::type::button};
   public:
     ekg::at_t property_at {};
+  public:
+    ekg::rect_t<float> rect {};
+    std::vector<ekg::button_t::check_t> checks {};
+    ekg::button_color_scheme_t color_scheme {};
   public:
     ekg_descriptor(ekg::button_t);
   };

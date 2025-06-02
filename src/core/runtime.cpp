@@ -43,7 +43,7 @@ void ekg::core:swap_collector(
 
   ekg::p_core->collector.push_back(property_at);
 
-  if (property.is_childable && property.is_docknizable) {
+  if (property.is_childnizate && property.is_children_docknizable) {
     ekg_abstract_todo(
       property,
       for (ekg::property &property : descriptor.children) {
@@ -107,6 +107,51 @@ void ekg::core::swap(ekg::info_t &info) {
 
   ekg::p_core->collector.clear();
   ekg::p_core->swap_target_at = ekg::at_t::not_found;
+}
+
+void ekg::core::reload(ekg::info_t &info) {
+  if (ekg::p_core == nullptr) {
+    return;
+  }
+
+  for (ekg::at_t &at : ekg::p_core->reload) {
+    ekg::property_t &property {ekg::query<ekg::property_t>(at)};
+    if (property == ekg::property_t::not_found) {
+      continue;
+    }
+
+    ekg_abstract_todo(
+      property,
+      ekg::ui::reload(property, descriptor);
+    );
+  }
+
+  ekg::p_core->reload.clear();
+}
+
+void ekg::core::docknize(ekg::info_t &info) {
+  if (ekg::p_core == nullptr) {
+    return;
+  }
+
+  for (ekg::at_t &at : ekg::p_core->reload) {
+    ekg::property_t &property {ekg::query<ekg::property_t>(at)};
+    if (property == ekg::property_t::not_found) {
+      continue;
+    }
+
+    // add docknize
+  }
+
+  ekg::p_core->reload.clear();
+}
+
+void ekg::core::scale(ekg::info_t &info) {
+  if (ekg::p_core == nullptr) {
+    return;
+  }
+
+  // add scale
 }
 
 void ekg::core::poll_events() {

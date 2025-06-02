@@ -21,40 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_UI_PROPERTY_HPP
-#define EKG_UI_PROPERTY_HPP
+#include "ekg/ui/abstract.hpp"
+#include "ekg/core/pools.hpp"
 
-#include "ekg/io/descriptor.hpp"
-#include "ekg/math/geometry.hpp"
-
-namespace ekg {
-  struct scroll_t {
-  public:
-    ekg::vec2_t<bool> is_enabled {};
-    ekg::vec2_t<bool> is_scrolling {};
-    ekg::pixel_thickness_t nearest_scroll_bar_thickness {}
+ekg::rect_t<float> &ekg::ui::get_abs_rect(
+  ekg::property_t &property,
+  ekg::rect_t<float> &descriptor_rect
+) {
+  ekg::property_t &parent {
+    ekg::query<ekg::property_t>(property.parent_at)
   };
 
-  struct property_t {
-  public:
-    static ekg::property_t not_found;
-    static constexpr ekg::type type {ekg::type::property};
-  public:
-    ekg::at_t parent_at {ekg::at_t::not_found};
-    ekg::at_t abs_parent_at {ekg::at_t::not_found};
-    ekg::at_t descriptor_at {};
-  public:
-    ekg::rect_t<float> rect {};
-    ekg::vec4_t scroll {};
-
-    bool is_childnizate {};
-    bool is_children_docknizable {};
-    bool is_targeting_absolute_parent {};
-
-    ekg::scroll_t scroll {};
-  public:
-    ekg_descriptor(ekg::property_t);
-  };
+  return (
+    property.rect = (
+      descriptor_rect + parent.rect + parent.scroll
+    )
+  );
 }
-
-#endif

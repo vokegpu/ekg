@@ -33,6 +33,11 @@ namespace ekg {
     float dt {};
     size_t gpu_data_count {};
   } context;
+
+  extern struct gui_t {
+  public:
+      ekg::stack_t binded_stack_at {};
+  } gui;
 }
 
 #endif

@@ -72,7 +72,7 @@ namespace ekg::draw {
     void blit(
       const std::string_view &text,
       float x, float y,
-      const ekg::rgba_t<float> &color
+      const ekg::rgba_t<uint8_t> &color
     );
   };
 

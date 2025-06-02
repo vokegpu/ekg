@@ -421,7 +421,7 @@ void ekg::draw::font::blit(
   const std::string_view &text,
   float x,
   float y,
-  const ekg::rgba_t<float> &color
+  const ekg::rgba_t<uint8_t> &color
 ) {
   if (
       !this->is_any_functional_font_face_loaded
@@ -442,10 +442,10 @@ void ekg::draw::font::blit(
   data.buffer[1] = y;
   data.buffer[2] = static_cast<float>(-this->non_swizzlable_range);
 
-  data.buffer[4] = color.x;
-  data.buffer[5] = color.y;
-  data.buffer[6] = color.z;
-  data.buffer[7] = color.w;
+  data.buffer[4] = static_cast<float>(color.x / 255);
+  data.buffer[5] = static_cast<float>(color.y / 255);
+  data.buffer[6] = static_cast<float>(color.z / 255);
+  data.buffer[7] = static_cast<float>(color.w / 255);
 
   ekg::rect_t<float> vertex {};
   ekg::rect_t<float> uv {};

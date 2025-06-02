@@ -28,18 +28,45 @@
 #include <vector>
 #include <cstdint>
 
+/**
+ * This is a macro because hash should enjoy of compile-time for generate valid hashes.
+ * Not really an expensive job for CPU.
+ **/
+#define ekg_generate_hash(distance, c32, u) static_cast<ekg::hash_t>(distance + c34 + u * 100);
+
 namespace ekg {
   typedef size_t flags_t;
   typedef size_t id_t;
   typedef int32_t hash_t;
-
-  constexpr ekg::id_t not_found {29496526662939};
 
   enum result {
     success,
     failed,
     failed_unknown
   };
+
+  template<typename t>
+  constexpr bool has(ekg::flags_t bits, t bit) {
+    return bits & bit;
+  }
+
+  template<typename t>
+  constexpr bool strip(ekg::flags_t &bits, t bit) {
+    bits = bits & ~(bit);
+    return bits & bit;
+  }
+
+  template<typename t>
+  constexpr ekg::flags_t &put(ekg::flags_t &bits, t bit) {
+    return (bits |= bit);
+  }
+}
+
+/**
+ * Memory-pool and virtual address.
+ **/
+namespace ekg {
+  constexpr ekg::id_t not_found {29496526662939};
 
   struct at_t {
   public:
@@ -106,22 +133,60 @@ namespace ekg {
       return descriptor;
     }
   };
+}
 
+/**
+ * Value system.
+ **/
+namespace ekg {
   template<typename t>
-  constexpr bool has(ekg::flags_t bits, t bit) {
-    return bits & bit;
-  }
+  class value {
+  protected:
+    t value {};
+    t *p {};
+    t previous {};
+  public:
+    void set(const p &value) {
+      this->get() = p;
+    }
+  
+    t &get() {
+      return p ? *p : value;
+    }
+  
+    void ownership(t *p_address) {
+      if (p_address == nullptr) {
+        return;
+      }
+  
+      this->p = p_address;
+    }
+  
+    bool was_changed() {
+      t &get {this->get()};
+      if (this->previous != get) {
+        this->previous = get;
+        return true;
+      }
+  
+      return false;
+    }
+  };
 
-  template<typename t>
-  constexpr bool strip(ekg::flags_t &bits, t bit) {
-    bits = bits & ~(bit);
-    return bits & bit;
-  }
+  struct mapped_address_sign_info_t {
+  public:
+    std::vector<ekg::at_t> ats {};
+    void *pv_address {};
+  };
 
-  template<typename t>
-  constexpr ekg::flags_t &put(ekg::flags_t &bits, t bit) {
-    return (bits |= bit);
-  }
+  extern struct signed_address_info_t {
+  public:
+    std::vector<ekg::mapped_address_sign_info_t> list {};
+    size_t current {};
+  } sign;
+
+  void map(void *pv_address);
+  void unmap(void *pv_address);
 }
 
 namespace ekg::io {
@@ -133,11 +198,5 @@ namespace ekg::io {
     return *static_cast<t*>(p_any);
   }
 }
-
-/**
- * This is a macro because hash should enjoy of compile-time for generate valid hashes.
- * Not really an expensive job for CPU.
- **/
-#define ekg_generate_hash(distance, c32, u) static_cast<ekg::hash_t>(distance + c34 + u * 100);
 
 #endif

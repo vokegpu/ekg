@@ -410,7 +410,7 @@ namespace ekg {
     return x + (y - x) * delta;
   }
 
-  struct rect_descriptor_t {
+  struct mask::item_t {
   public:
     ekg::rect_t<float> *p_rect {};
     ekg::flags_t flags {};

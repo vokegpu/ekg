@@ -27,6 +27,7 @@
 
 ekg::runtime_t ekg::p_core {nullptr};
 ekg::context_t ekg::context {};
+ekg::gui_t ekg::gui {};
 
 std::ostringstream ekg::log::buffer {};
 bool ekg::log::buffered {};

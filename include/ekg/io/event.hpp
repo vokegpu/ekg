@@ -27,6 +27,12 @@
 #include "ekg/handler/input.hpp"
 
 namespace ekg::io {
+  enum class stage {
+    pre,
+    process,
+    post
+  };
+
   enum class event_type {
     none,
     text_input,

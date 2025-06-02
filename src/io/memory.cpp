@@ -1,6 +1,6 @@
 /**
  * MIT License
- * 
+ 
  * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,7 +22,66 @@
  * SOFTWARE.
  */
 #include "ekg/io/memory.hpp"
+#include "ekg/core/context.hpp"
 
 ekg::at_t ekg::at_t::not_found {
   .unique_id = ekg::not_found
 };
+
+ekg::signed_address_info_t ekg::sign {};
+
+void ekg::map(void *pv_address) {
+  if (pv_address == nullptr) {
+    ekg::sign.current = ekg::not_found;
+    return;
+  } 
+
+  ekg::stack_t &current_stack {
+    ekg::query<ekg::stack_t>(ekg::gui.binded_stack_at)
+  };
+
+  if (current_stack == ekg::stack_t::not_found) {
+    ekg::sign.current = ekg::not_found;
+    return;
+  }
+
+  size_t size {ekg::sign.list.size()};
+  for (size_t it {}; it < size; it++) {
+    ekg::mapped_address_sign_info_t &info {ekg::sign.list.at(it)};
+    if (sign.pv_address == pv_address) {
+      ekg::sign.current = it;
+      should_put = false;
+      return;
+    }
+  }
+
+  ekg::sign.current = ekg::sign.list.size();
+  ekg::sign.list.push_back({.ats = {}, .p = pv_address});
+}
+
+void ekg::unmap(void *pv_address) {
+  if (pv_address) {
+    return;
+  }
+
+  size_t size {ekg::sign.list.size()};
+  for (size_t it {}; it < size; it++) {
+    ekg::mapped_address_sign_info_t &info {ekg::sign.list.at(it)};
+    if (info.pv_address == pv_address) {
+      for (ekg::at_t &at : info.ats) {
+        switch (at.type) {
+        case ekg::type::checkbox:
+          ekg::checkbox_t &checkbox {ekg::checkbox(at)};
+          if (checkbox == ekg::checkbox_t::not_found) break; 
+          checkbox.value.ownership(nullptr);
+          break;
+        }
+
+        /* etc */
+      }
+
+      ekg::sign.list.erase(ekg::sign.list.begin() + it);
+      break;
+    }
+  }
+}

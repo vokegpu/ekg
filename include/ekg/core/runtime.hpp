@@ -28,6 +28,9 @@
 #include "ekg/gpu/api.hpp"
 #include "ekg/draw/typography/font.hpp"
 #include "ekg/draw/allocator.hpp"
+#include "ekg/handler/theme/handler.hpp"
+#include "ekg/handler/callback/handler.hpp"
+#include "ekg/handler/input/handler.hpp"
 
 namespace ekg {
   struct ekg_runtime_properties_info_t {
@@ -47,18 +50,21 @@ namespace ekg {
   public:
     ekg::handler::input handler_input {};
     ekg::handler::callback handler_callback {};
+    ekg::handler::theme handler_theme {};
   public:
     ekg::draw::allocator draw_allocator {};
     ekg::draw::font draw_font_small {};
     ekg::draw::font draw_font_medium {};
     ekg::draw::font draw_font_big {};
   public:
+    ekg::at_t swap_target_at {ekg::at_t::not_found};
+    std::vector<ekg::at_t> collector {};
     std::vector<ekg::at_t> register {};
     std::vector<ekg::at_t> stack {};
-    std::vector<ekg::at_t> top_level_stack {};
-    
-    std::vector<ekg::at_t> collector {};
-    ekg::at_t swap_target_at {ekg::at_t::not_found};
+    std::vector<ekg::at_t> top_level_stack {};    
+    std::vector<ekg::at_t> reload {};
+    std::vector<ekg::at_t> docknize {};
+    std::vector<ekg::at_t> high_frequency {};
   } *p_core;
 }
 
