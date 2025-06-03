@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 #include "ekg/core/runtime.hpp"
+#include "ekg/layout/scalenize.hpp"
 
 void ekg::core:swap_collector(
   bool &was_found,
@@ -118,7 +119,8 @@ void ekg::core::reload(ekg::info_t &info) {
     }
 
     ekg_abstract_todo(
-      property,
+      property.descriptor_at.type,
+      property.descriptor_at,
       ekg::ui::reload(property, descriptor);
     );
   }
@@ -137,7 +139,9 @@ void ekg::core::docknize(ekg::info_t &info) {
       continue;
     }
 
-    // add docknize
+    ekg::layout::docknize(
+      property
+    );
   }
 
   ekg::p_core->reload.clear();
@@ -148,11 +152,80 @@ void ekg::core::scale(ekg::info_t &info) {
     return;
   }
 
-  // add scale
+  ekg::layout::scale_calculate();
+
+  ekg::context.dpi_font_scale = ekg::clamp<float>(
+    ekg::context.dpi_font_scale,
+    static_cast<float>(4),
+    static_cast<float>(UINT8_MAX)
+  );
+
+  uint32_t font_size {
+    ekg::clamp<uint32_t>(
+      static_cast<uint32_t>(
+        ekg::context.dpi_font_scale
+        *
+        ekg::context.dpi_factor_scale
+      ),
+      0,
+      UINT8_MAX
+    )
+  };
+
+  if (this->draw_font_medium.font_size != font_size) {
+    this->draw_font_small.set_size(
+      ekg::clamp_min(
+        font_size - ekg::context.dpi_font_offset.x,
+        ekg::minimum_small_font_height
+      )
+    );
+
+    this->draw_font_medium.set_size(
+      ekg::clamp_min(
+        font_size,
+        ekg::minimum_font_height
+      )
+    );
+
+    this->draw_font_big.set_size(
+      ekg::clamp_min(
+        font_size + ekg::context.dpi_font_offset.y,
+        ekg::minimum_big_font_height
+      )
+    );
 }
 
 void ekg::core::poll_events() {
   if (ekg::p_core == nullptr) {
     return;
-  }  
+  }
+
+  ekg::input_info_t &input {
+    ekg::p_core->handler_input.input
+  };
+
+  bool is_on_scrolling_timeout {!ekg::reach(&input.ui_scrolling_timing, 100)};
+  ekg::current.unique_id *= !(input.was_pressed || input.was_released || input.has_motion);
+
+
+  if (
+      ekg::p_core->abs_widget_at != ekg::at_t::not_found
+      &&
+      (ekg::p_core->abs_widget_at->states.is_absolute || is_on_scrolling_timeout)
+    ) {
+
+    ekg::p_core->abs_widget_at->on_event(ekg::io::stage::pre);
+    ekg::p_core->abs_widget_at->on_event(ekg::io::stage::process);
+
+    if (
+        ekg::p_core->abs_widget_at->states.is_scrolling.x
+        ||
+        ekg::p_core->abs_widget_at->states.is_scrolling.y
+      ) {
+      ekg::reset(&input.ui_scrolling_timing);
+    }
+
+    ekg::p_core->abs_widget_at->on_event(ekg::io::stage::post);
+    return;
+  }
 }

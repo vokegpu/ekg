@@ -21,33 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_CORE_CONTEXT_HPP
-#define EKG_CORE_CONTEXT_HPP
+#ifndef EKG_LAYOUT_SCALENIZE_HPP
+#define EKG_LAYOUT_SCALENIZE_HPP
 
-#include "ekg/math/geometry.hpp"
-
-namespace ekg {
-  extern struct context_t {
-  public:
-    ekg::rect_t<float> viewport {};
-    float dt {};
-    ekg::rect_t<float> dpi_scale {0.0f, 0.0f, 1080.0f, 1920.0f};
-    bool dpi_auto_scale {};
-    float dpi_scale_internval {25.0f};
-    float dpi_factor_scale {};
-    float dpi_font_scale {};
-    ekg::vec2_t<uint32_t> font_offset {4, 6};
-    size_t gpu_data_count {};
-  } context;
-
-  extern struct gui_t {
-  public:
-    ekg::at_t binded_stack_at {};
-  } gui;
-
-  constexpr uint32_t minimum_small_font_height {4};
-  constexpr uint32_t minimum_font_height {8};
-  constexpr uint32_t minimum_big_font_height {12};
+namespace ekg::layout {
+  void scalenize();
 }
 
 #endif

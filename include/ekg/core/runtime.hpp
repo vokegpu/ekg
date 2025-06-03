@@ -31,6 +31,7 @@
 #include "ekg/handler/theme/handler.hpp"
 #include "ekg/handler/callback/handler.hpp"
 #include "ekg/handler/input/handler.hpp"
+#include "ekg/layout/docknize.hpp"
 
 namespace ekg {
   struct ekg_runtime_properties_info_t {

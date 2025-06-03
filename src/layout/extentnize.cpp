@@ -186,7 +186,7 @@ void ekg::layout::extentnize_widget(
 
         ekg_abstract_todo(
           property.descriptor_at.type,
-          propery.descriptor_at,
+          property.descriptor_at,
           dock = descriptor.dock;
           rect = descriptor.rect;
         );

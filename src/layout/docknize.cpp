@@ -309,7 +309,7 @@ void ekg::layout::docknize_widget(
 
   float dimensional_extent {};
   float extent {};
-  int32_t it {};
+  int32_t it {}; 
   int32_t count {};
 
   ekg::rect_t<float> parent_offset {
