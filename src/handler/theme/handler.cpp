@@ -23,7 +23,7 @@
  */
 #include "ekg/handler/theme/handler.hpp"
 
-ekg::theme_t ekg::handler::theme::registry(const std::string_view &tag) {
+ekg::theme_t &ekg::handler::theme::registry(const std::string_view &tag) {
   return this->themes[tag];
 }
 

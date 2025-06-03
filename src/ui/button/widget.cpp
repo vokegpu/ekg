@@ -48,9 +48,22 @@ void ekg::ui::update(
 
 }
 
-void ekg::ui::draw(
+void ekg::ui::pass(
   ekg::property_t &property,
   ekg::button_t &button
 ) {
   
-} 
+}
+
+void ekg::ui::buffering(
+  ekg::property_t &property,
+  ekg::button_t &button
+) {
+  
+}
+
+void ekg::ui::unmap(
+  ekg::button_t &button
+) {
+
+}

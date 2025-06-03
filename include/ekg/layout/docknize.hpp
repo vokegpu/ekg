@@ -111,7 +111,7 @@ namespace ekg::layout {
       ekg::flags_t dock {};
     };
   protected:
-    std::vector<ekg::mask::item_t> items {};
+    std::vector<ekg::layout::mask::component_t> items {};
     float respective_all {};
     float respective_center {};
     ekg::flags_t axis {};
@@ -125,7 +125,7 @@ namespace ekg::layout {
     );
     
     void insert(
-      const ekg::mask::item_t &rect_descriptor
+      const ekg::layout::mask::component_t &rect_descriptor
     );
 
     void docknize();

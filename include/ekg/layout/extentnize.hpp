@@ -31,8 +31,8 @@ namespace ekg::layout {
   public:
     static ekg::layout::extent_t v_widget;
     static ekg::layout::extent_t h_widget;
-    static ekg::layout::extent_t v_rect_descriptor;
-    static ekg::layout::extent_t h_rect_descriptor;
+    static ekg::layout::extent_t v_mask;
+    static ekg::layout::extent_t h_mask;
   public:
     int32_t end_index {};
     int32_t begin_index {};
@@ -69,8 +69,8 @@ namespace ekg::layout {
    * Obtain the remain extent size, from the latest rect descriptor index `in`
    * and return the new count `out`.
    **/
-  void extentnize_rect_descriptor(
-    std::vector<ekg::rect_descriptor_t> &rect_descriptor_list,
+  void extentnize_mask(
+    std::vector<ekg::layout::mask::component_t> &components,
     ekg::vec3_t<float> offset,
     ekg::flags_t flag_ok,
     ekg::flags_t flag_stop,
@@ -84,7 +84,7 @@ namespace ekg::layout {
    * and return the new count `out`.
    **/
   void extentnize_widget(
-    ekg::ui::abstract *p_widget,
+    ekg::property_t &property,
     ekg::flags_t flag_ok,
     ekg::flags_t flag_stop,
     ekg::flags_t flag_axis,

@@ -27,9 +27,6 @@
 #include "ekg/io/memory.hpp"
 #include "ekg/io/descriptor.hpp"
 
-#define ekg_button_free_value() \
-  for (ekg::)
-
 namespace ekg {
   struct button_color_scheme_t {
   public:

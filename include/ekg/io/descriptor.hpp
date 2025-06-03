@@ -37,12 +37,21 @@ namespace ekg {
 
 #define ekg_descriptor(descriptor_t) \
   public: \
-    ekg::at_t at {}; \
+    ekg::at_t at { \
+      .unique_id = ekg::not_found, \
+      .index = ekg::not_found, \
+      .flags = ekg::not_found \
+    }; \
+    bool is_dead {}; \
   public: \
     bool operator == (descriptor_t &descriptor) { \
       descriptor_t::not_found.at = ekg::at_t::not_found; \
-      return this->at == descriptor.at; \
-    }
+      return ( \
+        (this->is_dead && descriptor.at == ekg::descriptor_t::not_foud) \
+        || \
+        (!this->is_dead && this->at == descriptor.at) \
+      ); \
+    } \
 \
     bool operator != (descriptor_t &descriptor) { \
       return !(*this == descriptor); \

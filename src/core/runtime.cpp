@@ -44,16 +44,13 @@ void ekg::core:swap_collector(
   ekg::p_core->collector.push_back(property_at);
 
   if (property.is_childnizate && property.is_children_docknizable) {
-    ekg_abstract_todo(
-      property,
-      for (ekg::property &property : descriptor.children) {
-        if (property == ekg::property_t::not_found) {
-          continue;
-        }
-
-        ekg::core::swap_collector(was_found, property);
+    for (ekg::property &property : property.children) {
+      if (property == ekg::property_t::not_found) {
+        continue;
       }
-    );
+
+      ekg::core::swap_collector(was_found, property);
+    }
   }
 }
 

@@ -45,8 +45,17 @@ namespace ekg::ui {
     ekg::button_t &button
   );
 
-  void draw(
+  void pass(
     ekg::property_t &property,
+    ekg::button_t &button
+  );
+
+  void buffering(
+    ekg::property_t &property,
+    ekg::button_t &button
+  );
+
+  void unmap(
     ekg::button_t &button
   );
 }

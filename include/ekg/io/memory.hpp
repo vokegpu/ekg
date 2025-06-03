@@ -66,19 +66,20 @@ namespace ekg {
  * Memory-pool and virtual address.
  **/
 namespace ekg {
-  constexpr ekg::id_t not_found {29496526662939};
+  /**
+   * Broken heart hash..........
+   **/
+  constexpr ekg::id_t not_found {294266639};
 
   struct at_t {
   public:
     static ekg::at_t not_found;
   public:
-    ekg::id_t unique_id {};
-    size_t index {};
-    ekg::flags_t flags {};
+    ekg::id_t unique_id {ekg::not_found};
+    size_t index {ekg::not_found};
+    ekg::flags_t flags {ekg::not_found};
   public:
-    bool operator == (const ekg::at_t &at) {
-      ekg::at_t::not_found.unique_id = ekg::not_found;
-      ekg::at_t::not_found.flags = ekg::not_found;
+    bool operator == (ekg::at_t &at) {
       return this->at.flags == at.flags && this->at.unique_id == at.unique_id;
     }
 

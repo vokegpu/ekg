@@ -127,11 +127,11 @@ namespace ekg {
   }
 }
 
-#define ekg_abstract_todo(property, todo) \
-  switch (property.type) { \
+#define ekg_abstract_todo(type, at, todo) \
+  switch (type) { \
     case ekg::type::button: { \
       ekg::button_t &descriptor { \
-        ekg::query<ekg::button_t>(property.descriptor_at) \
+        ekg::query<ekg::button_t>(at) \
       }; \
       if (descriptor == ekg::button_t::not_found) { \
         break; \

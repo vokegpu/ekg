@@ -23,6 +23,7 @@
  */
 #include "ekg/io/memory.hpp"
 #include "ekg/core/context.hpp"
+#include "ekg/core/pools.hpp"
 
 ekg::at_t ekg::at_t::not_found {
   .unique_id = ekg::not_found
@@ -69,18 +70,16 @@ void ekg::unmap(void *pv_address) {
     ekg::mapped_address_sign_info_t &info {ekg::sign.list.at(it)};
     if (info.pv_address == pv_address) {
       for (ekg::at_t &at : info.ats) {
-        switch (at.type) {
-        case ekg::type::checkbox:
-          ekg::checkbox_t &checkbox {ekg::checkbox(at)};
-          if (checkbox == ekg::checkbox_t::not_found) break; 
-          checkbox.value.ownership(nullptr);
-          break;
-        }
-
-        /* etc */
+        ekg_abstract_todo(
+          at.type,
+          at,
+          ekg::ui::unmap(descriptor);
+        );
       }
 
-      ekg::sign.list.erase(ekg::sign.list.begin() + it);
+      ekg::sign.list.erase(
+        ekg::sign.list.begin() + it
+      );
       break;
     }
   }

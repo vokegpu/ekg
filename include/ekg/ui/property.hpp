@@ -43,6 +43,7 @@ namespace ekg {
     ekg::at_t parent_at {ekg::at_t::not_found};
     ekg::at_t abs_parent_at {ekg::at_t::not_found};
     ekg::at_t descriptor_at {};
+    std::vector<ekg::at_t> children {};
   public:
     ekg::rect_t<float> rect {};
     ekg::vec4_t scroll {};
@@ -50,6 +51,7 @@ namespace ekg {
     bool is_childnizate {};
     bool is_children_docknizable {};
     bool is_targeting_absolute_parent {};
+    bool should_refresh_size {};
 
     ekg::scroll_t scroll {};
   public:
