@@ -58,7 +58,6 @@ namespace ekg {
     ekg::draw::font draw_font_medium {};
     ekg::draw::font draw_font_big {};
   public:
-    ekg::at_t swap_target_at {ekg::at_t::not_found};
     std::vector<ekg::at_t> collector {};
     std::vector<ekg::at_t> register {};
     std::vector<ekg::at_t> stack {};
@@ -72,10 +71,9 @@ namespace ekg {
 namespace ekg::core {
   void swap_collector(bool &was_found, ekg::at_t &property_at);
   void swap(ekg::info_t &info);
-
   void reload(ekg::info_t &info);
   void docknize(ekg::info_t &info);
-  void scale(ekg::info_t &info);
+  void scalenize(ekg::info_t &info);
   void high_frequency(ekg::info_t &info);
   void poll_events();
 }

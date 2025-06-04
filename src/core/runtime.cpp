@@ -23,6 +23,7 @@
  */
 #include "ekg/core/runtime.hpp"
 #include "ekg/layout/scalenize.hpp"
+#include "ekg/io/log.hpp"
 
 void ekg::core:swap_collector(
   bool &was_found,
@@ -37,7 +38,7 @@ void ekg::core:swap_collector(
   };
 
   if (
-    property.at == ekg::p_core->swap_target_at
+    property.at == ekg::gui.bind.swap_at
   ) {
     was_found = true;
   }
@@ -59,7 +60,7 @@ void ekg::core::swap(ekg::info_t &info) {
   if (
     ekg::p_core == nullptr
     ||
-    ekg::p_core->swap_target_at == ekg::at_t::not_found
+    ekg::gui.bind.swap_at == ekg::at_t::not_found
   ) {
     return;
   }
@@ -104,7 +105,7 @@ void ekg::core::swap(ekg::info_t &info) {
   );
 
   ekg::p_core->collector.clear();
-  ekg::p_core->swap_target_at = ekg::at_t::not_found;
+  ekg::gui.bind.swap_at = ekg::at_t::not_found;
 }
 
 void ekg::core::reload(ekg::info_t &info) {
@@ -123,6 +124,8 @@ void ekg::core::reload(ekg::info_t &info) {
       property.descriptor_at,
       ekg::ui::reload(property, descriptor);
     );
+
+    property.operation.should_reload = false;
   }
 
   ekg::p_core->reload.clear();
@@ -142,12 +145,14 @@ void ekg::core::docknize(ekg::info_t &info) {
     ekg::layout::docknize(
       property
     );
+
+    property.operation.should_docknize = false;
   }
 
   ekg::p_core->reload.clear();
 }
 
-void ekg::core::scale(ekg::info_t &info) {
+void ekg::core::scalenize(ekg::info_t &info) {
   if (ekg::p_core == nullptr) {
     return;
   }
@@ -193,6 +198,7 @@ void ekg::core::scale(ekg::info_t &info) {
         ekg::minimum_big_font_height
       )
     );
+  }
 }
 
 void ekg::core::poll_events() {
@@ -204,28 +210,157 @@ void ekg::core::poll_events() {
     ekg::p_core->handler_input.input
   };
 
-  bool is_on_scrolling_timeout {!ekg::reach(&input.ui_scrolling_timing, 100)};
-  ekg::current.unique_id *= !(input.was_pressed || input.was_released || input.has_motion);
+  bool is_on_scrolling_timeout {!ekg::reach(input.ui_scrolling_timing, 100)};
+  ekg::gui.ui.hovered_at *= !(input.was_pressed || input.was_released || input.has_motion);
 
-
+  ekg::property &abs_widget {ekg::query<ekg::property_t>(ekg::gui.ui.abs_widget_at)}
   if (
-      ekg::p_core->abs_widget_at != ekg::at_t::not_found
+      abs_widget != ekg::property_t::not_found
       &&
-      (ekg::p_core->abs_widget_at->states.is_absolute || is_on_scrolling_timeout)
+      (abs_widget.is_absolute || is_on_scrolling_timeout)
     ) {
 
-    ekg::p_core->abs_widget_at->on_event(ekg::io::stage::pre);
-    ekg::p_core->abs_widget_at->on_event(ekg::io::stage::process);
+    ekg_abstract_todo(
+      abs_widget.descriptor_at.type,
+      abs_widget.descriptor_at,
 
-    if (
-        ekg::p_core->abs_widget_at->states.is_scrolling.x
+      ekg::ui::event(property, descriptor, ekg::io::stage::pre);
+      ekg::ui::event(property, descriptor, ekg::io::stage::process);
+    
+      if (
+        property.scroll.is_scrolling.x
         ||
-        ekg::p_core->abs_widget_at->states.is_scrolling.y
+        property.scroll.is_scrolling.y
       ) {
-      ekg::reset(&input.ui_scrolling_timing);
+        ekg::reset(input.ui_scrolling_timing);
+      }
+
+      ekg::ui::event(property, descriptor, ekg::io::stage::post);
+    );
+
+    return;
+  }
+
+  if (is_on_scrolling_timeout) {
+    return;
+  }
+
+  ekg::gui.ui.abs_widget_at = ekg::at_t::not_found;
+
+  bool hovered {};
+  bool first_absolute {};
+
+  ekg::at_t focused_at {ekg::at_t::not_found};
+  for (ekg::at_t &at : ekg::p_core->stack) {
+    ekg::property_t &property {
+      ekg::query<ekg::property_t>(at)
+    };
+
+    if (ekg::property_t::not_found || property.is_dead) {
+      continue;
     }
 
-    ekg::p_core->abs_widget_at->on_event(ekg::io::stage::post);
-    return;
+    ekg_abstract_todo(
+      property.descriptor_at.type,
+      property.descriptor_at,
+
+      ekg::ui::event(property, descriptor, ekg::io::stage::pre);
+
+      hovered = (
+        !(
+          ekg::p_core->p_os_platform->event.type == ekg::io::event_type::key_down
+          ||
+          ekg::p_core->p_os_platform->event.type == ekg::io::event_type::key_up
+          ||
+          ekg::p_core->p_os_platform->event.type == ekg::io::event_type::text_input
+        )
+        &&
+        property.is_hovering
+        &&
+        property.is_visible
+        &&
+        property.is_enabled
+      );
+
+      if (hovered) {
+        ekg::property_t &focused_property {
+          ekg::query<ekg::property_t>(focused_at)
+        };
+
+        focused_property != ekg::property_t::not_found
+          && (focused_property.is_hovering = false);
+
+        focused_at = at;
+        first_absolute = false;
+      }
+
+      if (property.is_absolute && !first_absolute) {
+        focused_at = at;
+        first_absolute = true;
+      }
+
+      ekg::ui::event(property, descriptor, ekg::io::stage::post);
+      if (!hovered && !property.is_absolute) {
+        ekg::ui::event(property, descriptor, ekg::io::stage::process);
+      }
+    );
+  }
+
+  ekg::gui.ui.hovered_type = ekg::type::none;
+
+  ekg::property_t &focused_property {
+    ekg::query<ekg::property_t>(focused_at)
+  };
+
+  if (focused_property != ekg::property_at::not_found) {
+    ekg_abstract_todo(
+      focused_at.at,
+      focused_at,
+
+      ekg::gui.ui.hovered_type = focused_at.type;
+      ekg::gui.ui.hovered_at = focused_at;
+
+      if (property.is_absolute) {
+        ekg::gui::ui.abs_widget_at = focused_at;
+      }
+
+      ekg::ui::event(property, descriptor, ekg::io::stage::pre);
+      ekg::ui::event(property, descriptor, ekg::io::stage::process);
+      ekg::ui::event(property, descriptor, ekg::io::stage::post);
+    );
+  }
+
+  // @TODO: ref this later
+
+  if (input.was_pressed) {
+    ekg::gui.ui.pressed_at = ekg::gui.ui.hovered_at;
+    (
+      // if p_widget_focused != nullptr ? focused_at.type : ekg::type::none
+      (focused_property != ekg::property_t::not_found && (ekg::gui.ui.pressed_type = focused_at.type))
+      ||
+      (ekg::gui.ui.pressed_type = ekg::type::none)
+    );
+  } else if (input.was_released) {
+    ekg::gui.ui.released_at = ekg::gui.ui.hovered_at;
+    (
+      (focused_property != ekg::property_t::not_found && (ekg::gui.ui.released_type = focused_at.type))
+      ||
+      (ekg::gui.ui.released_type = ekg::type::none)
+    );
+  }
+
+  if (
+      ekg::gui.ui.last_hovered_at != ekg::gui.ui.hovered_at
+      &&
+      ekg::gui.ui.hovered_at != ekg::at_t::not_found
+      &&
+      (
+        input.was_pressed || input.was_released
+      )
+  ) {
+    ekg::gui.bind.swap_at = ekg::gui.ui.hovered_at;
+    ekg::gui.ui.last_hovered_at = ekg::gui.ui.hovered_at;
+    ekg::gui.ui.redraw = true;
+    ekg::io::dispatch
   }
 }

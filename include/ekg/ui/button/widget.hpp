@@ -40,7 +40,7 @@ namespace ekg::ui {
     const ekg::io::stage &stage
   );
 
-  void update(
+  void high_frequency(
     ekg::property_t &property,
     ekg::button_t &button
   );

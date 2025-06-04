@@ -41,9 +41,9 @@ void ekg::handler::callback::init() {
   docknize.info.tag = "docknize";
   docknize.function = &ekg::core::docknize;
 
-  ekg::task_t &scale {this->load()};
-  scale.info.tag = "scale";
-  scale.function = &ekg::core::scale;
+  ekg::task_t &scalenize {this->load()};
+  scalenize.info.tag = "scalenize";
+  scalenize.function = &ekg::core::scalenize;
 
   ekg::task_t &high_frequency {this->load()};
   high_frequency.info.tag = "high-frequency";

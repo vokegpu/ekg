@@ -24,6 +24,7 @@
 #include "ekg/ekg.hpp"
 #include "ekg/io/log.hpp"
 #include "ekg/core/context.hpp"
+#include "ekg/core/pools.hpp"
 
 ekg::runtime_t ekg::p_core {nullptr};
 ekg::context_t ekg::context {};
@@ -85,10 +86,66 @@ void ekg::update() {
   if (ekg::p_core == nullptr) {
     return;
   }
+
+  size_t size {ekg::p_core->high_frequency.size()};
+  for (size_t it {}; it < size; it++) {
+    ekg::property_t &property {
+      ekg::query<ekg::property_t>(ekg::p_core->high_frequency.at(it))
+    };
+
+    ekg_abstract_todo(
+      property.descriptor_at.type,
+      property.descriptor_at,
+      ekg::ui::high_frequency(property, descriptor);
+    );
+
+    if (
+      // no not-found-check because `t::not_found` bool fields are always false
+      !property.is_high_frequency
+    ) {
+      property.operation.should_enable_high_frequency = false; // same here
+
+      ekg::p_core->high_frequency.erase(
+        ekg::p_core->high_frequency.begin() + it
+      );
+
+      size = ekg::p_core->high_frequency.size();
+    }
+  }
 }
 
 void ekg::render() {
   if (ekg::p_core == nullptr) {
     return;
   }
+
+  if (ekg::gui.ui.redraw) {
+    ekg::p_core->draw_allocator.invoke();
+
+    for (ekg::at_t &at : ekg::p_core->stack) {
+      ekg::property_t &property {
+        ekg::query<ekg::property_t>(at)
+      };
+
+      if (property == ekg::property_t::not_found) {
+        continue;
+      }
+
+      ekg_abstract_todo(
+        property.descriptor_at.type,
+        property.descriptor_at,
+
+        ekg::ui::pass(property, descriptor);
+        if (!property.should_buffering) {
+          continue;
+        }
+
+        ekg::ui::buffering(property, descriptor);
+      );
+    }
+
+    ekg::p_core->draw_allocator.revoke();
+  }
+
+  ekg::p_core->draw_allocator.draw();
 }

@@ -28,6 +28,13 @@
 #include "ekg/math/geometry.hpp"
 
 namespace ekg {
+  struct operation_t {
+  public:
+    bool should_reload {};
+    bool should_docknize {};
+    bool should_enable_high_frequency {};
+  };
+
   struct scroll_t {
   public:
     ekg::vec2_t<bool> is_enabled {};
@@ -51,9 +58,15 @@ namespace ekg {
     bool is_childnizate {};
     bool is_children_docknizable {};
     bool is_targeting_absolute_parent {};
+    bool is_absolute {};
+    bool is_hovering {};
+    bool is_visible {};
+    bool is_enabled {};
     bool should_refresh_size {};
+    bool should_buffering {};
 
     ekg::scroll_t scroll {};
+    ekg::operation_t operation {};
   public:
     ekg_descriptor(ekg::property_t);
   };

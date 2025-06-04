@@ -28,6 +28,7 @@
 
 namespace ekg {
   enum class type {
+    none,
     callback,
     property,
     stack,

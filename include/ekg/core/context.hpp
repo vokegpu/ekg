@@ -42,7 +42,29 @@ namespace ekg {
 
   extern struct gui_t {
   public:
-    ekg::at_t binded_stack_at {};
+    struct bind_t {
+    public:
+      ekg::at_t stack_at {};
+      ekg::at_t swap_at {};
+    };
+
+    // @TODO: add last for press, release and hover
+
+    struct ui_t {
+    public:
+      ekg::at_t abs_widget_at {};
+      ekg::type hovered_type {};
+      ekg::at_t hovered_at {};
+      ekg::at_t last_hovered_at {};
+      ekg::type pressed_type {};
+      ekg::at_t pressed_at {};
+      ekg::type released_type {};
+      ekg::at_t released_at {};
+      bool redraw {};
+    };
+  public:
+    ekg::gui_t::bind_t bind {};
+    ekg::gui_t::ui_t ui {};
   } gui;
 
   constexpr uint32_t minimum_small_font_height {4};

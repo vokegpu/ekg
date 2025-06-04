@@ -50,4 +50,19 @@ namespace ekg {
   };
 }
 
+namespace ekg::io {
+  enum class operation {
+    swap,
+    reload,
+    docknize,
+    scalenize,
+    high_frequency
+  };
+
+  void dispatch(
+    ekg::io::operation op,
+    ekg::at_t property_at = ekg::at_t::not_found
+  );
+}
+
 #endif

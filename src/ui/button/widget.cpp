@@ -41,7 +41,7 @@ void ekg::ui::event(
 
 }
 
-void ekg::ui::update(
+void ekg::ui::high_frequency(
   ekg::property_t &property,
   ekg::button_t &button
 ) {

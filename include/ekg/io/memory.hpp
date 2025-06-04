@@ -92,11 +92,10 @@ namespace ekg {
   class pool {
   protected:
     std::vector<t> loaded {};
-    t not_found {};
     ekg::id_t highest_unique_id {};
+    size_t virtual_memory_capacity {256};
   public:
-    pool(ekg::flags_t type, const t &not_found)
-      : type(type), not_found(not_found) {}
+    pool() {this->loaded.reserve(this->virtual_memory_capacity)};
 
     t &push_back(const t &copy) {
       this->loaded.push_back(copy);
@@ -127,7 +126,7 @@ namespace ekg {
           }
         }
     
-        return this->not_found;
+        return t::not_found;
       }
 
       t &descriptor {this->loaded.at(at.index)};
