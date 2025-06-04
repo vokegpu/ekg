@@ -24,8 +24,8 @@
 #ifndef EKG_UI_BUTTON_HPP
 #define EKG_UI_BUTTON_HPP
 
-#include "ekg/io/memory.hpp"
 #include "ekg/io/descriptor.hpp"
+#include "ekg/io/font.hpp"
 
 namespace ekg {
   struct button_color_scheme_t {
@@ -46,12 +46,17 @@ namespace ekg {
   public:
     struct check_t {
     public:
+      struct widget_t {
+      public:
+        ekg::rect_t<float> rect_text {};
+        ekg::rect_t<float> rect_box {};
+      };
+    public:
       ekg::value<std::string> text {};
+      ekg::font_t font_size {ekg::font::medium};
       bool is_check_box {};
       ekg::flags_t dock {};
-    public:
-      ekg::rect_t<float> rect_text {};
-      ekg::rect_t<float> rect_box {};
+      ekg::button_t::check_t::widget_t widget {};
     };
 
     static ekg::button_t not_found;
@@ -59,6 +64,8 @@ namespace ekg {
   public:
     ekg::at_t property_at {};
   public:
+    std::string tag {};
+    ekg::flags_t dock {};
     ekg::rect_t<float> rect {};
     std::vector<ekg::button_t::check_t> checks {};
     ekg::button_color_scheme_t color_scheme {};

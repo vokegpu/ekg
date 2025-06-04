@@ -35,7 +35,7 @@ namespace ekg {
   /**
    * @TODO: Add non-fixed size font-rendering
    **/
-  enum font {
+  enum class font {
     small,
     medium,
     big

@@ -376,6 +376,21 @@ namespace ekg {
     );
   }
 
+  /**
+   * @TODO: implement min/max for `ekg::rect_t<t>`, `ekg::vec4_t<t>`, etc
+   * note: do not implement clamp for these cases because clamping rect/vec is stupid
+   **/
+
+  template<typename t>
+  constexpr t min(t a, t b) {
+    return a < b ? a : b;
+  }
+
+  template<typename t>
+  constexpr t max(t a, t b) {
+    return a > b ? a : b;
+  }
+
   template<typename t>
   constexpr t clamp_min(t a, t b) {
     return a < b ? b : a;

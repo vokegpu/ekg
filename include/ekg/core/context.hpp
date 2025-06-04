@@ -36,6 +36,7 @@ namespace ekg {
     float dpi_scale_internval {25.0f};
     float dpi_factor_scale {};
     float dpi_font_scale {};
+    float dpi_min_sizes {10.0f};
     ekg::vec2_t<uint32_t> font_offset {4, 6};
     size_t gpu_data_count {};
   } context;

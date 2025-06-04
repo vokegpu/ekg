@@ -34,6 +34,11 @@
  **/
 #define ekg_generate_hash(distance, c32, u) static_cast<ekg::hash_t>(distance + c34 + u * 100);
 
+/**
+ * A low-level assert used in risks cases where virtual-address should be warned.
+ **/
+#define ekg_assert_low_level(state, alarm, end) if (state) alarm; end;
+
 namespace ekg {
   typedef size_t flags_t;
   typedef size_t id_t;
@@ -145,9 +150,26 @@ namespace ekg {
     t value {};
     t *p {};
     t previous {};
+    bool changed {};
   public:
+    value(t *p_address) {
+      this->ownership(p_address);
+      this->changed = true;
+    }
+  
+    value(t value) {
+      this->get() = value;
+      this->changed = true;
+    }
+  
+    value(const char *p_char) {
+      this->get() = p_char;
+      this->changed = true;
+    }
+  
     void set(const p &value) {
       this->get() = p;
+      this->changed = true;
     }
   
     t &get() {
@@ -163,6 +185,11 @@ namespace ekg {
     }
   
     bool was_changed() {
+      if (this->was_changed) {
+        this->was_changed = false;
+        return true;
+      }
+  
       t &get {this->get()};
       if (this->previous != get) {
         this->previous = get;
