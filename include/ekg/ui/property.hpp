@@ -39,7 +39,7 @@ namespace ekg {
   public:
     ekg::vec2_t<bool> is_enabled {};
     ekg::vec2_t<bool> is_scrolling {};
-    ekg::pixel_thickness_t nearest_scroll_bar_thickness {}
+    ekg::pixel_thickness_t nearest_scroll_bar_thickness {};
   };
 
   struct property_t {
@@ -53,7 +53,6 @@ namespace ekg {
     std::vector<ekg::at_t> children {};
   public:
     ekg::rect_t<float> rect {};
-    ekg::vec4_t scroll {};
 
     bool is_childnizate {};
     bool is_children_docknizable {};
@@ -62,6 +61,7 @@ namespace ekg {
     bool is_hovering {};
     bool is_visible {};
     bool is_enabled {};
+    bool is_high_frequency {};
     bool should_refresh_size {};
     bool should_buffering {};
 

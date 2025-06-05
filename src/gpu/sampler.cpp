@@ -24,7 +24,7 @@
 #include "ekg/gpu/sampler.hpp"
 
 ekg::flags_t ekg::sampler_src_r8_to_r8g8b8a8(
-  const ekg::vec2_t<int23_t> &size,
+  const ekg::vec2_t<int32_t> &size,
   const unsigned char *p_src,
   std::vector<unsigned char> &dst
 ) {
@@ -41,9 +41,8 @@ ekg::flags_t ekg::sampler_src_r8_to_r8g8b8a8(
   }
 
   size_t index {};
-  size_t size {size.x * size.y};
 
-  for (size_t it {}; it < size; it++) {
+  for (size_t it {}; it < size.x * size.y; it++) {
     const unsigned char &char8_red_color {
       p_src[it]
     };

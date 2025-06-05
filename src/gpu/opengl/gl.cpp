@@ -26,10 +26,12 @@
 #include <iostream>
 #include <regex>
 
+#include "ekg/core/context.hpp"
 #include "ekg/gpu/opengl/gl.hpp"
 #include "ekg/gpu/opengl/shaders.hpp"
 #include "ekg/core/runtime.hpp"
 #include "ekg/io/log.hpp"
+#include "ekg/core/pools.hpp"
 
 ekg::opengl::opengl(std::string_view set_glsl_version) {
   if (set_glsl_version.empty()) {
@@ -42,9 +44,9 @@ ekg::opengl::opengl(std::string_view set_glsl_version) {
   std::regex es_re {"es"};
 
   if (std::regex_search(glsl_version, es_re)) {
-    this->gpu_api = ekg::which_gpu_api::opengles;
+    this->which_gpu_api = ekg::which_gpu_api::opengles;
   } else {
-    this->gpu_api = ekg::which_gpu_api::opengl;
+    this->which_gpu_api = ekg::which_gpu_api::opengl;
   }
 
   std::regex number_re {"\\d+"};  
@@ -82,14 +84,14 @@ void ekg::opengl::init() {
   std::string vsh_src {};
   ekg::gpu::glsl_opengl_pipeline_vsh(
     no_view_glsl_version,
-    this->gpu_api,
+    this->which_gpu_api,
     vsh_src
   );
 
   std::string fsh_src {};
   ekg::gpu::glsl_opengl_pipeline_fsh(
     no_view_glsl_version,
-    this->gpu_api,
+    this->which_gpu_api,
     fsh_src
   );
 
@@ -172,22 +174,22 @@ void ekg::opengl::pre_re_alloc() {
 }
 
 void ekg::opengl::update_viewport(int32_t w, int32_t h) {
-  ekg::context.viewport.x = 0.0f;
-  ekg::context.viewport.y = 0.0f;
-  ekg::context.viewport.w = static_cast<float>(w);
-  ekg::context.viewport.h = static_cast<float>(h);
+  ekg::dpi.viewport.x = 0.0f;
+  ekg::dpi.viewport.y = 0.0f;
+  ekg::dpi.viewport.w = static_cast<float>(w);
+  ekg::dpi.viewport.h = static_cast<float>(h);
 
   ekg::ortho(
-    this->projection_matrix,
+    this->mat4x4_proj_matrix,
     0,
-    ekg::context.viewport.w,
-    ekg::context.viewport.h,
+    ekg::dpi.viewport.w,
+    ekg::dpi.viewport.h,
     0
   );
 
   glUseProgram(this->pipeline_program);
-  glUniformMatrix4fv(this->uniform_projection, GL_TRUE, 0, this->projection_matrix);
-  glUniform1f(this->uniform_viewport_height, ekg::context.viewport.h);
+  glUniformMatrix4fv(this->uniform_projection, GL_TRUE, 0, this->mat4x4_proj_matrix);
+  glUniform1f(this->uniform_viewport_height, ekg::dpi.viewport.h);
   glUseProgram(0);
 }
 
@@ -334,7 +336,7 @@ ekg::flags_t ekg::opengl::allocate_sampler(
     0,
     sampler_allocate_info.gl_format,
     sampler_allocate_info.gl_type,
-    sampler_allocate_info.p_data
+    sampler_allocate_info.pv_data
   );
 
   if (sampler_allocate_info.gl_generate_mipmap) {
@@ -369,7 +371,7 @@ ekg::flags_t ekg::opengl::fill_sampler(
     sampler_fill_info.h,
     sampler_fill_info.gl_format,
     sampler_fill_info.gl_type,
-    sampler_fill_info.p_data
+    sampler_fill_info.pv_data
   );
 
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -390,7 +392,7 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
     return ekg::result::failed;
   }
 
-  ekg::io::font_face_t *faces[ekg::io::supported_faces_size] {
+  ekg::io::font_face_t *faces[ekg::io::enum_font_face_type_size] {
     p_font_face_text,
     p_font_face_emoji,
     p_font_face_kanjis
@@ -400,7 +402,7 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
   float square {};
 
   ekg::vec2_t<int32_t> highest_glyph_size {};
-  for (size_t it {}; it < ekg::io::supported_faces_size; it++) {
+  for (size_t it {}; it < ekg::io::enum_font_face_type_size; it++) {
     ekg::io::font_face_t *&p_font_face {
       faces[it]
     };
@@ -427,7 +429,7 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
   };
 
   bool is_current_gpu_api_gl_es {
-    this->gpu_api == ekg::which_gpu_api::opengles
+    this->which_gpu_api == ekg::which_gpu_api::opengles
   };
 
   std::vector<unsigned char> r8_to_r8g8b8a8_swizzled_image {};
@@ -618,10 +620,10 @@ void ekg::opengl::pass_gpu_data_buffer_to_gpu(
         &&
         previous_sampler_bound != data.sampler_at
         &&
-        ekg::query<ekg::sampler_t>(data.sampler_t) != ekg::sampler_t::not_found
+        ekg::query<ekg::sampler_t>(data.sampler_at) != ekg::sampler_t::not_found
       ) {
 
-      ekg::sampler_t &sampler {ekg::query<ekg::sampler_t>(data.sampler_t)};
+      ekg::sampler_t &sampler {ekg::query<ekg::sampler_t>(data.sampler_at)};
 
       if (sampler.is_protected) {
         glUniform1i(
@@ -651,7 +653,7 @@ void ekg::opengl::pass_gpu_data_buffer_to_gpu(
       }
 
       previous_sampler_bound = data.sampler_at;
-    } else if (!sampler_going_on && previous_sampler_bound > -1) {
+    } else if (!sampler_going_on && previous_sampler_bound != ekg::at_t::not_found) {
       glUniform1i(this->uniform_active_texture, EKG_DISABLE_TEXTURE);
       previous_sampler_bound = ekg::at_t::not_found;
     }

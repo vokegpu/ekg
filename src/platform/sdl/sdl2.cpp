@@ -75,8 +75,8 @@ void ekg::sdl2::init() {
   ekg::vec2_t<int32_t> window_size {};
   SDL_GetWindowSize(this->p_sdl_win, &window_size.x, &window_size.y);
 
-  ekg::viewport.w = static_cast<float>(window_size.x);
-  ekg::viewport.h = static_cast<float>(window_size.y);
+  ekg::dpi.viewport.w = static_cast<float>(window_size.x);
+  ekg::dpi.viewport.h = static_cast<float>(window_size.y);
 
   SDL_version sdl_version {};
   SDL_GetVersion(&sdl_version);
@@ -109,7 +109,7 @@ void ekg::sdl2::update_display_size() {
   this->display_size.h = static_cast<int32_t>(sdl_display_mode.h);
 }
 
-void ekg::sdl2::get_key_name(ekg::io::input_key_t &key, std::string &name) {
+void ekg::sdl2::get_key_name(ekg::input_key_t &key, std::string &name) {
   switch (key.key) {
     case SDLK_LCTRL:
       name = "lctrl";
@@ -138,7 +138,7 @@ void ekg::sdl2::get_key_name(ekg::io::input_key_t &key, std::string &name) {
   }
 }
 
-void ekg::sdl2::get_special_key(ekg::io::input_key_t &key, ekg::special_key &special_key) {
+void ekg::sdl2::get_special_key(ekg::input_key_t &key, ekg::special_key &special_key) {
   switch (key.key) {
     case SDLK_LCTRL:
       special_key = ekg::special_key::left_ctrl;
@@ -170,7 +170,7 @@ void ekg::sdl2::get_special_key(ekg::io::input_key_t &key, ekg::special_key &spe
 void ekg::sdl_poll_event(SDL_Event &sdl_event) {
   bool must_poll_events {};
 
-  switch (sdl_event.type) {
+  switch (sdl_event.flags) {
   default:
     break;
   case SDL_WINDOWEVENT:
@@ -185,42 +185,42 @@ void ekg::sdl_poll_event(SDL_Event &sdl_event) {
 
     switch (sdl_event.window.event) {
       case SDL_WINDOWEVENT_SIZE_CHANGED:
-        ekg::viewport.w = sdl_event.window.data1;
-        ekg::viewport.h = sdl_event.window.data2;
+        ekg::dpi.viewport.w = sdl_event.window.data1;
+        ekg::dpi.viewport.h = sdl_event.window.data2;
 
-        ekg::p_core->p_gpu_api->update_viewport(ekg::viewport.w, ekg::viewport.h);
+        ekg::p_core->p_gpu_api->update_viewport(ekg::dpi.viewport.w, ekg::dpi.viewport.h);
         ekg::io::dispatch(ekg::io::operation::scale_update);
 
         break;
     }
     break;
   case SDL_KEYDOWN:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::key_down;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::key_down;
     ekg::p_core->p_platform_base->event.key.key = static_cast<int32_t>(sdl_event.key.keysym.sym);
     must_poll_events = true;
     break;
   case SDL_KEYUP:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::key_up;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::key_up;
     ekg::p_core->p_platform_base->event.key.key = static_cast<int32_t>(sdl_event.key.keysym.sym);
     must_poll_events = true;
     break;
   case SDL_TEXTINPUT:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::text_input;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::text_input;
     ekg::p_core->p_platform_base->event.text_input = sdl_event.text.text;
     must_poll_events = true;
     break;
   case SDL_MOUSEBUTTONUP:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::mouse_button_up;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::mouse_button_up;
     ekg::p_core->p_platform_base->event.mouse_button = sdl_event.button.button;
     must_poll_events = true;
     break;
   case SDL_MOUSEBUTTONDOWN:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::mouse_button_down;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::mouse_button_down;
     ekg::p_core->p_platform_base->event.mouse_button = sdl_event.button.button;
     must_poll_events = true;
     break;
   case SDL_MOUSEWHEEL:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::mouse_wheel;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::mouse_wheel;
     ekg::p_core->p_platform_base->event.mouse_wheel_x = sdl_event.wheel.x;
     ekg::p_core->p_platform_base->event.mouse_wheel_y = sdl_event.wheel.y;
     ekg::p_core->p_platform_base->event.mouse_wheel_precise_x = sdl_event.wheel.preciseX;
@@ -228,25 +228,25 @@ void ekg::sdl_poll_event(SDL_Event &sdl_event) {
     must_poll_events = true;
     break;
   case SDL_MOUSEMOTION:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::mouse_motion;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::mouse_motion;
     ekg::p_core->p_platform_base->event.mouse_motion_x = sdl_event.motion.x;
     ekg::p_core->p_platform_base->event.mouse_motion_y = sdl_event.motion.y;
     must_poll_events = true;
     break;
   case SDL_FINGERUP:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::finger_up;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::finger_up;
     ekg::p_core->p_platform_base->event.finger_x = sdl_event.tfinger.x;
     ekg::p_core->p_platform_base->event.finger_y = sdl_event.tfinger.y;
     must_poll_events = true;
     break;
   case SDL_FINGERDOWN:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::finger_down;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::finger_down;
     ekg::p_core->p_platform_base->event.finger_x = sdl_event.tfinger.x;
     ekg::p_core->p_platform_base->event.finger_y = sdl_event.tfinger.y;
     must_poll_events = true;
     break;
   case SDL_FINGERMOTION:
-    ekg::p_core->p_platform_base->event.type = ekg::io::input_event_type::finger_motion;
+    ekg::p_core->p_platform_base->event.flags = ekg::io::input_event_type::finger_motion;
     ekg::p_core->p_platform_base->event.finger_x = sdl_event.tfinger.x;
     ekg::p_core->p_platform_base->event.finger_y = sdl_event.tfinger.y;
     ekg::p_core->p_platform_base->event.finger_dx = sdl_event.tfinger.dx;

@@ -45,14 +45,11 @@ void ekg::ui::reload(
     button.rect
   );
 
-  float text_height {
-
-  };
-
   ekg::axis pick_axis {
     ekg::axis::horizontal
   };
 
+  ekg::aligned_t aligned_dimension {};
   for (ekg::button_t::check_t &check : button.checks) {
     ekg::draw::font &draw_font {
       ekg::draw::get_font_renderer(check.font_size)
@@ -61,23 +58,11 @@ void ekg::ui::reload(
     check.rect_text.w = draw_font.get_text_width(check.text.get());
     check.rect_text.h = draw_font.get_text_height();
 
-    check.rect.scaled_height = ekg::max<float>(
-      static_cast<float>(check.rect.scaled_height),
-      ekg::one_pixel
-    );
-  }
-
-  ekg::aligned_t aligned_dimension {};
-  for (ekg::button_t::check_t &check : button.checks) {
-    ekg::draw::font &draw_font {
-      ekg::draw::get_font_renderer(check.font_size)
-    };
-
     aligned_dimension = {};
     ekg::align_rect_dimension<float>(
       pick_axis,
       check.widget.rect_text,
-      ekg::context.dpi_min_sizes,
+      ekg::dpi.min_sizes,
       aligned_dimension
     );
 
@@ -85,13 +70,52 @@ void ekg::ui::reload(
       static_cast<float>(check.rect.scaled_height),
       ekg::one_pixel
     );
-  }
 
-  if (button.should_refresh_size) {
-    
+    button.rect.h = ekg::max(button.rect.h, aligned_dimension.h * check.rect.scaled_height);
   }
 
   ekg::layout::mask mask {};
+  mask.preset(
+    {
+      aligned.offset,
+      aligned.offset,
+      button.rect.h
+    },
+    pick_axis,
+    button.rect.w
+  );
+
+  for (ekg::button_t::check_t &check : button.checks) {
+    ekg::draw::font &draw_font {
+      ekg::draw::get_font_renderer(check.font_size)
+    };
+
+    if (check.is_check_box) {
+      check.widget.rect_box.w = check.widget.rect_text.h;
+      check.widget.rect_box.h = check.widget.rect_text.h;
+
+      mask.insert(
+        {
+          .p_rect = &check.widget.rect_box,
+          .dock = check.dock
+        }
+      );
+    }
+
+    mask.insert(
+      {
+        .p_rect = &check.widget.rect_text,
+        .dock = check.dock
+      }
+    );
+  }
+
+  mask.docknize();
+
+  if (button.should_refresh_size) {
+    button.rect.w = ekg::max(ekg::dpi.min_sizes, mask.get_rect().w);
+    button.should_refresh_size = false;
+  }
 }
 
 void ekg::ui::event(

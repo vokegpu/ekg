@@ -29,29 +29,29 @@
 void ekg::handler::callback::init() {
   ekg::log() << "Initialising callback-handler";
 
-  ekg::task_t &swap {this->load()};
+  ekg::callback_t &swap {this->load()};
   swap.info.tag = "swap";
   swap.function = &ekg::core::swap;
 
-  ekg::task_t &reload {this->load()};
+  ekg::callback_t &reload {this->load()};
   reload.info.tag = "reload";
   reload.function = &ekg::core::reload;
 
-  ekg::task_t &docknize {this->load()};
+  ekg::callback_t &docknize {this->load()};
   docknize.info.tag = "docknize";
   docknize.function = &ekg::core::docknize;
 
-  ekg::task_t &scalenize {this->load()};
+  ekg::callback_t &scalenize {this->load()};
   scalenize.info.tag = "scalenize";
   scalenize.function = &ekg::core::scalenize;
 
-  ekg::task_t &high_frequency {this->load()};
+  ekg::callback_t &high_frequency {this->load()};
   high_frequency.info.tag = "high-frequency";
   high_frequency.function = &ekg::core::high_frequency;
 }
 
-ekg::task_t &ekg::handler::callback::load() {
-  ekg::task_t &task {ekg::make<ekg::task_t>({})};
+ekg::callback_t &ekg::handler::callback::load() {
+  ekg::callback_t &task {ekg::make<ekg::callback_t>({})};
   this->loaded.emplace_back() = task.at;
   return task;
 }
@@ -82,9 +82,9 @@ void ekg::handler::callback::dispatch(uint64_t index) {
   }
 }
 
-void ekg::handler::callback::on_update() {
+void ekg::handler::callback::update() {
   while (!this->queue.empty()) {
-    ekg::callback_t &callback {ekg::query<ekg::callback_t>(at)};
+    ekg::callback_t &callback {ekg::query<ekg::callback_t>(this->queue.front())};
     this->queue.pop();
 
     if (callback == ekg::callback_t::not_found) {

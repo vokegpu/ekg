@@ -26,6 +26,7 @@
 
 #include "ekg/io/descriptor.hpp"
 #include "ekg/io/font.hpp"
+#include "ekg/math/geometry.hpp"
 
 namespace ekg {
   struct button_color_scheme_t {
@@ -53,7 +54,7 @@ namespace ekg {
       };
     public:
       ekg::value<std::string> text {};
-      ekg::font_t font_size {ekg::font::medium};
+      ekg::font font_size {ekg::font::medium};
       bool is_check_box {};
       ekg::flags_t dock {};
       ekg::button_t::check_t::widget_t widget {};

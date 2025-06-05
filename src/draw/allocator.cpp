@@ -22,22 +22,23 @@
  * SOFTWARE.
  */
 
-#include "ekg/gpu/allocator.hpp"
+#include "ekg/draw/allocator.hpp"
 #include "ekg/core/runtime.hpp"
 #include "ekg/io/log.hpp"
+#include "ekg/core/context.hpp"
 
-bool ekg::allocator::enable_high_priority {};
-bool ekg::allocator::is_simple_shape {};
+bool ekg::draw::allocator::enable_high_priority {};
+bool ekg::draw::allocator::is_simple_shape {};
 
-void ekg::allocator::init() {
+void ekg::draw::allocator::init() {
   ekg::log() << "Initializing GPU allocator";
 }
 
-void ekg::allocator::quit() {
+void ekg::draw::allocator::quit() {
   ekg::log() << "Quitting GPU allocator";
 }
 
-void ekg::allocator::invoke() {
+void ekg::draw::allocator::invoke() {
   this->data_instance = 0;
   this->stride_instance.x = 0;
   this->stride_instance.y = 0;
@@ -61,7 +62,7 @@ void ekg::allocator::invoke() {
   this->stride_instance.y = 0;
 }
 
-void ekg::allocator::bind_texture(ekg::sampler_t &sampler) {
+void ekg::draw::allocator::bind_texture(ekg::sampler_t &sampler) {
   if (sampler == ekg::sampler_t::not_found) {
     return;
   }
@@ -70,10 +71,10 @@ void ekg::allocator::bind_texture(ekg::sampler_t &sampler) {
   data.sampler_at = ekg::p_core->p_gpu_api->bind_sampler(sampler);
 }
 
-void ekg::allocator::dispatch() {
+void ekg::draw::allocator::dispatch() {
   ekg::gpu::data_t *p_data {/* stupid */};
 
-  if (ekg::allocator::enable_high_priority) {
+  if (ekg::draw::allocator::enable_high_priority) {
     this->high_priority_gpu_data_buffer.push_back(this->gpu_data_buffer.at(this->data_instance));
 
     p_data = (
@@ -99,7 +100,7 @@ void ekg::allocator::dispatch() {
    * due the index rendering, with only one triangle for rectangles.
    **/
 
-  if (ekg::allocator::is_simple_shape) {
+  if (ekg::draw::allocator::is_simple_shape) {
     this->stride_instance.y = 0;
 
     /**
@@ -120,7 +121,7 @@ void ekg::allocator::dispatch() {
 
   if (!this->was_hash_changed) {
     this->was_hash_changed = (
-      this->previous_factor != p_data->factor
+      this->previous_hash != p_data->hash
     );
   }
 
@@ -129,7 +130,7 @@ void ekg::allocator::dispatch() {
   this->data_instance++;
 }
 
-void ekg::allocator::revoke() {
+void ekg::draw::allocator::revoke() {
   this->data_instance -= this->data_instance > 0;
 
   if (!this->high_priority_gpu_data_buffer.empty()) {
@@ -161,17 +162,17 @@ void ekg::allocator::revoke() {
 
   this->last_geometry_buffer_size = geometry_buffer_size;
   this->was_hash_changed = false;
-  ekg::conterxt.gpu_data_count = this->data_instance;
+  ekg::metrics.gpu_data_count = this->data_instance;
 }
 
-void ekg::allocator::to_gpu() {
+void ekg::draw::allocator::to_gpu() {
   ekg::p_core->p_gpu_api->pass_gpu_data_buffer_to_gpu(
     this->gpu_data_buffer
   );
 }
 
-void ekg::allocator::clear_current_data() {
-  if (!ekg::allocator::enable_high_priority && this->data_instance >= this->gpu_data_buffer.size()) {
+void ekg::draw::allocator::clear_current_data() {
+  if (!ekg::draw::allocator::enable_high_priority && this->data_instance >= this->gpu_data_buffer.size()) {
     this->gpu_data_buffer.emplace_back();
   }
 
@@ -180,19 +181,19 @@ void ekg::allocator::clear_current_data() {
   data.line_thickness = 0;
   data.sampler_at = ekg::sampler_t::not_found;
 
-  this->previous_factor = data.hash;
+  this->previous_hash = data.hash;
 }
 
-ekg::gpu::data_t &ekg::allocator::bind_current_data() {
+ekg::gpu::data_t &ekg::draw::allocator::bind_current_data() {
   this->clear_current_data();
   return this->gpu_data_buffer.at(this->data_instance);
 }
 
-size_t ekg::allocator::get_current_data_id() {
+size_t ekg::draw::allocator::get_current_data_id() {
   return this->data_instance;
 }
 
-ekg::gpu::data_t *ekg::allocator::get_data_by_index(size_t index) {
+ekg::gpu::data_t &ekg::draw::allocator::get_data_by_index(size_t index) {
   if (index >= this->gpu_data_buffer.size()) {
     return ekg::gpu::data_t::not_found;
   }
@@ -200,17 +201,18 @@ ekg::gpu::data_t *ekg::allocator::get_data_by_index(size_t index) {
   return this->gpu_data_buffer[index];
 }
 
-bool ekg::allocator::sync_scissor(
+bool ekg::draw::allocator::sync_scissor(
   ekg::rect_t<float> &scissor,
   ekg::rect_t<float> &rect_child,
-  ekg::rect_t<float> &parent_scissor
+  ekg::rect_t<float> &parent_scissor,
+  bool contains_parent
 ) {
   scissor.x = rect_child.x;
   scissor.y = rect_child.y;
   scissor.w = rect_child.w;
   scissor.h = rect_child.h;
 
-  if (parent_scissor) {
+  if (contains_parent) {
     bool only_if {};
 
     only_if = scissor.x < parent_scissor.x;
@@ -253,7 +255,7 @@ bool ekg::allocator::sync_scissor(
   return true;
 }
 
-void ekg::allocator::unsafe_set_scissor_rect(
+void ekg::draw::allocator::unsafe_set_scissor_rect(
   float x,
   float y,
   float w,
@@ -265,14 +267,14 @@ void ekg::allocator::unsafe_set_scissor_rect(
   this->scissor_instance.h = h;
 }
 
-void ekg::allocator::push_back_geometry(
-  const ekg::vec2_t<float> &vertex,
-  const ekg::vec2_t<float> &uv
+void ekg::draw::allocator::push_back_geometry(
+  float x, float y,
+  float u, float v
 ) {
   this->stride_instance.y++;
-  this->geometry_buffer.push_back(vertex.x);
-  this->geometry_buffer.push_back(vertex.y);
-  this->geometry_buffer.push_back(uv.x);
-  this->geometry_buffer.push_back(uv.y);
+  this->geometry_buffer.push_back(x);
+  this->geometry_buffer.push_back(y);
+  this->geometry_buffer.push_back(u);
+  this->geometry_buffer.push_back(v);
   this->geometry_instance += 4;
 }

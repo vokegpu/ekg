@@ -23,6 +23,6 @@
  */
 #include "ekg/gpu/data.hpp"
 
-ekg::gpu::data_t ekg::gpu::data_t {
+ekg::gpu::data_t ekg::gpu::data_t::not_found {
   .at = ekg::at_t::not_found
 };

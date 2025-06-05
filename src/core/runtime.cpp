@@ -24,8 +24,10 @@
 #include "ekg/core/runtime.hpp"
 #include "ekg/layout/scalenize.hpp"
 #include "ekg/io/log.hpp"
+#include "ekg/core/pools.hpp"
+#include "ekg/core/context.hpp"
 
-void ekg::core:swap_collector(
+void ekg::core::swap_collector(
   bool &was_found,
   ekg::at_t &property_at
 ) {
@@ -46,7 +48,7 @@ void ekg::core:swap_collector(
   ekg::p_core->collector.push_back(property_at);
 
   if (property.is_childnizate && property.is_children_docknizable) {
-    for (ekg::property &property : property.children) {
+    for (ekg::property_t &property : property.children) {
       if (property == ekg::property_t::not_found) {
         continue;
       }
@@ -68,7 +70,7 @@ void ekg::core::swap(ekg::info_t &info) {
   bool was_found {};
 
   ekg::p_core->top_level_stack.clear();
-  for (ekg::at_t &at : ekg::p_core->register) {
+  for (ekg::at_t &at : ekg::p_core->registry) {
     ekg::property_t &property {ekg::query<ekg::property_t>(at)};
 
     if (
@@ -120,7 +122,7 @@ void ekg::core::reload(ekg::info_t &info) {
     }
 
     ekg_abstract_todo(
-      property.descriptor_at.type,
+      property.descriptor_at.flags,
       property.descriptor_at,
       ekg::ui::reload(property, descriptor);
     );
@@ -159,8 +161,8 @@ void ekg::core::scalenize(ekg::info_t &info) {
 
   ekg::layout::scale_calculate();
 
-  ekg::context.dpi_font_scale = ekg::clamp<float>(
-    ekg::context.dpi_font_scale,
+  ekg::dpi.font_scale = ekg::clamp<float>(
+    ekg::dpi.font_scale,
     static_cast<float>(4),
     static_cast<float>(UINT8_MAX)
   );
@@ -168,9 +170,9 @@ void ekg::core::scalenize(ekg::info_t &info) {
   uint32_t font_size {
     ekg::clamp<uint32_t>(
       static_cast<uint32_t>(
-        ekg::context.dpi_font_scale
+        ekg::dpi.font_scale
         *
-        ekg::context.dpi_factor_scale
+        ekg::dpi.factor_scale
       ),
       0,
       UINT8_MAX
@@ -180,7 +182,7 @@ void ekg::core::scalenize(ekg::info_t &info) {
   if (this->draw_font_medium.font_size != font_size) {
     this->draw_font_small.set_size(
       ekg::clamp_min(
-        font_size - ekg::context.dpi_font_offset.x,
+        font_size - ekg::dpi.font_offset.x,
         ekg::minimum_small_font_height
       )
     );
@@ -194,7 +196,7 @@ void ekg::core::scalenize(ekg::info_t &info) {
 
     this->draw_font_big.set_size(
       ekg::clamp_min(
-        font_size + ekg::context.dpi_font_offset.y,
+        font_size + ekg::dpi.font_offset.y,
         ekg::minimum_big_font_height
       )
     );
@@ -213,7 +215,7 @@ void ekg::core::poll_events() {
   bool is_on_scrolling_timeout {!ekg::reach(input.ui_scrolling_timing, 100)};
   ekg::gui.ui.hovered_at *= !(input.was_pressed || input.was_released || input.has_motion);
 
-  ekg::property &abs_widget {ekg::query<ekg::property_t>(ekg::gui.ui.abs_widget_at)}
+  ekg::property_t &abs_widget {ekg::query<ekg::property_t>(ekg::gui.ui.abs_widget_at)};
   if (
       abs_widget != ekg::property_t::not_found
       &&
@@ -221,7 +223,7 @@ void ekg::core::poll_events() {
     ) {
 
     ekg_abstract_todo(
-      abs_widget.descriptor_at.type,
+      abs_widget.descriptor_at.flags,
       abs_widget.descriptor_at,
 
       ekg::ui::event(property, descriptor, ekg::io::stage::pre);
@@ -261,18 +263,18 @@ void ekg::core::poll_events() {
     }
 
     ekg_abstract_todo(
-      property.descriptor_at.type,
+      property.descriptor_at.flags,
       property.descriptor_at,
 
       ekg::ui::event(property, descriptor, ekg::io::stage::pre);
 
       hovered = (
         !(
-          ekg::p_core->p_os_platform->event.type == ekg::io::event_type::key_down
+          ekg::p_core->p_platform_base->event.flags == ekg::io::event_type::key_down
           ||
-          ekg::p_core->p_os_platform->event.type == ekg::io::event_type::key_up
+          ekg::p_core->p_platform_base->event.flags == ekg::io::event_type::key_up
           ||
-          ekg::p_core->p_os_platform->event.type == ekg::io::event_type::text_input
+          ekg::p_core->p_platform_base->event.flags == ekg::io::event_type::text_input
         )
         &&
         property.is_hovering
@@ -306,18 +308,18 @@ void ekg::core::poll_events() {
     );
   }
 
-  ekg::gui.ui.hovered_type = ekg::type::none;
+  ekg::gui.ui.hovered_type = ekg::type::unknown;
 
   ekg::property_t &focused_property {
     ekg::query<ekg::property_t>(focused_at)
   };
 
-  if (focused_property != ekg::property_at::not_found) {
+  if (focused_property != ekg::property_t::not_found) {
     ekg_abstract_todo(
       focused_at.at,
       focused_at,
 
-      ekg::gui.ui.hovered_type = focused_at.type;
+      ekg::gui.ui.hovered_type = focused_at.flags;
       ekg::gui.ui.hovered_at = focused_at;
 
       if (property.is_absolute) {
@@ -335,17 +337,17 @@ void ekg::core::poll_events() {
   if (input.was_pressed) {
     ekg::gui.ui.pressed_at = ekg::gui.ui.hovered_at;
     (
-      // if p_widget_focused != nullptr ? focused_at.type : ekg::type::none
-      (focused_property != ekg::property_t::not_found && (ekg::gui.ui.pressed_type = focused_at.type))
+      // if p_widget_focused != nullptr ? focused_at.flags : ekg::type::unknown
+      (focused_property != ekg::property_t::not_found && (ekg::gui.ui.pressed_type = focused_at.flags))
       ||
-      (ekg::gui.ui.pressed_type = ekg::type::none)
+      (ekg::gui.ui.pressed_type = ekg::type::unknown)
     );
   } else if (input.was_released) {
     ekg::gui.ui.released_at = ekg::gui.ui.hovered_at;
     (
-      (focused_property != ekg::property_t::not_found && (ekg::gui.ui.released_type = focused_at.type))
+      (focused_property != ekg::property_t::not_found && (ekg::gui.ui.released_type = focused_at.flags))
       ||
-      (ekg::gui.ui.released_type = ekg::type::none)
+      (ekg::gui.ui.released_type = ekg::type::unknown)
     );
   }
 

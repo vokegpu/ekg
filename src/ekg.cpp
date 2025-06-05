@@ -26,8 +26,11 @@
 #include "ekg/core/context.hpp"
 #include "ekg/core/pools.hpp"
 
-ekg::runtime_t ekg::p_core {nullptr};
-ekg::context_t ekg::context {};
+#include "ekg/ui/button/widget.hpp"
+
+ekg::runtime_t *ekg::p_core {nullptr};
+ekg::metrics_t ekg::metrics {};
+ekg::dpi_t ekg::dpi {};
 ekg::gui_t ekg::gui {};
 
 std::ostringstream ekg::log::buffer {};
@@ -94,7 +97,7 @@ void ekg::update() {
     };
 
     ekg_abstract_todo(
-      property.descriptor_at.type,
+      property.descriptor_at.flags,
       property.descriptor_at,
       ekg::ui::high_frequency(property, descriptor);
     );
@@ -132,7 +135,7 @@ void ekg::render() {
       }
 
       ekg_abstract_todo(
-        property.descriptor_at.type,
+        property.descriptor_at.flags,
         property.descriptor_at,
 
         ekg::ui::pass(property, descriptor);
@@ -147,5 +150,6 @@ void ekg::render() {
     ekg::p_core->draw_allocator.revoke();
   }
 
-  ekg::p_core->draw_allocator.draw();
+  ekg::gui.ui.redraw = false;
+  ekg::p_core->draw_allocator.to_gpu();
 }

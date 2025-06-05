@@ -32,6 +32,7 @@
 
 #include "ekg/math/geometry.hpp"
 #include "ekg/io/font.hpp"
+#include "ekg/gpu/sampler.hpp"
 
 namespace ekg::draw {
   class font {
@@ -40,7 +41,7 @@ namespace ekg::draw {
     size_t last_sampler_generate_list_size {};
 
     std::unordered_map<char32_t, ekg::io::glyph_t> mapped_glyph {};
-    std::array<ekg::io::font_face_t, ekg::io::supported_faces_size> faces {};
+    std::array<ekg::io::font_face_t, ekg::io::enum_font_face_type_size> faces {};
 
     ekg::at_t atlas_texture_sampler {ekg::at_t::not_found};
     ekg::rect_t<int32_t> atlas_rect {};

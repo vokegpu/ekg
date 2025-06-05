@@ -1,11 +1,12 @@
 #ifndef EKG_HANDLER_INPUT_HANDLER_HPP
-#ifndef EKG_HANDLER_INPUT_HANDLER_HPP
+#define EKG_HANDLER_INPUT_HANDLER_HPP
 
 #include <vector>
 #include <unordered_map>
 #include <array>
 
-#include "input.hpp"
+#include "ekg/handler/input.hpp"
+#include "ekg/io/timing.hpp"
 
 namespace ekg::handler {
   class input {
@@ -13,7 +14,7 @@ namespace ekg::handler {
     // @TODO: change from unordored map to linear query
   
     std::unordered_map<std::string, std::vector<bool*>> input_bindings_map {};
-    std::unordered_map<std::string, ekg::io::input_bind_t> input_bind_map {};
+    std::unordered_map<std::string, ekg::input_bind_t> input_bind_map {};
     std::unordered_map<std::string, bool> input_map {};
     std::array<char[8], 7> special_keys {};
 
@@ -50,7 +51,7 @@ namespace ekg::handler {
 
     void on_event();
 
-    void on_update();
+    void update();
 
     void insert_input_bind(
       std::string_view tag,

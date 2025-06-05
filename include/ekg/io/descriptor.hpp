@@ -27,12 +27,14 @@
 #include "ekg/io/memory.hpp"
 
 namespace ekg {
-  enum class type {
-    none,
-    callback,
-    property,
-    stack,
-    button
+  enum type : ekg::flags_t {
+    unknown = 0,
+    callback = 1,
+    property = 2,
+    sampler = 3,
+    stack = 4,
+    button = 5,
+    scrollbar = 6,
   };
 }
 
@@ -48,7 +50,7 @@ namespace ekg {
     bool operator == (descriptor_t &descriptor) { \
       descriptor_t::not_found.at = ekg::at_t::not_found; \
       return ( \
-        (this->is_dead && descriptor.at == ekg::descriptor_t::not_foud) \
+        (this->is_dead && descriptor.at == descriptor_t::not_found.at) \
         || \
         (!this->is_dead && this->at == descriptor.at) \
       ); \

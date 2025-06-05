@@ -26,13 +26,14 @@
 
 #include "ekg/handler/theme.hpp"
 
+#include <string_view>
 #include <map>
 
-namepace ekg::handler {
+namespace ekg::handler {
   class theme {
   protected:
     std::string_view current_theme_tag {"dark-theme"};
-    std::map<ekg::string_view, ekg::theme_t> themes {};
+    std::map<std::string_view, ekg::theme_t> themes {};
   public:
     void init();
     void quit();

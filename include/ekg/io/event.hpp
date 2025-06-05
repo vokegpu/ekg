@@ -21,8 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_HANDLER_INPUT_HPP
-#define EKG_HANDLER_INPUT_HPP
+#ifndef EKG_IO_EVENT_HPP
+#define EKG_IO_EVENT_HPP
 
 #include "ekg/handler/input.hpp"
 
@@ -62,7 +62,7 @@ namespace ekg::io {
     float mouse_wheel_precise_x {};
     float mouse_wheel_precise_y {};
 
-    ekg::io::input_key_t key {};
+    ekg::input_key_t key {};
 
     float finger_x {};
     float finger_y {};

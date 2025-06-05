@@ -105,13 +105,13 @@ namespace ekg::layout {
 
   class mask {
   public:
-    struct item_t {
+    struct component_t {
     public:
       ekg::rect_t<float> *p_rect {};
       ekg::flags_t dock {};
     };
   protected:
-    std::vector<ekg::layout::mask::component_t> items {};
+    std::vector<ekg::layout::mask::component_t> components {};
     float respective_all {};
     float respective_center {};
     ekg::flags_t axis {};

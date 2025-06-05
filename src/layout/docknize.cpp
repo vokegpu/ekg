@@ -24,6 +24,7 @@
 #include "ekg/layout/docknize.hpp"
 #include "ekg/core/runtime.hpp"
 #include "ekg/layout/extentnize.hpp"
+#include "ekg/core/pools.hpp"
 
 void ekg::layout::mask::preset(
   ekg::vec3_t<float> offset,
@@ -362,8 +363,8 @@ void ekg::layout::docknize_widget(
 
   ekg::rect_t<float> rect {};
 
-  for (ekg::at_t &at : property.children) {
-    ekg::property &property {ekg::query<ekg::property_t>(at)};
+  for (ekg::at_t &at : parent_property.children) {
+    ekg::property_t &property {ekg::query<ekg::property_t>(at)};
     if (property == ekg::property_t::not_found) {
       continue;
     }
@@ -373,14 +374,14 @@ void ekg::layout::docknize_widget(
     }
 
     ekg_abstract_todo(
-      property.descriptor_at.type,
+      property.descriptor_at.flags,
       property.descriptor_at,
       ekg::ui::reload(property, descriptor);
       flags = descriptor.dock;
       rect = descriptor.rect;
     );
 
-    if (property.type == ekg::type::scrollbar) {
+    if (property.flags == ekg::type::scrollbar) {
       it++;
       continue;
     }
@@ -542,7 +543,7 @@ void ekg::layout::docknize_widget(
 
     max_previous_height = rect.h > max_previous_height ? rect.h : max_previous_height;
     ekg_abstract_todo(
-      property.descriptor_at.type,
+      property.descriptor_at.flags,
       property.descriptor_at,
       descriptor.rect = rect;
       if (should_reload_widget) {

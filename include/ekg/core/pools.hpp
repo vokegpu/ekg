@@ -28,6 +28,10 @@
 #include "ekg/handler/callback.hpp"
 #include "ekg/gpu/sampler.hpp"
 #include "ekg/ui/property.hpp"
+#include "ekg/ui/stack.hpp"
+
+#include "ekg/ui/button/button.hpp"
+#include "ekg/ui/button/widget.hpp"
 
 namespace ekg::core {
   void registry(ekg::property_t &property);
@@ -36,11 +40,11 @@ namespace ekg::core {
 namespace ekg {
   extern struct pools_t {
   public:
-    ekg::pool<ekg::stack_t> stack {ekg::stack_t::not_found};
-    ekg::pool<ekg::callback_t> callback {ekg::callback_t::not_found};
-    ekg::pool<ekg::sampler_t> sampler {ekg::sampler_t::not_found};
-    ekg::pool<ekg::property> button_property {ekg::property::not_found};
-    ekg::pool<ekg::button_t> button {ekg::button_t::not_found};
+    ekg::pool<ekg::stack_t> stack {};
+    ekg::pool<ekg::callback_t> callback {};
+    ekg::pool<ekg::sampler_t> sampler {};
+    ekg::pool<ekg::property_t> button_property {};
+    ekg::pool<ekg::button_t> button {};
   } pools;
 
   template<typename t>
@@ -49,16 +53,22 @@ namespace ekg {
   ) {
     switch (t::type) {
     case ekg::type::stack:
-      return ekg::pools.stack.push_back(
-        ekg::io::any_static_cast<ekg::sampler_t>(&descriptor)
+      return ekg::io::any_static_cast<t>( 
+        &ekg::pools.stack.push_back(
+          ekg::io::any_static_cast<t>(&descriptor)
+        )
       );
     case ekg::type::callback:
-      return ekg::pools.callback.push_back(
-        ekg::io::any_static_cast<ekg::callback_t>(&descriptor)
+      return ekg::io::any_static_cast<t>( 
+        &ekg::pools.callback.push_back(
+          ekg::io::any_static_cast<t>(&descriptor)
+        )
       );
     case ekg::type::sampler:
-      return ekg::pools.sampler.push_back(
-        ekg::io::any_static_cast<ekg::sampler_t>(&descriptor)
+      return ekg::io::any_static_cast<t>( 
+        &ekg::pools.sampler.push_back(
+          ekg::io::any_static_cast<t>(&descriptor)
+        )
       );
     case ekg::type::button:
       ekg::button_t &button {
@@ -81,7 +91,7 @@ namespace ekg {
       button.property_at = property.at;
 
       ekg::core::registry(property);
-      return button;
+      return ekg::io::any_static_cast<t>(&button);
     }
 
     return t::not_found;
@@ -91,22 +101,22 @@ namespace ekg {
   t &query(
     ekg::at_t &at
   ) {
-    switch (t::type) {`
-      return ekg::io::any_static_cast<ekg::sampler_t>(
+    ekg::pool<ekg::property_t> *p_property_pool {nullptr};
+    switch (t::type) {
+    case ekg::type::stack:
+      return ekg::io::any_static_cast<t>(
         &ekg::pools.sampler.query(at)
       );
     case ekg::type::callback:
-      return ekg::io::any_static_cast<ekg::callback_t>(
+      return ekg::io::any_static_cast<t>(
         &ekg::pools.callback.query(at)
       );
     case ekg::type::sampler:
-      return ekg::io::any_static_cast<ekg::sampler_t>(
+      return ekg::io::any_static_cast<t>(
         &ekg::pools.sampler.query(at)
       );
     case ekg::type::property:
-      ekg::pool<ekg::property_t> *p_property_pool {nullptr};
-
-      switch (at.type) {
+      switch (at.flags) {
       case ekg::type::button:
         p_property_pool = &ekg::pools.button_property;
         break;
@@ -116,9 +126,11 @@ namespace ekg {
         return t::not_found;
       }
 
-      return p_property_pool.query(at);
+      return ekg::io::any_static_cast<t>(
+        &p_property_pool->query(at)
+      );
     case ekg::type::button:
-      return ekg::io::any_static_cast<ekg::button_t>(
+      return ekg::io::any_static_cast<t>(
         &ekg::pools.button.query(at)
       );
     }

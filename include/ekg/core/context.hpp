@@ -25,21 +25,25 @@
 #define EKG_CORE_CONTEXT_HPP
 
 #include "ekg/math/geometry.hpp"
+#include "ekg/io/descriptor.hpp"
 
 namespace ekg {
-  extern struct context_t {
+  extern struct metrics_t {
+  public:
+    size_t gpu_data_count {};
+  } metrics;
+
+  extern struct dpi_t {
   public:
     ekg::rect_t<float> viewport {};
-    float dt {};
-    ekg::rect_t<float> dpi_scale {0.0f, 0.0f, 1080.0f, 1920.0f};
-    bool dpi_auto_scale {};
-    float dpi_scale_internval {25.0f};
-    float dpi_factor_scale {};
-    float dpi_font_scale {};
-    float dpi_min_sizes {10.0f};
+    ekg::rect_t<float> scale {0.0f, 0.0f, 1080.0f, 1920.0f};
+    bool auto_scale {};
+    float scale_internval {25.0f};
+    float factor_scale {};
+    float font_scale {};
+    float min_sizes {10.0f};
     ekg::vec2_t<uint32_t> font_offset {4, 6};
-    size_t gpu_data_count {};
-  } context;
+  } dpi;
 
   extern struct gui_t {
   public:
@@ -61,6 +65,7 @@ namespace ekg {
       ekg::at_t pressed_at {};
       ekg::type released_type {};
       ekg::at_t released_at {};
+      float dt {};
       bool redraw {};
     };
   public:

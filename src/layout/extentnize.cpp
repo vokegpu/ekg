@@ -23,6 +23,8 @@
  */
 #include "ekg/layout/extentnize.hpp"
 #include "ekg/core/runtime.hpp"
+#include "ekg/io/descriptor.hpp"
+#include "ekg/core/pools.hpp"
 
 ekg::layout::extent_t ekg::layout::extent_t::v_widget {};
 ekg::layout::extent_t ekg::layout::extent_t::h_widget {};
@@ -74,13 +76,13 @@ void ekg::layout::extentnize_mask(
         is_last_index = it == latest_index;
 
         if (
-            (ekg::has(component.flags, flag_stop) && it != in_out_count)
+            (ekg::has(component.dock, flag_stop) && it != in_out_count)
             ||
             is_last_index
           ) {
           extent -= offset.x;
           flag_ok_count += (
-            (is_ok_flag = (!ekg::has(component.flags, flag_stop) && (ekg::has(component.flags, flag_ok)) && is_last_index))
+            (is_ok_flag = (!ekg::has(component.dock, flag_stop) && (ekg::has(component.dock, flag_ok)) && is_last_index))
           );
 
           /**
@@ -92,7 +94,7 @@ void ekg::layout::extentnize_mask(
           extent += ( 
             (component.p_rect->w + offset.x)
             *
-            (is_last_index && (!ekg::has(component.flags, flag_ok) && should_skip_next == 0))
+            (is_last_index && (!ekg::has(component.dock, flag_ok) && should_skip_next == 0))
           );
 
           ekg::layout::extent_t::h_mask.end_index = it + is_last_index;
@@ -101,15 +103,15 @@ void ekg::layout::extentnize_mask(
           break;
         }
 
-        should_skip_next += ekg::has(component.flags, ekg::dock::concat);
+        should_skip_next += ekg::has(component.dock, ekg::dock::concat);
 
         if (should_skip_next > 0) {
           should_skip_next = (should_skip_next + 1) * (should_skip_next < 2);
-          flag_ok_count += ekg::has(component.flags, flag_ok);
+          flag_ok_count += ekg::has(component.dock, flag_ok);
           continue;
         }
 
-        if (ekg::has(component.flags, flag_ok)) {
+        if (ekg::has(component.dock, flag_ok)) {
           flag_ok_count++;
           continue;
         }
@@ -136,9 +138,6 @@ void ekg::layout::extentnize_widget(
   int32_t &in_out_count
 ) {
   extent = 0.0f;
-  if (p_widget == nullptr) {
-    return;
-  }
 
   int32_t begin_index {in_out_count};
   switch (flag_axis & ekg::axis::horizontal) {
@@ -171,7 +170,6 @@ void ekg::layout::extentnize_widget(
       bool is_stop {};
 
       ekg::rect_t<float> rect {};
-
       for (it = it; it < size; it++) {
         ekg::query<ekg::property_t> &property {
           ekg::query<ekg::property_t>(parent_property.children.at(it))
@@ -181,11 +179,11 @@ void ekg::layout::extentnize_widget(
           continue;
         }
 
-        is_scrollbar = property.descriptor_at.type == ekg::type::scrollbar;
+        is_scrollbar = property.descriptor_at.flags == ekg::type::scrollbar;
         is_last_index = it == latest_index;
 
         ekg_abstract_todo(
-          property.descriptor_at.type,
+          property.descriptor_at.flags,
           property.descriptor_at,
           dock = descriptor.dock;
           rect = descriptor.rect;

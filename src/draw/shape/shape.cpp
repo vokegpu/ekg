@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "ekg/draw/shape.hpp"
+#include "ekg/draw/shape/shape.hpp"
 #include "ekg/core/runtime.hpp"
 
 void ekg::draw::rect(
@@ -50,7 +50,7 @@ void ekg::draw::rect(
   }
 
   ekg::gpu::data_t &data {
-    ekg::p_core->gpu_allocator.bind_current_data()
+    ekg::p_core->draw_allocator.bind_current_data()
   };
 
   data.buffer[0] = x;
@@ -65,15 +65,15 @@ void ekg::draw::rect(
   data.line_thickness = static_cast<int8_t>(line_thickness);
   data.hash = 1;
 
-  ekg::allocator::is_simple_shape = true;
-  ekg::p_core->gpu_allocator.bind_texture(sampler);
-  ekg::p_core->gpu_allocator.dispatch();
+  ekg::draw::allocator::is_simple_shape = true;
+  ekg::p_core->draw_allocator.bind_texture(sampler);
+  ekg::p_core->draw_allocator.dispatch();
 }
 
 void ekg::draw::scissor(
-  const ekg::vec4_t<float> &rect
+  const ekg::rect_t<float> &rect
 ) {
-  ekg::p_core->gpu_allocator.unsafe_set_scissor_rect(
+  ekg::p_core->draw_allocator.unsafe_set_scissor_rect(
     rect.x, rect.y, rect.w, rect.h
   );  
 }
@@ -81,7 +81,7 @@ void ekg::draw::scissor(
 void ekg::draw::scissor(
   float x, float y, float w, float h
 ) {
-  ekg::p_core->gpu_allocator.unsafe_set_scissor_rect(
+  ekg::p_core->draw_allocator.unsafe_set_scissor_rect(
     x, y, w, h
   );  
 }

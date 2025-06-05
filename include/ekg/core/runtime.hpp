@@ -30,6 +30,7 @@
 #include "ekg/draw/allocator.hpp"
 #include "ekg/handler/theme/handler.hpp"
 #include "ekg/handler/callback/handler.hpp"
+#include "ekg/handler/callback.hpp"
 #include "ekg/handler/input/handler.hpp"
 #include "ekg/layout/docknize.hpp"
 
@@ -59,7 +60,7 @@ namespace ekg {
     ekg::draw::font draw_font_big {};
   public:
     std::vector<ekg::at_t> collector {};
-    std::vector<ekg::at_t> register {};
+    std::vector<ekg::at_t> registry {};
     std::vector<ekg::at_t> stack {};
     std::vector<ekg::at_t> top_level_stack {};    
     std::vector<ekg::at_t> reload {};

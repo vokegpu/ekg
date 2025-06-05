@@ -32,7 +32,7 @@
  * This is a macro because hash should enjoy of compile-time for generate valid hashes.
  * Not really an expensive job for CPU.
  **/
-#define ekg_generate_hash(distance, c32, u) static_cast<ekg::hash_t>(distance + c34 + u * 100);
+#define ekg_generate_hash(distance, c32, u) static_cast<ekg::hash_t>(distance + c32 + u * 100);
 
 /**
  * A low-level assert used in risks cases where virtual-address should be warned.
@@ -47,7 +47,8 @@ namespace ekg {
   enum result {
     success,
     failed,
-    failed_unknown
+    failed_unknown,
+    failed_not_implemented
   };
 
   template<typename t>
@@ -85,10 +86,10 @@ namespace ekg {
     ekg::flags_t flags {ekg::not_found};
   public:
     bool operator == (ekg::at_t &at) {
-      return this->at.flags == at.flags && this->at.unique_id == at.unique_id;
+      return this->flags == at.flags && this->unique_id == at.unique_id;
     }
 
-    bool operator != (const ekg::at_t &at) {
+    bool operator != (ekg::at_t &at) {
       return !(*this == at);
     }
   };
@@ -100,16 +101,18 @@ namespace ekg {
     ekg::id_t highest_unique_id {};
     size_t virtual_memory_capacity {256};
   public:
-    pool() {this->loaded.reserve(this->virtual_memory_capacity)};
+    pool() {
+      this->loaded.reserve(this->virtual_memory_capacity);
+    };
 
-    t &push_back(const t &copy) {
+    t &push_back(t copy) {
       this->loaded.push_back(copy);
 
       size_t index {this->loaded.size() - 1};
       t &descriptor {this->loaded.at(index)};
 
       descriptor.at.unique_id = this->highest_unique_id++;
-      descriptor.at.type = t::type;
+      descriptor.at.flags = t::type;
       descriptor.at.index = index;
 
       return descriptor;
@@ -147,18 +150,22 @@ namespace ekg {
   template<typename t>
   class value {
   protected:
-    t value {};
+    t val {};
     t *p {};
     t previous {};
     bool changed {};
   public:
+    value() {
+      this->ownership(nullptr);
+    };
+
     value(t *p_address) {
       this->ownership(p_address);
       this->changed = true;
     }
   
-    value(t value) {
-      this->get() = value;
+    value(t val) {
+      this->get() = val;
       this->changed = true;
     }
   
@@ -167,13 +174,13 @@ namespace ekg {
       this->changed = true;
     }
   
-    void set(const p &value) {
+    void set(const t &val) {
       this->get() = p;
       this->changed = true;
     }
   
     t &get() {
-      return p ? *p : value;
+      return this->p ? *this->p : this->val;
     }
   
     void ownership(t *p_address) {
@@ -185,8 +192,8 @@ namespace ekg {
     }
   
     bool was_changed() {
-      if (this->was_changed) {
-        this->was_changed = false;
+      if (this->changed) {
+        this->changed = false;
         return true;
       }
   

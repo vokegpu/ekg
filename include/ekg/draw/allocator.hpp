@@ -30,7 +30,7 @@
 #include "ekg/gpu/data.hpp"
 #include "ekg/gpu/sampler.hpp"
 
-namespace ekg {
+namespace ekg::draw {
   class allocator {
   public:
     static bool enable_high_priority;
@@ -48,7 +48,7 @@ namespace ekg {
     size_t last_geometry_buffer_size {};
 
     bool was_hash_changed {};
-    int32_t previous_factor {};
+    int32_t previous_hash {};
   public:
     void init();
     void quit();
@@ -57,15 +57,18 @@ namespace ekg {
     void revoke();
     void to_gpu();
 
+    void bind_texture(ekg::sampler_t &sampler);
     ekg::gpu::data_t &bind_current_data();
     size_t get_current_data_id();
     ekg::gpu::data_t &get_data_by_index(size_t index);
     void clear_current_data();
+    void dispatch();
 
     bool sync_scissor(
       ekg::rect_t<float> &scissor,
       ekg::rect_t<float> &rect_child,
-      ekg::rect_t<float> &parent_scissor
+      ekg::rect_t<float> &parent_scissor,
+      bool contains_parent
     );
 
     void unsafe_set_scissor_rect(
@@ -73,8 +76,8 @@ namespace ekg {
     );
 
     void push_back_geometry(
-      const ekg::vec2_t<float> &vertex,
-      const ekg::vec2_t<float> &uv
+      float x, float y,
+      float u, float v
     );
   };
 }

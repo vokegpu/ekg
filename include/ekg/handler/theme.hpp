@@ -27,7 +27,7 @@
 #include "ekg/ui/button/button.hpp"
 
 namespace ekg {
-  class theme_t {
+  struct theme_t {
   public:
     std::string tag {};
     std::string author {};

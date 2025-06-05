@@ -425,12 +425,6 @@ namespace ekg {
     return x + (y - x) * delta;
   }
 
-  struct mask::item_t {
-  public:
-    ekg::rect_t<float> *p_rect {};
-    ekg::flags_t flags {};
-  };
-
   struct aligned_t {
   public:
     float w {};

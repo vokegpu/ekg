@@ -72,9 +72,7 @@ namespace ekg {
     bool was_wheel {};
     bool was_typed {};
   };
-}
 
-namespace ekg::io {
   struct input_key_t {
   public:
     int32_t key {};
@@ -83,7 +81,7 @@ namespace ekg::io {
 
   struct input_bind_t {
   public:
-    std::vector<strd::string> registry {};
+    std::vector<std::string> registry {};
     bool state {};
     bool *p_address {};
   };

@@ -38,7 +38,7 @@ void ekg::map(void *pv_address) {
   } 
 
   ekg::stack_t &current_stack {
-    ekg::query<ekg::stack_t>(ekg::gui.binded_stack_at)
+    ekg::query<ekg::stack_t>(ekg::gui.bind.stack_at)
   };
 
   if (current_stack == ekg::stack_t::not_found) {
@@ -49,9 +49,8 @@ void ekg::map(void *pv_address) {
   size_t size {ekg::sign.list.size()};
   for (size_t it {}; it < size; it++) {
     ekg::mapped_address_sign_info_t &info {ekg::sign.list.at(it)};
-    if (sign.pv_address == pv_address) {
+    if (info.pv_address == pv_address) {
       ekg::sign.current = it;
-      should_put = false;
       return;
     }
   }
@@ -71,7 +70,7 @@ void ekg::unmap(void *pv_address) {
     if (info.pv_address == pv_address) {
       for (ekg::at_t &at : info.ats) {
         ekg_abstract_todo(
-          at.type,
+          at.flags,
           at,
           ekg::ui::unmap(descriptor);
         );

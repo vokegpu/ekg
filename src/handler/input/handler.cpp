@@ -26,6 +26,8 @@
 
 #include "ekg/handler/input/handler.hpp"
 #include "ekg/core/runtime.hpp"
+#include "ekg/core/context.hpp"
+#include "ekg/io/log.hpp"
 
 void ekg::handler::input::init() {
   ekg::log() << "Initialising input-handler binding system-based";
@@ -199,10 +201,13 @@ void ekg::handler::input::on_event() {
 
   float wheel_precise_interval {};
   ekg::io::event_t &platform_event {
-    ekg::p_core->p_os_platform->platform_event
+    ekg::p_core->p_platform_base->event
   };
 
   switch (platform_event.type) {
+    default:
+      break;
+
     case ekg::io::event_type::text_input: {
       this->input.was_pressed = true;
       this->input.was_typed = true;
@@ -216,13 +221,13 @@ void ekg::handler::input::on_event() {
       std::string key_name {};
       std::string string_builder {};
 
-      ekg::p_core->p_os_platform->get_key_name(
+      ekg::p_core->p_platform_base->get_key_name(
         platform_event.key,
         key_name
       );
 
       ekg::special_key special_key {ekg::special_key::unknown};
-      ekg::p_core->p_os_platform->get_special_key(platform_event.key, special_key);
+      ekg::p_core->p_platform_base->get_special_key(platform_event.key, special_key);
 
       if (special_key != ekg::special_key::unknown) {
         this->special_keys[static_cast<uint64_t>(special_key)][0] = key_name[0];
@@ -256,13 +261,13 @@ void ekg::handler::input::on_event() {
       std::string key_name {};
       std::string string_builder {};
 
-      ekg::p_core->p_os_platform->get_key_name(
+      ekg::p_core->p_platform_base->get_key_name(
         platform_event.key,
         key_name
       );
 
       ekg::special_key special_key {ekg::special_key::unknown};
-      ekg::p_core->p_os_platform->get_special_key(platform_event.key, special_key);
+      ekg::p_core->p_platform_base->get_special_key(platform_event.key, special_key);
 
       if (special_key != ekg::special_key::unknown) {
         this->special_keys[static_cast<uint64_t>(special_key)][0] = '\0';
@@ -308,7 +313,7 @@ void ekg::handler::input::on_event() {
       this->set_input_state(string_builder, true);
       this->input_released_list.push_back(string_builder);
 
-      bool double_click_factor {ekg::reach(&this->double_interact, 500)};
+      bool double_click_factor {ekg::reach(this->double_interact, 500)};
       if (!double_click_factor) {
         string_builder += "-double";
         this->set_input_state(string_builder, true);
@@ -318,7 +323,7 @@ void ekg::handler::input::on_event() {
       }
 
       if (double_click_factor) {
-        ekg::reset(&this->double_interact);
+        ekg::reset(this->double_interact);
       }
 
       break;
@@ -371,7 +376,7 @@ void ekg::handler::input::on_event() {
        **/
 
       wheel_precise_interval = static_cast<float>(
-        1000 - ekg::clamp<int64_t>(ekg::interval(&this->last_time_wheel_was_fired), 0, 1000)
+        1000 - ekg::clamp<int64_t>(ekg::interval(this->last_time_wheel_was_fired), 0, 1000)
       );
 
       wheel_precise_interval = (wheel_precise_interval / 1000.0f);
@@ -381,23 +386,23 @@ void ekg::handler::input::on_event() {
       this->input.interact.z = platform_event.mouse_wheel_precise_x * wheel_precise_interval;
       this->input.interact.w = platform_event.mouse_wheel_precise_y * wheel_precise_interval;
       
-      ekg::reset(&this->last_time_wheel_was_fired);
+      ekg::reset(this->last_time_wheel_was_fired);
       break;
     }
 
     case ekg::io::event_type::finger_down: {
       this->input.was_pressed = true;
-      ekg::reset(&this->input.timing_last_interact);
-      bool reach_double_interact {ekg::reach(&this->double_interact, 500)};
+      ekg::reset(this->input.timing_last_interact);
+      bool reach_double_interact {ekg::reach(this->double_interact, 500)};
 
-      this->input.interact.x = platform_event.finger_x * static_cast<float>(ekg::viewport.w);
-      this->input.interact.y = platform_event.finger_y * static_cast<float>(ekg::viewport.h);
+      this->input.interact.x = platform_event.finger_x * static_cast<float>(ekg::dpi.viewport.w);
+      this->input.interact.y = platform_event.finger_y * static_cast<float>(ekg::dpi.viewport.h);
 
       this->set_input_state("finger-click", true);
       this->set_input_state("finger-click-double", !reach_double_interact);
 
       if (reach_double_interact) {
-        ekg::reset(&this->double_interact);
+        ekg::reset(this->double_interact);
       }
 
       break;
@@ -405,7 +410,7 @@ void ekg::handler::input::on_event() {
 
     case ekg::io::event_type::finger_up: {
       this->input.was_released = true;
-      this->set_input_state("finger-hold", (this->finger_hold_event = ekg::reach(&this->input.timing_last_interact, 750)));
+      this->set_input_state("finger-hold", (this->finger_hold_event = ekg::reach(this->input.timing_last_interact, 750)));
       this->set_input_state("finger-click", false);
       this->set_input_state("finger-click-double", false);
 
@@ -416,8 +421,8 @@ void ekg::handler::input::on_event() {
       this->set_input_state("finger-swipe-up", false);
       this->set_input_state("finger-swipe-down", false);
 
-      this->input.interact.x = platform_event.finger_x * static_cast<float>(ekg::viewport.w);
-      this->input.interact.y = platform_event.finger_y * static_cast<float>(ekg::viewport.h);
+      this->input.interact.x = platform_event.finger_x * static_cast<float>(ekg::dpi.viewport.w);
+      this->input.interact.y = platform_event.finger_y * static_cast<float>(ekg::dpi.viewport.h);
 
       this->input.interact.z = 0.0f;
       this->input.interact.w = 0.0f;
@@ -426,11 +431,11 @@ void ekg::handler::input::on_event() {
 
     case ekg::io::event_type::finger_motion: {
       this->input.has_motion = true;
-      this->input.interact.x = platform_event.finger_x * static_cast<float>(ekg::viewport.w);
-      this->input.interact.y = platform_event.finger_y * static_cast<float>(ekg::viewport.h);
+      this->input.interact.x = platform_event.finger_x * static_cast<float>(ekg::dpi.viewport.w);
+      this->input.interact.y = platform_event.finger_y * static_cast<float>(ekg::dpi.viewport.h);
 
-      this->input.interact.z = (platform_event.finger_dx * (static_cast<float>(ekg::viewport.w) / 9.0f));
-      this->input.interact.w = (platform_event.finger_dy * static_cast<float>(ekg::viewport.h) / 9.0f);
+      this->input.interact.z = (platform_event.finger_dx * (static_cast<float>(ekg::dpi.viewport.w) / 9.0f));
+      this->input.interact.w = (platform_event.finger_dy * static_cast<float>(ekg::dpi.viewport.h) / 9.0f);
 
       float swipe_factor = 0.01f;
 
@@ -444,7 +449,7 @@ void ekg::handler::input::on_event() {
       this->set_input_state("finger-swipe-down", this->input.interact.w < -swipe_factor);
 
       this->finger_swipe_event = true;
-      ekg::reset(&this->input.timing_last_interact);
+      ekg::reset(this->input.timing_last_interact);
       break;
     }
   }
@@ -458,7 +463,7 @@ void ekg::handler::input::on_event() {
   }
 }
 
-void ekg::handler::input::on_update() {
+void ekg::handler::input::update() {
   #if defined(EKG_INPUT_DEBUG)
     ekg::log()
       << "scroll_speed: " << this->input.scroll_speed           << "\n"
@@ -470,7 +475,7 @@ void ekg::handler::input::on_update() {
       << "was_typed: "    << this->input.was_typed;
   #endif
 
-  ekg::reset_if_reach(&this->input.ui_timing, 1000);
+  ekg::reset_if_reach(this->input.ui_timing, 1000);
   ekg::timing_t::second = this->input.ui_timing.elapsed_ticks;
 
   if (this->input.was_wheel) {
@@ -524,7 +529,7 @@ void ekg::handler::input::insert_input_bind(
   std::string_view input
 ) {
   std::vector<bool*> &bind_list {this->input_bindings_map[input.data()]};
-  ekg::io::input_bind_t &input_bind {this->input_bind_map[tag.data()]};
+  ekg::input_bind_t &input_bind {this->input_bind_map[tag.data()]};
 
   bool *p_address {&input_bind.state};
   bool must_bind {true};
@@ -547,7 +552,7 @@ void ekg::handler::input::erase_input_bind(
   std::string_view input
 ) {
   std::vector<bool*> &bind_list {this->input_bindings_map[input.data()]};
-  ekg::io::input_bind_t &input_bind {this->input_bind_map[tag.data()]};
+  ekg::input_bind_t &input_bind {this->input_bind_map[tag.data()]};
 
   bool *p_address {&input_bind.state};
   bool was_erased {};
@@ -575,7 +580,7 @@ void ekg::handler::input::erase_input_bind(
 void ekg::handler::input::erase_input_bind(
   std::string_view tag
 ) {
-  ekg::io::input_bind_t &input_bind {this->input_bind_map[tag.data()]};
+  ekg::input_bind_t &input_bind {this->input_bind_map[tag.data()]};
   bool *p_address {&input_bind.state};
 
   for (size_t it {}; it < input_bind.registry.size(); it++) {
@@ -629,7 +634,7 @@ void ekg::handler::input::set_input_bind_state(
   std::string_view key,
   bool state
 ) {
-  ekg::io::input_bind_t &input_bind {
+  ekg::input_bind_t &input_bind {
     this->input_bind_map[key.data()]
   };
 

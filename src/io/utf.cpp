@@ -166,7 +166,7 @@ std::string ekg::utf8_substr(std::string_view string, uint64_t offset, uint64_t 
     at_last_index = index + utf_sequence_size == string_size;
 
     if ((at_last_index || utf_text_size >= offset) && begin == UINT64_MAX) {
-      begin = ekg_max(index, string_size);
+      begin = ekg::clamp_max(index, string_size);
     }
 
     index += utf_sequence_size;

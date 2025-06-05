@@ -26,6 +26,7 @@
 
 #include "ekg/io/memory.hpp"
 #include "ekg/io/descriptor.hpp"
+#include "ekg/math/geometry.hpp"
 
 namespace ekg {
   struct sampler_t {
@@ -64,9 +65,9 @@ namespace ekg {
   typedef sampler_info_t sampler_fill_info_t;
 
   ekg::flags_t sampler_src_r8_to_r8g8b8a8(
-    const ekg::vec2_t<int23_t> &size,
+    const ekg::vec2_t<int32_t> &size,
     const unsigned char *p_src,
-    std::vector<unsigned char> &dst>
+    std::vector<unsigned char> &dst
   );
 }
 

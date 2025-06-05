@@ -33,6 +33,7 @@
 #include "sampler.hpp"
 #include "data.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/io/font.hpp"
 
 namespace ekg {
   enum class which_gpu_api {
@@ -79,17 +80,17 @@ namespace ekg::gpu {
       std::vector<char32_t> &char_to_gen_sampler_list,
       std::unordered_map<char32_t, ekg::io::glyph_t> &mapped_gpu_data_char_glyph,
       float &non_swizzlable_range
-    ) { return ekg::result::not_implemented; };
+    ) { return ekg::result::failed_not_implemented; };
 
     virtual ekg::flags_t allocate_sampler(
       ekg::sampler_allocate_info_t &sampler_allocate_info,
       ekg::sampler_t &sampler
-    )  { return ekg::result::not_implemented; }
+    )  { return ekg::result::failed_not_implemented; }
 
     virtual ekg::flags_t fill_sampler(
       ekg::sampler_fill_info_t &sampler_fill_info,
       ekg::sampler_t &sampler
-    ) { return ekg::result::not_implemented; };
+    ) { return ekg::result::failed_not_implemented; };
 
     virtual ekg::at_t &bind_sampler(
       ekg::sampler_t &sampler

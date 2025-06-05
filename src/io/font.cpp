@@ -24,6 +24,7 @@
 
 #include "ekg/io/font.hpp"
 #include "ekg/core/runtime.hpp"
+#include "ekg/io/log.hpp"
 
 ekg::flags_t ekg::io::font(
   ekg::io::font_face_t &font_face
@@ -35,7 +36,7 @@ ekg::flags_t ekg::io::font(
     }
 
     font_face.was_loaded = FT_New_Face(
-      ekg::p_core->,
+      ekg::p_core->ft_library,
       font_face.path.data(),
       0,
       &font_face.ft_face

@@ -25,6 +25,7 @@
 #define EKG_DRAW_SHAPE_HPP
 
 #include "ekg/math/geometry.hpp"
+#include "ekg/gpu/sampler.hpp"
 
 namespace ekg::draw {
   void rect(

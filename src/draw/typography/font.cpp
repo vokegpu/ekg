@@ -24,8 +24,8 @@
  * SOFTWARE.
  */
 
-#include "ekg/draw/font_renderer.hpp"
-#include "ekg/io/text.hpp"
+#include "ekg/draw/typography/font.hpp"
+#include "ekg/io/utf.hpp"
 #include "ekg/core/runtime.hpp"
 #include "ekg/core/context.hpp"
 
@@ -282,7 +282,7 @@ void ekg::draw::font::set_font_emoji(const std::string_view &path) {
 
 void ekg::draw::font::set_size(uint32_t size) {
   if (this->font_size != size) {
-    for (size_t it {}; it < ekg::io::supported_faces_size; it++) {
+    for (size_t it {}; it < ekg::io::enum_font_face_type_size; it++) {
       ekg::io::font_face_t &font_face {
         this->faces[it]
       };
@@ -309,7 +309,7 @@ void ekg::draw::font::reload() {
   size_t functional_fonts {};
   ekg::flags_t flags {};
 
-  for (size_t it {}; it < ekg::io::supported_faces_size; it++) {
+  for (size_t it {}; it < ekg::io::enum_font_face_type_size; it++) {
     ekg::io::font_face_t &font_face {
       this->faces[it]
     };
@@ -580,11 +580,10 @@ void ekg::draw::font::blit(
      **/
     data.hash += ekg_generate_hash(x, char32, glyph.x);
   }
-
   this->flush();
 
-  ekg::allocator::is_simple_shape = false;
-  ekg::p_core->draw_allocator.bind_texture(&this->atlas_texture_sampler);
+  ekg::draw::allocator::is_simple_shape = false;
+  ekg::p_core->draw_allocator.bind_texture(this->atlas_texture_sampler);
   ekg::p_core->draw_allocator.dispatch();
 }
 
@@ -596,7 +595,7 @@ void ekg::draw::font::flush() {
     this->reload();
     this->last_sampler_generate_list_size = size;
 
-    ekg::viewport.redraw = true;
+    ekg::dpi.viewport.redraw = true;
   }
 }
 

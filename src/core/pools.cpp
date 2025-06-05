@@ -25,5 +25,5 @@
 #include "ekg/core/runtime.hpp"
 
 void ekg::core::registry(ekg::property_t &property) {
-  ekg::p_core->register.push_back(property.at);
+  ekg::p_core->registry.push_back(property.at);
 }

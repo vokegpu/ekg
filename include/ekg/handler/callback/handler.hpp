@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "ekg/io/memory.hpp"
+#include "ekg/handler/callback.hpp"
 
 namespace ekg::handler {
   enum status {
@@ -41,11 +42,11 @@ namespace ekg::handler {
     std::queue<ekg::at_t> queue {};
   public:
     void init();
-    ekg::at_t &load();
+    ekg::callback_t &load();
     void dispatch(size_t index);
     void dispatch(ekg::at_t &at);
     void update();
-  }
+  };
 }
 
 #endif

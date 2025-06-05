@@ -34,7 +34,7 @@ void ekg::io::dispatch(
   ekg::io::operation op,
   ekg::at_t &property_at
 ) {
-  ekg::property_at &property {
+  ekg::property_t &property {
     ekg::query<ekg::property_t>(property_at)
   };
 
