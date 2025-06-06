@@ -21,25 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_HPP
-#define EKG_HPP
+#ifndef EKG_UI_FRAME_HPP
+#define EKG_UI_FRAME_HPP
 
-#include "ekg/io/memory.hpp"
-#include "ekg/core/runtime.hpp"
-#include "ekg/core/context.hpp"
-#include "ekg/core/pools.hpp"
-#include "ekg/math/floating_point.hpp"
+#include "ekg/io/descriptor.hpp"
 #include "ekg/math/geometry.hpp"
 
 namespace ekg {
-  ekg::flags_t init(
-    ekg::runtime_properties_info_t &runtime_properties_info,
-    ekg::runtime_t *p_runtime
-  );
+  struct frame_color_scheme_t {
+  public:
+    ekg::rgba_t<uint8_t> background {};
+    ekg::rgba_t<uint8_t> highlight {};
+    ekg::rgba_t<uint8_t> outline {};
+    ekg::rgba_t<uint8_t> active {};
+    ekg::rgba_t<uint8_t> active_outline {};
+    ekg::rgba_t<uint8_t> focused {};
+    ekg::rgba_t<uint8_t> focused_outline {};
+    ekg::rgba_t<uint8_t> warning_outline {};
+  };
 
-  void quit();
-  void update();
-  void render();
+  struct frame_t {
+  public:
+    struct widget_t {
+    public:
+      ekg::flags_t target_dock_drag {};
+      ekg::flags_t target_dock_resize {};
+      ekg::docker_t<float> docker_drag {};
+      ekg::docker_t<float> docker_resize {};
+      ekg::rect_t<float> rect_delta {};
+      ekg::rect_t<float> rect_cache {};
+    };
+  public:
+    static ekg::frame_t not_found;
+    static constexpr ekg::type type {ekg::type::frame};
+  public:
+    ekg::at_t top_level_at {};
+    ekg::at_t property_at {};
+  public:
+    std::string tag {};
+    ekg::dock dock {ekg::dock::none};
+    ekg::rect_t<float> rect {};
+    ekg::flags_t drag {};
+    ekg::flags_t resize {};
+    ekg::frame_color_scheme_t color_scheme {};
+  public:
+    ekg_descriptor(ekg::frame_t);
+  };
 }
 
 #endif

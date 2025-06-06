@@ -25,6 +25,7 @@
 #define EKG_HANDLER_THEME_HPP
 
 #include "ekg/ui/button/button.hpp"
+#include "ekg/ui/frame/frame.hpp"
 
 namespace ekg {
   struct theme_t {
@@ -36,6 +37,7 @@ namespace ekg {
     float layout_offset {};
     ekg::pixel_t layout_margin_thickness {};
     ekg::button_color_scheme_t button_color_scheme {};
+    ekg::frame_color_scheme_t frame_color_scheme {};
   };
 }
 

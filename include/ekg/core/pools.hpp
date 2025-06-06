@@ -33,6 +33,9 @@
 #include "ekg/ui/button/button.hpp"
 #include "ekg/ui/button/widget.hpp"
 
+#include "ekg/ui/frame/frame.hpp"
+#include "ekg/ui/frame/widget.hpp"
+
 namespace ekg::core {
   void registry(ekg::property_t &property);
 }
@@ -43,8 +46,12 @@ namespace ekg {
     ekg::pool<ekg::stack_t> stack {};
     ekg::pool<ekg::callback_t> callback {};
     ekg::pool<ekg::sampler_t> sampler {};
+
     ekg::pool<ekg::property_t> button_property {};
     ekg::pool<ekg::button_t> button {};
+
+    ekg::pool<ekg::property_t> frame_property {};
+    ekg::pool<ekg::frame_t> frame {};
   } pools;
 
   template<typename t>
@@ -92,6 +99,28 @@ namespace ekg {
 
       ekg::core::registry(property);
       return ekg::io::any_static_cast<t>(&button);
+    case ekg::type::frame:
+      ekg::frame_t &frame {
+        ekg::pools.frame.push_back(
+          ekg::io::any_static_cast<ekg::frame_t>(&descriptor)
+        )
+      };
+
+      ekg::property_t &property {
+        ekg::pools.frame_property.push_back({})
+      };
+
+      property.widget.is_childnizate = true;
+      property.widget.is_children_docknizable = true;
+
+      frame.at.flags = t::type;
+      property.descriptor_at = frame.at;
+
+      property.at.flags = t::type;
+      frame.property_at = property.at;
+
+      ekg::core::registry(property);
+      return ekg::io::any_static_cast<t>(&frame);
     }
 
     return t::not_found;
@@ -121,10 +150,18 @@ namespace ekg {
         return ekg::io::any_static_cast<t>(
           &ekg::pools.button_property.query(at)
         );
+      case ekg::type::frame:
+        return ekg::io::any_static_cast<t>(
+          &ekg::pools.frame_property.query(at)
+        );
       }
     case ekg::type::button:
       return ekg::io::any_static_cast<t>(
         &ekg::pools.button.query(at)
+      );
+    case ekg::type::frame:
+      return ekg::io::any_static_cast<t>(
+        &ekg::pools.frame.query(at)
       );
     }
 
@@ -139,6 +176,16 @@ namespace ekg {
         ekg::query<ekg::button_t>(ekg_abstract_todo_at) \
       }; \
       if (descriptor == ekg::button_t::not_found) { \
+        break; \
+      } \
+      ekg_abstract_todo_todo \
+      break; \
+    } \
+    case ekg::type::frame: { \
+      ekg::frame_t &descriptor { \
+        ekg::query<ekg::frame_t>(ekg_abstract_todo_at) \
+      }; \
+      if (descriptor == ekg::frame_t::not_found) { \
         break; \
       } \
       ekg_abstract_todo_todo \

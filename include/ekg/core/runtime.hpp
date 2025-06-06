@@ -35,10 +35,10 @@
 #include "ekg/layout/docknize.hpp"
 
 namespace ekg {
-  struct ekg_runtime_properties_info_t {
+  struct runtime_properties_info_t {
   public:
-    std::string_view font_path_text {};
-    std::string_view font_path_emoji {};
+    std::string_view default_font_path_text {};
+    std::string_view default_font_path_emoji {};
     ekg::platform::base *p_platform_base {};
     ekg::gpu::api *p_gpu_api {};
     ekg::ft_library ft_library {};
