@@ -26,7 +26,26 @@
 
 #include "ekg/handler/input.hpp"
 
+namespace ekg {
+  enum behavior : ekg::flags_t {
+    no_auto_set_viewport_when_resize = 2 << 1
+  };
+}
+
 namespace ekg::io {
+  enum class operation {
+    swap,
+    reload,
+    docknize,
+    scalenize,
+    high_frequency
+  };
+
+  void dispatch(
+    ekg::io::operation op,
+    ekg::at_t &property_at = ekg::at_t::not_found
+  );
+
   enum class stage {
     pre,
     process,
@@ -70,6 +89,10 @@ namespace ekg::io {
     float finger_dx {};
     float finger_dy {};
   };
+}
+
+namespace ekg::io {
+
 }
 
 #endif

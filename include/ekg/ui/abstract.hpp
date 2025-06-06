@@ -24,6 +24,9 @@
 #ifndef EKG_UI_ABSTRACT_HPP
 #define EKG_UI_ABSTRACT_HPP
 
+#include "ekg/math/geometry.hpp"
+#include "ekg/ui/property.hpp"
+
 namespace ekg::ui {
   ekg::rect_t<float> &get_abs_rect(
     ekg::property_t &property,

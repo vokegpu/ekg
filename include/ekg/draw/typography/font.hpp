@@ -36,14 +36,14 @@
 
 namespace ekg::draw {
   class font {
-  protected:
+  public:
     std::vector<char32_t> new_glyphs_to_atlas {};
     size_t last_sampler_generate_list_size {};
 
     std::unordered_map<char32_t, ekg::io::glyph_t> mapped_glyph {};
     std::array<ekg::io::font_face_t, ekg::io::enum_font_face_type_size> faces {};
 
-    ekg::at_t atlas_texture_sampler {ekg::at_t::not_found};
+    ekg::at_t atlas_texture_sampler_at {ekg::at_t::not_found};
     ekg::rect_t<int32_t> atlas_rect {};
     float offset_text_height {};
 
@@ -65,8 +65,8 @@ namespace ekg::draw {
     float get_text_width(const std::string_view &text, int32_t &lines);
     float get_text_height();
 
-    void set_font_emoji(std::string_view font_face_emoji_path);
-    void set_font(std::string_view font_face_path);
+    void set_font_emoji(const std::string_view &font_face_emoji_path);
+    void set_font(const std::string_view &font_face_path);
     void set_size(uint32_t font_face_size);
     void reload();
 

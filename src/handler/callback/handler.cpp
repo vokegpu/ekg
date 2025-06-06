@@ -44,10 +44,6 @@ void ekg::handler::callback::init() {
   ekg::callback_t &scalenize {this->load()};
   scalenize.info.tag = "scalenize";
   scalenize.function = &ekg::core::scalenize;
-
-  ekg::callback_t &high_frequency {this->load()};
-  high_frequency.info.tag = "high-frequency";
-  high_frequency.function = &ekg::core::high_frequency;
 }
 
 ekg::callback_t &ekg::handler::callback::load() {

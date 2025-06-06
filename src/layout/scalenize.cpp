@@ -24,8 +24,9 @@
 #include "ekg/core/runtime.hpp"
 #include "ekg/core/context.hpp"
 #include "ekg/layout/scalenize.hpp"
+#include "ekg/math/floating_point.hpp"
 
-void ekg::layout::scale_calculate() {
+void ekg::layout::scalenize() {
   ekg::vec2_t<float> display_size {ekg::dpi.scale.w, ekg::dpi.scale.h};
   ekg::vec2_t<float> viewport {ekg::dpi.viewport.w, ekg::dpi.viewport.h};
 

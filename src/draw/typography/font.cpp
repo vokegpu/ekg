@@ -28,6 +28,8 @@
 #include "ekg/io/utf.hpp"
 #include "ekg/core/runtime.hpp"
 #include "ekg/core/context.hpp"
+#include "ekg/io/log.hpp"
+#include "ekg/core/pools.hpp"
 
 void ekg::draw::font::init() {
   if (this->was_initialized) {
@@ -314,8 +316,8 @@ void ekg::draw::font::reload() {
       this->faces[it]
     };
 
-    flags = ekg::io::refresh_font_face(
-      &font_face
+    flags = ekg::io::font(
+      font_face
     );
 
     if (ekg::has(flags, ekg::result::success)) {
@@ -413,10 +415,6 @@ void ekg::draw::font::reload() {
   );
 }
 
-void ekg::draw::font::bind_allocator(ekg::gpu::allocator *p_allocator_bind) {
-  ekg::p_core->draw_allocator = p_allocator_bind;
-}
-
 void ekg::draw::font::blit(
   const std::string_view &text,
   float x,
@@ -489,7 +487,7 @@ void ekg::draw::font::blit(
       ekg::io::glyph_t &glyph {this->mapped_glyph[char32]};
 
       it += static_cast<uint64_t>(r_n_break_text);
-      data.hash += ekg::draw::generate_factor_hash(y, char32, glyph.x);
+      data.hash += ekg_generate_hash(y, char32, glyph.x);
 
       y += this->text_height;
       x = 0.0f;
@@ -583,7 +581,7 @@ void ekg::draw::font::blit(
   this->flush();
 
   ekg::draw::allocator::is_simple_shape = false;
-  ekg::p_core->draw_allocator.bind_texture(this->atlas_texture_sampler);
+  ekg::p_core->draw_allocator.bind_texture(ekg::query<ekg::sampler_t>(this->atlas_texture_sampler_at));
   ekg::p_core->draw_allocator.dispatch();
 }
 
@@ -595,7 +593,7 @@ void ekg::draw::font::flush() {
     this->reload();
     this->last_sampler_generate_list_size = size;
 
-    ekg::dpi.viewport.redraw = true;
+    ekg::gui.ui.redraw = true;
   }
 }
 

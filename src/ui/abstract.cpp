@@ -33,8 +33,8 @@ ekg::rect_t<float> &ekg::ui::get_abs_rect(
   };
 
   return (
-    property.rect = (
-      descriptor_rect + parent.rect + parent.scroll
+    property.widget.rect = (
+      descriptor_rect + parent.widget.rect + parent.scroll.position
     )
   );
 }

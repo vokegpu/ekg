@@ -24,6 +24,8 @@
 #include "ekg/io/utf.hpp"
 
 #include <cstring>
+#include <sstream>
+#include <ostream>
 
 uint64_t ekg::utf8_check_sequence(
   uint8_t &char8,

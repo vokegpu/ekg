@@ -40,6 +40,7 @@ namespace ekg::draw {
     ekg::vec2_t<size_t> stride_instance {};
     size_t simple_shape_instance {};
     size_t geometry_instance {};
+    size_t high_priority_data_instance {};
     ekg::rect_t<float> scissor_instance {};
 
     std::vector<ekg::gpu::data_t> gpu_data_buffer {};

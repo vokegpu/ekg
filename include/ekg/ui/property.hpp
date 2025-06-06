@@ -28,45 +28,50 @@
 #include "ekg/math/geometry.hpp"
 
 namespace ekg {
-  struct operation_t {
-  public:
-    bool should_reload {};
-    bool should_docknize {};
-    bool should_enable_high_frequency {};
-  };
-
-  struct scroll_t {
-  public:
-    ekg::vec2_t<bool> is_enabled {};
-    ekg::vec2_t<bool> is_scrolling {};
-    ekg::pixel_thickness_t nearest_scroll_bar_thickness {};
-  };
-
   struct property_t {
+  public:
+    struct operation_t {
+    public:
+      bool should_reload {};
+      bool should_docknize {};
+      bool should_enable_high_frequency {};
+    };
+
+    struct scroll_t {
+    public:
+      ekg::vec4_t<float> position {};
+      ekg::vec2_t<bool> is_enabled {};
+      ekg::vec2_t<bool> is_scrolling {};
+      ekg::pixel_thickness_t nearest_scroll_bar_thickness {};
+    };
+
+    struct widget_t {
+    public:
+      ekg::vec2_t<float> min_size {};
+      ekg::rect_t<float> rect {};
+      bool is_childnizate {};
+      bool is_children_docknizable {};
+      bool is_targeting_absolute_parent {};
+      bool is_absolute {};
+      bool is_hovering {};
+      bool is_visible {};
+      bool is_enabled {};
+      bool is_high_frequency {};
+      bool should_refresh_size {};
+      bool should_buffering {};
+    };
   public:
     static ekg::property_t not_found;
     static constexpr ekg::type type {ekg::type::property};
   public:
     ekg::at_t parent_at {ekg::at_t::not_found};
     ekg::at_t abs_parent_at {ekg::at_t::not_found};
-    ekg::at_t descriptor_at {};
+    ekg::at_t descriptor_at {ekg::at_t::not_found};
     std::vector<ekg::at_t> children {};
   public:
-    ekg::rect_t<float> rect {};
-
-    bool is_childnizate {};
-    bool is_children_docknizable {};
-    bool is_targeting_absolute_parent {};
-    bool is_absolute {};
-    bool is_hovering {};
-    bool is_visible {};
-    bool is_enabled {};
-    bool is_high_frequency {};
-    bool should_refresh_size {};
-    bool should_buffering {};
-
-    ekg::scroll_t scroll {};
-    ekg::operation_t operation {};
+    ekg::property_t::widget_t widget {};
+    ekg::property_t::scroll_t scroll {};
+    ekg::property_t::operation_t operation {};
   public:
     ekg_descriptor(ekg::property_t);
   };

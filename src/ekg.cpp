@@ -32,6 +32,7 @@ ekg::runtime_t *ekg::p_core {nullptr};
 ekg::metrics_t ekg::metrics {};
 ekg::dpi_t ekg::dpi {};
 ekg::gui_t ekg::gui {};
+ekg::pools_t ekg::pools {};
 
 std::ostringstream ekg::log::buffer {};
 bool ekg::log::buffered {};
@@ -104,7 +105,7 @@ void ekg::update() {
 
     if (
       // no not-found-check because `t::not_found` bool fields are always false
-      !property.is_high_frequency
+      !property.widget.is_high_frequency
     ) {
       property.operation.should_enable_high_frequency = false; // same here
 
@@ -139,7 +140,7 @@ void ekg::render() {
         property.descriptor_at,
 
         ekg::ui::pass(property, descriptor);
-        if (!property.should_buffering) {
+        if (!property.widget.should_buffering) {
           continue;
         }
 

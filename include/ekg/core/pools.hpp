@@ -55,19 +55,19 @@ namespace ekg {
     case ekg::type::stack:
       return ekg::io::any_static_cast<t>( 
         &ekg::pools.stack.push_back(
-          ekg::io::any_static_cast<t>(&descriptor)
+          ekg::io::any_static_cast<ekg::stack_t>(&descriptor)
         )
       );
     case ekg::type::callback:
       return ekg::io::any_static_cast<t>( 
         &ekg::pools.callback.push_back(
-          ekg::io::any_static_cast<t>(&descriptor)
+          ekg::io::any_static_cast<ekg::callback_t>(&descriptor)
         )
       );
     case ekg::type::sampler:
       return ekg::io::any_static_cast<t>( 
         &ekg::pools.sampler.push_back(
-          ekg::io::any_static_cast<t>(&descriptor)
+          ekg::io::any_static_cast<ekg::sampler_t>(&descriptor)
         )
       );
     case ekg::type::button:
@@ -81,8 +81,8 @@ namespace ekg {
         ekg::pools.button_property.push_back({})
       };
 
-      property.is_childnizate = false;
-      property.is_children_docknizable = false;
+      property.widget.is_childnizate = false;
+      property.widget.is_children_docknizable = false;
 
       button.at.flags = t::type;
       property.descriptor_at = button.at;
@@ -118,17 +118,10 @@ namespace ekg {
     case ekg::type::property:
       switch (at.flags) {
       case ekg::type::button:
-        p_property_pool = &ekg::pools.button_property;
-        break;
+        return ekg::io::any_static_cast<t>(
+          &ekg::pools.button_property.query(at)
+        );
       }
-
-      if (p_property_pool == nullptr) {
-        return t::not_found;
-      }
-
-      return ekg::io::any_static_cast<t>(
-        &p_property_pool->query(at)
-      );
     case ekg::type::button:
       return ekg::io::any_static_cast<t>(
         &ekg::pools.button.query(at)
@@ -139,18 +132,18 @@ namespace ekg {
   }
 }
 
-#define ekg_abstract_todo(type, at, todo) \
-  switch (type) { \
+#define ekg_abstract_todo(ekg_abstract_todo_at_type, ekg_abstract_todo_at, ekg_abstract_todo_todo) \
+  switch (ekg_abstract_todo_at_type) { \
     case ekg::type::button: { \
       ekg::button_t &descriptor { \
-        ekg::query<ekg::button_t>(at) \
+        ekg::query<ekg::button_t>(ekg_abstract_todo_at) \
       }; \
       if (descriptor == ekg::button_t::not_found) { \
         break; \
       } \
-      todo \
+      ekg_abstract_todo_todo \
       break; \
     } \
-  } \
+  }
 
 #endif

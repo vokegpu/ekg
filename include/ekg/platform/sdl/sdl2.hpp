@@ -30,7 +30,7 @@
   #include <SDL2/SDL.h>
 #endif
 
-#include "ekg/platform/platform.hpp"
+#include "ekg/platform/base.hpp"
 #include <array>
 
 namespace ekg {
@@ -54,6 +54,8 @@ namespace ekg {
     void set_clipboard_text(const char *p_text) override;
     bool has_clipboard_text() override;
   };
+
+  void sdl2_poll_event(SDL_Event &sdl_event);
 }
 
 #endif

@@ -23,6 +23,11 @@
  */
 #include "ekg/ui/button/widget.hpp"
 #include "ekg/layout/docknize.hpp"
+#include "ekg/io/log.hpp"
+#include "ekg/ui/abstract.hpp"
+#include "ekg/draw/shape/shape.hpp"
+#include "ekg/draw/typography/font.hpp"
+#include "ekg/core/context.hpp"
 
 void ekg::ui::reload(
   ekg::property_t &property,
@@ -35,7 +40,7 @@ void ekg::ui::reload(
   );
 
   ekg_assert_low_level(
-    button == ekg::button::not_found,
+    button == ekg::button_t::not_found,
     ekg::log() << "warn: invalid button on reload",
     return
   );
@@ -55,30 +60,25 @@ void ekg::ui::reload(
       ekg::draw::get_font_renderer(check.font_size)
     };
 
-    check.rect_text.w = draw_font.get_text_width(check.text.get());
-    check.rect_text.h = draw_font.get_text_height();
+    check.widget.rect_text.w = draw_font.get_text_width(check.text.get());
+    check.widget.rect_text.h = draw_font.get_text_height();
 
     aligned_dimension = {};
-    ekg::align_rect_dimension<float>(
+    ekg::align_rect_dimension(
       pick_axis,
       check.widget.rect_text,
       ekg::dpi.min_sizes,
       aligned_dimension
     );
-
-    check.rect.scaled_height = ekg::max<float>(
-      static_cast<float>(check.rect.scaled_height),
-      ekg::one_pixel
-    );
-
-    button.rect.h = ekg::max(button.rect.h, aligned_dimension.h * check.rect.scaled_height);
   }
+
+  button.rect.h = aligned_dimension.h * button.rect.scaled_height;
 
   ekg::layout::mask mask {};
   mask.preset(
     {
-      aligned.offset,
-      aligned.offset,
+      aligned_dimension.offset,
+      aligned_dimension.offset,
       button.rect.h
     },
     pick_axis,
@@ -112,9 +112,9 @@ void ekg::ui::reload(
 
   mask.docknize();
 
-  if (button.should_refresh_size) {
+  if (property.widget.should_refresh_size) {
     button.rect.w = ekg::max(ekg::dpi.min_sizes, mask.get_rect().w);
-    button.should_refresh_size = false;
+    property.widget.should_refresh_size = false;
   }
 }
 

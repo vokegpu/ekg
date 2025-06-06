@@ -45,7 +45,6 @@ void ekg::map(void *pv_address) {
     ekg::sign.current = ekg::not_found;
     return;
   }
-
   size_t size {ekg::sign.list.size()};
   for (size_t it {}; it < size; it++) {
     ekg::mapped_address_sign_info_t &info {ekg::sign.list.at(it)};
@@ -56,7 +55,7 @@ void ekg::map(void *pv_address) {
   }
 
   ekg::sign.current = ekg::sign.list.size();
-  ekg::sign.list.push_back({.ats = {}, .p = pv_address});
+  ekg::sign.list.push_back({.ats = {}, .pv_address = pv_address});
 }
 
 void ekg::unmap(void *pv_address) {

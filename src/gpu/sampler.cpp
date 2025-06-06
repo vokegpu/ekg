@@ -23,6 +23,10 @@
  */
 #include "ekg/gpu/sampler.hpp"
 
+ekg::sampler_t ekg::sampler_t::not_found {
+  .at = ekg::at_t::not_found
+};
+
 ekg::flags_t ekg::sampler_src_r8_to_r8g8b8a8(
   const ekg::vec2_t<int32_t> &size,
   const unsigned char *p_src,

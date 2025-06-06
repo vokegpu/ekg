@@ -170,8 +170,8 @@ void ekg::layout::extentnize_widget(
       bool is_stop {};
 
       ekg::rect_t<float> rect {};
-      for (it = it; it < size; it++) {
-        ekg::query<ekg::property_t> &property {
+      for (; it < size; it++) {
+        ekg::property_t &property {
           ekg::query<ekg::property_t>(parent_property.children.at(it))
         };
 

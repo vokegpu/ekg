@@ -38,7 +38,7 @@ namespace ekg {
     ekg::rect_t<float> viewport {};
     ekg::rect_t<float> scale {0.0f, 0.0f, 1080.0f, 1920.0f};
     bool auto_scale {};
-    float scale_internval {25.0f};
+    float scale_interval {25.0f};
     float factor_scale {};
     float font_scale {};
     float min_sizes {10.0f};

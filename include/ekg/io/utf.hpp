@@ -24,11 +24,11 @@
 #ifndef EKG_IO_UTF_HPP
 #define EKG_IO_UTF_HPP
 
+#include "ekg/math/geometry.hpp"
+
 #include <stdint.h>
 #include <string>
 #include <vector>
-
-#include "ekg/math/geometry.hpp"
 
 namespace ekg {
   /**
@@ -85,14 +85,6 @@ namespace ekg {
   void utf8_split_new_line(
     std::string_view string,
     std::vector<std::string> &utf8_split_new_lined
-  );
-
-  /**
-   * Returns a customised float64 precision as a string.
-   **/
-  std::string string_float64_precision(
-    double number,
-    int32_t precision
   );
 
   /**
