@@ -25,4 +25,4 @@
 
 ekg::frame_t ekg::frame_t::not_found {
   .at = ekg::at_t::not_found
-}
+};

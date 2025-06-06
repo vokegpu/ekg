@@ -77,50 +77,52 @@ namespace ekg {
           ekg::io::any_static_cast<ekg::sampler_t>(&descriptor)
         )
       );
-    case ekg::type::button:
-      ekg::button_t &button {
-        ekg::pools.button.push_back(
-          ekg::io::any_static_cast<ekg::button_t>(&descriptor)
-        )
-      };
+    case ekg::type::button: {
+        ekg::button_t &button {
+          ekg::pools.button.push_back(
+            ekg::io::any_static_cast<ekg::button_t>(&descriptor)
+          )
+        };
 
-      ekg::property_t &property {
-        ekg::pools.button_property.push_back({})
-      };
+        ekg::property_t &property {
+          ekg::pools.button_property.push_back({})
+        };
 
-      property.widget.is_childnizate = false;
-      property.widget.is_children_docknizable = false;
+        property.widget.is_childnizate = false;
+        property.widget.is_children_docknizable = false;
 
-      button.at.flags = t::type;
-      property.descriptor_at = button.at;
+        button.at.flags = t::type;
+        property.descriptor_at = button.at;
 
-      property.at.flags = t::type;
-      button.property_at = property.at;
+        property.at.flags = t::type;
+        button.property_at = property.at;
 
-      ekg::core::registry(property);
-      return ekg::io::any_static_cast<t>(&button);
-    case ekg::type::frame:
-      ekg::frame_t &frame {
-        ekg::pools.frame.push_back(
-          ekg::io::any_static_cast<ekg::frame_t>(&descriptor)
-        )
-      };
+        ekg::core::registry(property);
+        return ekg::io::any_static_cast<t>(&button);
+      }
+    case ekg::type::frame: {
+        ekg::frame_t &frame {
+          ekg::pools.frame.push_back(
+            ekg::io::any_static_cast<ekg::frame_t>(&descriptor)
+          )
+        };
 
-      ekg::property_t &property {
-        ekg::pools.frame_property.push_back({})
-      };
+        ekg::property_t &property {
+          ekg::pools.frame_property.push_back({})
+        };
 
-      property.widget.is_childnizate = true;
-      property.widget.is_children_docknizable = true;
+        property.widget.is_childnizate = true;
+        property.widget.is_children_docknizable = true;
 
-      frame.at.flags = t::type;
-      property.descriptor_at = frame.at;
+        frame.at.flags = t::type;
+        property.descriptor_at = frame.at;
 
-      property.at.flags = t::type;
-      frame.property_at = property.at;
+        property.at.flags = t::type;
+        frame.property_at = property.at;
 
-      ekg::core::registry(property);
-      return ekg::io::any_static_cast<t>(&frame);
+        ekg::core::registry(property);
+        return ekg::io::any_static_cast<t>(&frame);
+      }
     }
 
     return t::not_found;

@@ -87,4 +87,12 @@ namespace ekg {
   };
 }
 
+namespace ekg {
+  ekg::input_info_t &input();
+  bool fire(std::string_view tag);
+  bool input(std::string_view input);
+  void bind(std::string_view tag, std::string_view input);
+  void bind(std::string_view tag, std::vector<std::string_view> inputs);
+}
+
 #endif

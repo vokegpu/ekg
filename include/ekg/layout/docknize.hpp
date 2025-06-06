@@ -139,6 +139,10 @@ namespace ekg::layout {
   void docknize_widget(
     ekg::property_t &property
   );
+
+  float get_widget_height_by_children(
+    ekg::property_t &property
+  );
 }
 
 #endif

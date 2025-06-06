@@ -32,6 +32,16 @@ namespace ekg::ui {
     ekg::property_t &property,
     ekg::rect_t<float> &descriptor_rect
   );
+
+  void pre_event(
+    ekg::property_t &property,
+    ekg::rect_t<float> &descriptor_rect,
+    bool is_top_level
+  );
+
+  void post_event(
+    ekg::property_t &property
+  );
 }
 
 #endif

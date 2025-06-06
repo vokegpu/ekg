@@ -570,3 +570,70 @@ void ekg::layout::docknize_widget(
 
   // TODO: may is necessary to re-docknize the parent widget if previous scroll is disabled but now enabled
 }
+
+float ekg::ui::get_widget_height_by_children(
+  ekg::property_t &parent_property
+) {
+  if (
+      parent_property == ekg::property_t::not_found
+      ||
+      !parent_property.widget.is_children_docknizable
+  ) {
+    return 0.0f;
+  }
+
+  ekg::theme_t &current_global_theme {ekg::p_core->handler_theme.get_current_theme()};
+  ekg::flags_t flags {};
+
+  float total_height {};
+  float height {};
+
+  for (ekg::at_t &at : parent_property.children) {
+    ekg::property_t &property {ekg::query<ekg::property_t>(at)};
+    if (
+        property == ekg::property_t::not_found
+      ) {
+      continue;
+    }
+
+    ekg_abstract_todo(
+      property.descriptor_at.flags,
+      property.descriptor_at,
+      flags = descriptor.dock;
+    );
+
+    height = property.widget.rect.h;
+
+    if (
+        property.widget.is_children_docknizable
+        &&
+        !property.children.empty()
+      ) {
+      height = ekg::get_widget_height_by_children(property);
+    }
+
+    total_height += (
+      height
+      *
+      (
+        ekg::fequalsf(total_height, 0.0f)
+        ||
+        ekg::has(flags, ekg::dock::next)
+      )
+      +
+      current_global_theme.layout_offset
+    );
+  }
+
+  total_height += (
+    current_global_theme.layout_offset // top
+    +
+    current_global_theme.layout_offset // top
+    +
+    current_global_theme.layout_offset // bottom
+    +
+    current_global_theme.layout_offset // bottom
+  );
+
+  return total_height;
+}

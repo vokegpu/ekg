@@ -26,6 +26,7 @@
 
 #include "ekg/ui/property.hpp"
 #include "ekg/ui/frame/frame.hpp"
+#include "ekg/io/event.hpp"
 
 namespace ekg::ui {
   void reload(

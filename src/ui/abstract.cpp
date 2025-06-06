@@ -23,6 +23,7 @@
  */
 #include "ekg/ui/abstract.hpp"
 #include "ekg/core/pools.hpp"
+#include "ekg/core/runtime.hpp"
 
 ekg::rect_t<float> &ekg::ui::get_abs_rect(
   ekg::property_t &property,
@@ -37,4 +38,46 @@ ekg::rect_t<float> &ekg::ui::get_abs_rect(
       descriptor_rect + parent.widget.rect + parent.scroll.position
     )
   );
+}
+
+
+void ekg::ui::pre_event(
+  ekg::property_t &property,
+  ekg::rect_t<float> &descriptor_rect,
+  bool is_top_level
+) {
+  ekg::input_info_t &input {ekg::p_core->handler_input.input};
+  if (
+    input.was_pressed || input.was_released ||
+    input.has_motion  || input.was_wheel
+  ) {
+    ekg::rect_t<float> &abs {ekg::ui::get_abs_rect(property, descriptor_rect)};
+    ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
+
+    property.widget.is_hovering = (
+      ekg::rect_collide_vec2<float>(abs, interact)
+      &&
+      (
+        is_top_level
+        ||
+        property.parent_at == ekg::at_t::not_found
+        ||
+        ekg::rect_collide_vec2(property.widget.scissor, interact)
+      )
+    );
+  }
+}
+
+void ekg::ui::post_event(
+  ekg::property_t &property
+) {
+  property.widget.is_hovering = false;
+
+  #if defined(__ANDROID__)
+    property.widget.is_highlight = (
+      !(!property.widget.is_hovering && ekg::p_core->handler_input.input.was_released)
+      &&
+      property.widget.is_highlight
+    );
+  #endif
 }

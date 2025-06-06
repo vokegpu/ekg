@@ -30,6 +30,7 @@
 namespace ekg {
   struct frame_color_scheme_t {
   public:
+    ekg::pixel_thickness_t actions_margin_pixel_thickness {5};
     ekg::rgba_t<uint8_t> background {};
     ekg::rgba_t<uint8_t> highlight {};
     ekg::rgba_t<uint8_t> outline {};
@@ -63,7 +64,9 @@ namespace ekg {
     ekg::rect_t<float> rect {};
     ekg::flags_t drag {};
     ekg::flags_t resize {};
+    bool set_top_level {};
     ekg::frame_color_scheme_t color_scheme {};
+    ekg::frame_t::widget_t widget {};
   public:
     ekg_descriptor(ekg::frame_t);
   };
