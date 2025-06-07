@@ -68,12 +68,12 @@ auto &my_frame = ekg::make<ekg::frame_t>(frame_template);
 
 ## Building
 
-Dependencies for building binary:
-- [FreeType](https://freetype.org/)
-- [GLEW](https://glew.sourceforge.net/)
-- [SDL2](https://www.libsdl.org/)
-- [Ninja](https://ninja-build.org/)
-- [CMake](https://cmake.org/)
+Dependencies for building binary:  
+| - | [FreeType](https://freetype.org/)  
+| - | [GLEW](https://glew.sourceforge.net/)  
+| - | [SDL2](https://www.libsdl.org/)  
+| - | [Ninja](https://ninja-build.org/)  
+| - | [CMake](https://cmake.org/)  
 
 Note: EKG is not SDL2 or GLEW fixed, this is for compile the entire library, for using the library you will not need to compile SDL2 or even GLEW with EKG, you can choose soon Vulkan and GLFW.
 
@@ -83,18 +83,18 @@ cmake -S . -B ./cmake-build -G Ninja -D CMAKE_BUILD_TYPE=Release
 cmake --build ./cmake-build
 ```
 
-Supported compilers:
-- GNU-MinGW64 stable buildable
-- GNU-G++ stable buildable
-- Clang++ stable buildable
+Supported compilers:  
+| - | GNU-MinGW64 stable buildable  
+| - | GNU-G++ stable buildable  
+| - | Clang++ stable buildable  
 
-Supported video APIs:
-- OpenGL 3.1~4.6
-- OpenGL ES 3
-- Emscripten WebGL 2 (OpenGL ES 2) (require building EKG with flag `-D EKG_EMSCRIPTEN_BUILD_TYPE=1`)
+Supported video APIs:  
+| - | OpenGL 3.1~4.6  
+| - | OpenGL ES 3  
+| - | Emscripten WebGL 2 (OpenGL ES 2) (require building EKG with flag `-D EKG_EMSCRIPTEN_BUILD_TYPE=1`)  
 
-Supported platforms:
-- SDL2
+Supported platforms:  
+| - | SDL2  
 
 ## Contributing
 
