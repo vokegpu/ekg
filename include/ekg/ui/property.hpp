@@ -47,7 +47,7 @@ namespace ekg {
 
     struct widget_t {
     public:
-      ekg::rect_t<float> scissor {};
+      ekg::rect_t<float> rect_scissor {};
       ekg::vec2_t<float> min_size {};
       ekg::rect_t<float> rect {};
       bool is_childnizate {};
@@ -59,6 +59,8 @@ namespace ekg {
       bool is_visible {};
       bool is_enabled {};
       bool is_highlight {};
+      bool is_focused {};
+      bool is_warning {};
       bool is_high_frequency {};
       bool should_refresh_size {};
       bool should_buffering {};

@@ -49,7 +49,6 @@ namespace ekg {
     bool is_dead {}; \
   public: \
     bool operator == (descriptor_t &descriptor) { \
-      descriptor_t::not_found.at = ekg::at_t::not_found; \
       return ( \
         (this->is_dead && descriptor.at == descriptor_t::not_found.at) \
         || \

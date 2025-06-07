@@ -35,8 +35,7 @@ namespace ekg {
     ekg::rgba_t<uint8_t> highlight {};
     ekg::rgba_t<uint8_t> outline {};
     ekg::rgba_t<uint8_t> active {};
-    ekg::rgba_t<uint8_t> active_outline {};
-    ekg::rgba_t<uint8_t> focused {};
+    ekg::rgba_t<uint8_t> focused_background {};
     ekg::rgba_t<uint8_t> focused_outline {};
     ekg::rgba_t<uint8_t> warning_outline {};
   };

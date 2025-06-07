@@ -9,7 +9,7 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  * 
@@ -202,55 +202,55 @@ ekg::gpu::data_t &ekg::draw::allocator::get_data_by_index(size_t index) {
 }
 
 bool ekg::draw::allocator::sync_scissor(
-  ekg::rect_t<float> &scissor,
+  ekg::rect_t<float> &rect_scissor,
   ekg::rect_t<float> &rect_child,
-  ekg::rect_t<float> &parent_scissor,
-  bool contains_parent
+  ekg::rect_t<float> &rect_parent_scissor,
+  bool is_parented
 ) {
-  scissor.x = rect_child.x;
-  scissor.y = rect_child.y;
-  scissor.w = rect_child.w;
-  scissor.h = rect_child.h;
+  rect_scissor.x = rect_child.x;
+  rect_scissor.y = rect_child.y;
+  rect_scissor.w = rect_child.w;
+  rect_scissor.h = rect_child.h;
 
-  if (contains_parent) {
+  if (is_parented) {
     bool only_if {};
 
-    only_if = scissor.x < parent_scissor.x;
-    scissor.w -= only_if * (parent_scissor.x - scissor.x);
-    scissor.x = (
-      (only_if * parent_scissor.x) + (scissor.x * !only_if)
+    only_if = rect_scissor.x < rect_parent_scissor.x;
+    rect_scissor.w -= only_if * (rect_parent_scissor.x - rect_scissor.x);
+    rect_scissor.x = (
+      (only_if * rect_parent_scissor.x) + (rect_scissor.x * !only_if)
     );
 
-    only_if = scissor.y < parent_scissor.y;
-    scissor.h -= only_if * (parent_scissor.y - scissor.y);
-    scissor.y = (only_if * parent_scissor.y) + (scissor.y * !only_if);
+    only_if = rect_scissor.y < rect_parent_scissor.y;
+    rect_scissor.h -= only_if * (rect_parent_scissor.y - rect_scissor.y);
+    rect_scissor.y = (only_if * rect_parent_scissor.y) + (rect_scissor.y * !only_if);
 
-    only_if = scissor.x + scissor.w > parent_scissor.x + parent_scissor.w;
-    scissor.w -= only_if * ((scissor.x + scissor.w) - (parent_scissor.x + parent_scissor.w));
+    only_if = rect_scissor.x + rect_scissor.w > rect_parent_scissor.x + rect_parent_scissor.w;
+    rect_scissor.w -= only_if * ((rect_scissor.x + rect_scissor.w) - (rect_parent_scissor.x + rect_parent_scissor.w));
 
-    only_if = scissor.y + scissor.h > parent_scissor.y + parent_scissor.h;
-    scissor.h -= only_if * ((scissor.y + scissor.h) - (parent_scissor.y + parent_scissor.h));
+    only_if = rect_scissor.y + rect_scissor.h > rect_parent_scissor.y + rect_parent_scissor.h;
+    rect_scissor.h -= only_if * ((rect_scissor.y + rect_scissor.h) - (rect_parent_scissor.y + rect_parent_scissor.h));
 
-    this->scissor_instance.x = scissor.x;
-    this->scissor_instance.y = scissor.y;
-    this->scissor_instance.w = scissor.w;
-    this->scissor_instance.h = scissor.h;
+    this->scissor_instance.x = rect_scissor.x;
+    this->scissor_instance.y = rect_scissor.y;
+    this->scissor_instance.w = rect_scissor.w;
+    this->scissor_instance.h = rect_scissor.h;
 
     return (
-      scissor.x < parent_scissor.x + parent_scissor.w
+      rect_scissor.x < rect_parent_scissor.x + rect_parent_scissor.w
       &&
-      scissor.x + scissor.w > parent_scissor.x
+      rect_scissor.x + rect_scissor.w > rect_parent_scissor.x
       &&
-      scissor.y < parent_scissor.y + parent_scissor.h
+      rect_scissor.y < rect_parent_scissor.y + rect_parent_scissor.h
       &&
-      scissor.y + scissor.h > parent_scissor.y
+      rect_scissor.y + rect_scissor.h > rect_parent_scissor.y
     );
   }
 
-  this->scissor_instance.x = scissor.x;
-  this->scissor_instance.y = scissor.y;
-  this->scissor_instance.w = scissor.w;
-  this->scissor_instance.h = scissor.h;
+  this->scissor_instance.x = rect_scissor.x;
+  this->scissor_instance.y = rect_scissor.y;
+  this->scissor_instance.w = rect_scissor.w;
+  this->scissor_instance.h = rect_scissor.h;
 
   return true;
 }

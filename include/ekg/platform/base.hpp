@@ -25,7 +25,6 @@
 #define EKG_PLATFORM_HPP
 
 #include "ekg/io/event.hpp"
-#include "ekg/handler/input.hpp"
 
 namespace ekg::platform {
   class base {

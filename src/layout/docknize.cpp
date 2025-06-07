@@ -571,7 +571,7 @@ void ekg::layout::docknize_widget(
   // TODO: may is necessary to re-docknize the parent widget if previous scroll is disabled but now enabled
 }
 
-float ekg::ui::get_widget_height_by_children(
+float ekg::layout::get_widget_height_by_children(
   ekg::property_t &parent_property
 ) {
   if (
@@ -609,7 +609,7 @@ float ekg::ui::get_widget_height_by_children(
         &&
         !property.children.empty()
       ) {
-      height = ekg::get_widget_height_by_children(property);
+      height = ekg::layout::get_widget_height_by_children(property);
     }
 
     total_height += (

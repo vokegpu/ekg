@@ -41,7 +41,7 @@ find_package(Freetype REQUIRED)
 file(GLOB_RECURSE HEADER_FILES "include/*.hpp")
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
-exclude_files_by_regex(SOURCE_FILES "/ui_|/util/")
+# exclude_files_by_regex(SOURCE_FILES /* regex */)
 
 add_library(
   ekg STATIC

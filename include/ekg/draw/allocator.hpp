@@ -30,6 +30,13 @@
 #include "ekg/gpu/data.hpp"
 #include "ekg/gpu/sampler.hpp"
 
+/**
+ * This macro prevent from dispatching any GPU-data under a render section
+ * if the content is not visible to the parent rect_scissor.
+ **/
+#define ekg_assert_scissor(rect_scissor, rect_child, rect_parent, is_parented) \
+  if (ekg::p_core->draw_allocator.sync_scissor(rect_scissor, rect_child, rect_parent, is_parented)) return;
+
 namespace ekg::draw {
   class allocator {
   public:
@@ -66,10 +73,10 @@ namespace ekg::draw {
     void dispatch();
 
     bool sync_scissor(
-      ekg::rect_t<float> &scissor,
+      ekg::rect_t<float> &rect_scissor,
       ekg::rect_t<float> &rect_child,
-      ekg::rect_t<float> &parent_scissor,
-      bool contains_parent
+      ekg::rect_t<float> &rect_parent_scissor,
+      bool is_parented
     );
 
     void unsafe_set_scissor_rect(

@@ -24,5 +24,9 @@
 #include "ekg/ui/frame/frame.hpp"
 
 ekg::frame_t ekg::frame_t::not_found {
-  .at = ekg::at_t::not_found
+  .at = {
+    .index = ekg::not_found,
+    .unique_id = ekg::not_found,
+    .flags = ekg::not_found
+  }
 };

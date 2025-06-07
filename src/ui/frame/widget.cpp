@@ -29,6 +29,7 @@
 #include "ekg/core/context.hpp"
 #include "ekg/core/pools.hpp"
 #include "ekg/layout/docknize.hpp"
+#include "ekg/draw/shape/shape.hpp"
 
 void ekg::ui::reload(
   ekg::property_t &property,
@@ -295,28 +296,55 @@ void ekg::ui::buffering(
   ekg::property_t &property,
   ekg::frame_t &frame
 ) {
-  ekg::rect_t<float> &rect {
-    this->get_abs_rect()
-  };
+  ekg::rect_t<float> &rect {ekg::ui::get_abs_rect(property, frame.rect)};
 
-  EKG_ASSERT_SCISSOR(
-    this->scissor,
+  ekg_assert_scissor(
+    property.widget.rect_scissor,
     rect,
-    this->p_parent_scissor_rect
+    ekg::query<ekg::property_t>(property.parent_at).widget.rect,
+    property.parent_at != ekg::at_t::not_found
   );
 
   ekg::draw::rect(
     rect,
-    this->descriptor.theme.background,
-    ekg::draw_mode::filled,
-    this->descriptor.theme.layers[ekg::layer::background]
+    property.widget.is_focused ? frame.color_scheme.focused_background : frame.color_scheme.background,
+    ekg::draw::mode::fill,
+    ekg::sampler_t::not_found
   );
+
+  if (property.widget.is_active) {
+    ekg::draw::rect(
+      rect,
+      frame.color_scheme.highlight,
+      ekg::draw::mode::fill,
+      ekg::sampler_t::not_found
+    );
+  }
+
+  if (property.widget.is_highlight) {
+    ekg::draw::rect(
+      rect,
+      frame.color_scheme.highlight,
+      ekg::draw::mode::fill,
+      ekg::sampler_t::not_found
+    );
+  }
 
   ekg::draw::rect(
     rect,
-    this->descriptor.theme.outline,
-    ekg::draw_mode::filled
+    property.widget.is_focused ? frame.color_scheme.focused_outline : frame.color_scheme.outline,
+    ekg::draw::mode::outline,
+    ekg::sampler_t::not_found
   );
+
+  if (property.widget.is_warning) {
+    ekg::draw::rect(
+      rect,
+      frame.color_scheme.warning_outline,
+      ekg::draw::mode::outline,
+      ekg::sampler_t::not_found
+    );
+  }
 }
 
 void ekg::ui::unmap(

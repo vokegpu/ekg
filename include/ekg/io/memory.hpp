@@ -39,6 +39,11 @@
  **/
 #define ekg_assert_low_level(state, alarm, end) if (state) alarm; end;
 
+/**
+ * A dev-purpose log level untracked for EKG.
+ **/
+#define ekg_log_low_level(log_content) std::cout << log_content << std::endl;
+
 namespace ekg {
   typedef size_t flags_t;
   typedef size_t id_t;
@@ -75,7 +80,7 @@ namespace ekg {
   /**
    * Broken heart hash..........
    **/
-  constexpr ekg::id_t not_found {294266639};
+  constexpr ekg::id_t not_found {2942656639};
 
   struct at_t {
   public:
@@ -86,7 +91,13 @@ namespace ekg {
     ekg::flags_t flags {ekg::not_found};
   public:
     bool operator == (ekg::at_t &at) {
-      return this->flags == at.flags && this->unique_id == at.unique_id;
+      return (
+        this->flags == at.flags
+        &&
+        this->index == at.index
+        &&
+        this->unique_id == at.unique_id
+      );
     }
 
     bool operator != (ekg::at_t &at) {
@@ -119,6 +130,10 @@ namespace ekg {
     }
 
     t &query(ekg::at_t &at) {
+      if (at.index == ekg::not_found) {
+        return t::not_found;
+      }
+
       if (
         at.index >= this->loaded.size()
         ||

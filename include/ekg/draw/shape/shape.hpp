@@ -28,6 +28,11 @@
 #include "ekg/gpu/sampler.hpp"
 
 namespace ekg::draw {
+  enum mode : int8_t {
+    fill = 0,
+    outline = 1
+  };
+
   void rect(
     const ekg::rect_t<float> &rect,
     const ekg::rgba_t<uint8_t> &color,

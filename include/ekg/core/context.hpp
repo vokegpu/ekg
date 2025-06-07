@@ -49,22 +49,23 @@ namespace ekg {
   public:
     struct bind_t {
     public:
-      ekg::at_t stack_at {};
-      ekg::at_t swap_at {};
+      ekg::at_t stack_at {ekg::at_t::not_found};
+      ekg::at_t swap_at {ekg::at_t::not_found};
+      ekg::at_t parent_at {ekg::at_t::not_found};
     };
 
     // @TODO: add last for press, release and hover
 
     struct ui_t {
     public:
-      ekg::at_t abs_widget_at {};
+      ekg::at_t abs_widget_at {ekg::at_t::not_found};
       ekg::type hovered_type {};
-      ekg::at_t hovered_at {};
-      ekg::at_t last_hovered_at {};
+      ekg::at_t hovered_at {ekg::at_t::not_found};
+      ekg::at_t last_hovered_at {ekg::at_t::not_found};
       ekg::type pressed_type {};
-      ekg::at_t pressed_at {};
+      ekg::at_t pressed_at {ekg::at_t::not_found};
       ekg::type released_type {};
-      ekg::at_t released_at {};
+      ekg::at_t released_at {ekg::at_t::not_found};
       float dt {};
       bool redraw {};
     };

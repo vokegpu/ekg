@@ -24,7 +24,11 @@
 #include "ekg/gpu/sampler.hpp"
 
 ekg::sampler_t ekg::sampler_t::not_found {
-  .at = ekg::at_t::not_found
+  .at = {
+    .index = ekg::not_found,
+    .unique_id = ekg::not_found,
+    .flags = ekg::not_found
+  }
 };
 
 ekg::flags_t ekg::sampler_src_r8_to_r8g8b8a8(

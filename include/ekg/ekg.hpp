@@ -30,6 +30,7 @@
 #include "ekg/core/pools.hpp"
 #include "ekg/math/floating_point.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/io/log.hpp"
 
 namespace ekg {
   ekg::flags_t init(

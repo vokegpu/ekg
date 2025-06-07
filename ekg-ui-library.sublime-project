@@ -11,13 +11,13 @@
     "translate_tabs_to_spaces": true,
     "LSP":
     {
-      "binary": "clang++",
       "clangd":
       {
+        "system_binary": "clangd",
         "initializationOptions":
         {
-          "clangd.compile-commands-dir": "$folder/cmake-build",
-        },
+          "clangd.compile-commands-dir": "$folder/cmake-build"
+        }
       },
     },
   },
