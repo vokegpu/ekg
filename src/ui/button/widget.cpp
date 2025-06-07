@@ -54,6 +54,12 @@ void ekg::ui::reload(
     ekg::axis::horizontal
   };
 
+  if (button.checks.empty()) {
+    button.checks.push_back(
+      {}
+    );
+  }
+
   ekg::aligned_t aligned_dimension {};
   for (ekg::button_t::check_t &check : button.checks) {
     ekg::draw::font &draw_font {
@@ -90,14 +96,14 @@ void ekg::ui::reload(
       ekg::draw::get_font_renderer(check.font_size)
     };
 
-    if (check.is_check_box) {
+    if (check.box != ekg::dock::none) {
       check.widget.rect_box.w = check.widget.rect_text.h;
       check.widget.rect_box.h = check.widget.rect_text.h;
 
       mask.insert(
         {
           .p_rect = &check.widget.rect_box,
-          .dock = check.dock
+          .dock = check.box
         }
       );
     }
@@ -123,7 +129,29 @@ void ekg::ui::event(
   ekg::button_t &button,
   const ekg::io::stage &stage
 ) {
+  switch (stage) {
+    case ekg::io::stage::process: {
+      ekg::rect_t<float> &abs {ekg::ui::get_abs_rect(property, button.rect)};
+      ekg::input_info_t &input {ekg::p_core->handler_input.info};
 
+      if (property.widget.is_hovering && input.has_motion) {
+        ekg_action(
+          button.actions,
+          ekg::action::hover,
+          ekg::timing_t::second > ekg::gui.ui.frequency
+        );
+      }
+
+      if (!property.widget.is_active && property.widget.is_hovering && input.was_pressed) {
+      }
+
+      break;
+    }
+  case ekg::io::stage::pre:
+    break;
+  case ekg::io::stage::post:
+    break;
+  }
 }
 
 void ekg::ui::high_frequency(

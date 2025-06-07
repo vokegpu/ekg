@@ -83,3 +83,13 @@ void ekg::io::dispatch(
     break;
   }
 }
+
+void ekg::io::dispatch(
+  ekg::at_t &callback_at
+) {
+  if (callback_at == ekg::at_t::not_found) {
+    return;
+  }
+
+  ekg::p_core->handler_callback.dispatch(callback_at);
+}

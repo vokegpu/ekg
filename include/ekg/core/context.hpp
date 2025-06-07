@@ -66,6 +66,7 @@ namespace ekg {
       ekg::at_t pressed_at {ekg::at_t::not_found};
       ekg::type released_type {};
       ekg::at_t released_at {ekg::at_t::not_found};
+      int64_t frequency {500};
       float dt {};
       bool redraw {};
     };
