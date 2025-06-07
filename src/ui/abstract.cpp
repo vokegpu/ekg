@@ -1,86 +1,83 @@
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #include "ekg/ui/abstract.hpp"
+#include "ekg/core/pools.hpp"
 #include "ekg/core/runtime.hpp"
 
-ekg::rect_t<float> &ekg::ui::abstract::get_abs_rect() {
+ekg::rect_t<float> &ekg::ui::get_abs_rect(
+  ekg::property_t &property,
+  ekg::rect_t<float> &descriptor_rect
+) {
+  ekg::property_t &parent {
+    ekg::query<ekg::property_t>(property.parent_at)
+  };
+
   return (
-    this->properties.rect = (
-      *this->p_descriptor_rect + *this->p_parent_rect + *this->p_scroll_vec
+    property.widget.rect = (
+      descriptor_rect + parent.widget.rect + parent.scroll.position
     )
   );
 }
 
-void ekg::ui::abstract::on_create() {
-  if (this->p_parent_rect == nullptr) {
-    this->p_parent_rect = &this->_blank_parent_rect;
-  }
 
-  if (this->p_scroll_vec == nullptr) {
-    this->p_scroll_vec = &this->_blank_scroll_vec;
-  }
+void ekg::ui::pre_event(
+  ekg::property_t &property,
+  ekg::rect_t<float> &descriptor_rect,
+  bool is_top_level
+) {
+  ekg::input_info_t &input {ekg::p_core->handler_input.input};
+  if (
+    input.was_pressed || input.was_released ||
+    input.has_motion  || input.was_wheel
+  ) {
+    ekg::rect_t<float> &abs {ekg::ui::get_abs_rect(property, descriptor_rect)};
+    ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
-  if (this->p_descriptor_rect == nullptr) {
-    this->p_descriptor_rect = &this->_blank_descriptor_rect;
-  }
-}
-
-void ekg::ui::abstract::on_destroy() {
-
-}
-
-void ekg::ui::abstract::on_reload() {
-
-}
-
-void ekg::ui::abstract::on_event(ekg::io::stage stage) {
-  ekg::input_t &input {
-    ekg::p_core->service_input.input
-  };
-
-  switch (stage) {
-    case ekg::io::stage::pre: {
-      if (input.was_pressed || input.was_released || input.has_motion || input.was_wheel) {      
-        ekg::rect_t<float> &rect {this->get_abs_rect()};
-        ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
-
-        this->states.is_hovering = (
-          ekg::rect_collide_vec2<float>(rect, interact)
-          &&
-          (
-            this->properties.level == ekg::level::top
-            ||
-            this->properties.p_parent == nullptr
-            ||
-            ekg::rect_collide_vec2<float>(this->scissor, interact)
-          )
-        );
-      }
-
-      break;
-    }
-
-    case ekg::io::stage::post: {
-      this->states.is_hovering = false;
-
-      #if defined(__ANDROID__)
-      this->states.is_highlight = (
-        !(
-          !this->states.is_hovering
-          &&
-          input.was_released
-        )
-        &&
-        this->states.is_highlight
+    property.widget.is_hovering = (
+      ekg::rect_collide_vec2<float>(abs, interact)
+      &&
+      (
+        is_top_level
+        ||
+        property.parent_at == ekg::at_t::not_found
+        ||
+        ekg::rect_collide_vec2(property.widget.rect_scissor, interact)
       )
-      #endif
-
-      break;
-    }
+    );
   }
 }
 
-void ekg::ui::abstract::on_update() {
-}
+void ekg::ui::post_event(
+  ekg::property_t &property
+) {
+  property.widget.is_hovering = false;
 
-void ekg::ui::abstract::on_draw() {
-
+  #if defined(__ANDROID__)
+    property.widget.is_highlight = (
+      !(!property.widget.is_hovering && ekg::p_core->handler_input.input.was_released)
+      &&
+      property.widget.is_highlight
+    );
+  #endif
 }

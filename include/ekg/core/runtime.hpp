@@ -21,86 +21,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 #ifndef EKG_CORE_RUNTIME_HPP
 #define EKG_CORE_RUNTIME_HPP
 
-#include "ekg/ui/abstract.hpp"
-#include "ekg/service/handler.hpp"
-#include "ekg/service/theme.hpp"
-#include "ekg/service/input.hpp"
-#include "ekg/gpu/allocator.hpp"
+#include "ekg/platform/base.hpp"
+#include "ekg/gpu/api.hpp"
+#include "ekg/draw/typography/font.hpp"
+#include "ekg/draw/allocator.hpp"
+#include "ekg/handler/theme/handler.hpp"
+#include "ekg/handler/callback/handler.hpp"
+#include "ekg/handler/callback.hpp"
+#include "ekg/handler/input/handler.hpp"
 #include "ekg/layout/docknize.hpp"
-#include "ekg/draw/font_renderer.hpp"
-#include "ekg/io/algorithm.hpp"
-
-#include <memory>
 
 namespace ekg {
-  struct runtime_property_t {
+  struct runtime_properties_info_t {
   public:
-    std::string font_path {};
-    std::string font_path_emoji {};
+    std::string_view default_font_path_text {};
+    std::string_view default_font_path_emoji {};
+    ekg::platform::base *p_platform_base {};
     ekg::gpu::api *p_gpu_api {};
-    ekg::os::platform *p_os_platform {};
+    ekg::ft_library ft_library {};
   };
 
-  /**
-   * The main core of EKG.
-   **/
-  extern class runtime {
-  private:
-    /**
-     * TODO: answer questions about this part specifically until second `:` statment.
-     **/
-    std::vector<std::unique_ptr<ekg::ui::abstract>> loaded_widget_list {};
-    ekg::id_t global_id {};
-
-    std::vector<ekg::ui::abstract*> context_widget_list {};
-    std::vector<ekg::ui::abstract*> high_frequency_widget_list {};
-    std::vector<ekg::ui::abstract*> reload_widget_list {};
-    std::vector<ekg::ui::abstract*> layout_docknize_list {};
-
-    ekg::ui::abstract *p_abs_activity_widget {};
-    ekg::io::target_collector_t swap_target_collector {};
-
-    ekg::properties_t *p_current_parent_properties {};
+  extern struct runtime_t {
   public:
-    ekg::service::handler service_handler {};
-    ekg::service::theme service_theme {};
-    ekg::service::input service_input {};
-
-    ekg::os::platform *p_os_platform {};
-
-    ekg::gpu::allocator gpu_allocator {};
+    ekg::platform::base *p_platform_base {};
     ekg::gpu::api *p_gpu_api {};
-
-    ekg::draw::font_renderer draw_fr_small {};
-    ekg::draw::font_renderer draw_fr_normal {};
-    ekg::draw::font_renderer draw_fr_big {};
-
-    ekg::layout::mask layout_mask {};
+    ekg::ft_library ft_library {};
   public:
-    ekg::ui::abstract *emplace_back_new_widget_safety(
-      ekg::ui::abstract *p_widget
-    );
-
-    ekg::id_t generate_unique_id();
-
-    void dispatch_widget_op(
-      ekg::ui::abstract *p_widget,
-      ekg::io::operation op
-    );
-
-    void set_current_parent_properties(ekg::properties_t *p_properties);
-    ekg::properties_t *get_current_parent_properties();
+    ekg::handler::input handler_input {};
+    ekg::handler::callback handler_callback {};
+    ekg::handler::theme handler_theme {};
   public:
-    void init();
-    void quit();
-    void update();
-    void render();
-    void poll_events();
+    ekg::draw::allocator draw_allocator {};
+    ekg::draw::font draw_font_small {};
+    ekg::draw::font draw_font_medium {};
+    ekg::draw::font draw_font_big {};
+  public:
+    std::vector<ekg::at_t> collector {};
+    std::vector<ekg::at_t> registry {};
+    std::vector<ekg::at_t> stack {};
+    std::vector<ekg::at_t> top_level_stack {};    
+    std::vector<ekg::at_t> reload {};
+    std::vector<ekg::at_t> docknize {};
+    std::vector<ekg::at_t> high_frequency {};
   } *p_core;
+}
+
+namespace ekg::core {
+  void swap_collector(bool &was_found, ekg::at_t &property_at);
+  void swap(ekg::info_t &info);
+  void reload(ekg::info_t &info);
+  void docknize(ekg::info_t &info);
+  void scalenize(ekg::info_t &info);
+  void poll_event();
 }
 
 #endif

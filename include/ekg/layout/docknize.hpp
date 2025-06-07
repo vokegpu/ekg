@@ -1,13 +1,34 @@
-#ifndef EKG_LAYOUT_DOCKNIZE_HPP
-#define EKG_LAYOUT_DOCKNIZE_HPP
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+#ifndef EKG_LAYOUR_DOCKNIZE_HPP
+#define EKG_LAYOUR_DOCKNIZE_HPP
 
-#include "ekg/ui/abstract.hpp"
-#include "ekg/math/geometry.hpp"
-#include "ekg/math/floating_point.hpp"
+#include "ekg/ui/property.hpp"
 
 namespace ekg::layout {
   /**
-   * Returns the dimensional extent based in count and the offset (space between rects). 
+   * Returns the dimensional extent based on count and the offset (space between rects). 
    * 
    * The pixel imperfect issue was solved here...
    * For a long time I did not know what was going on with the pixels,
@@ -83,8 +104,14 @@ namespace ekg::layout {
   }
 
   class mask {
+  public:
+    struct component_t {
+    public:
+      ekg::rect_t<float> *p_rect {};
+      ekg::flags_t dock {};
+    };
   protected:
-    std::vector<ekg::rect_descriptor_t> rect_descriptor_list {};
+    std::vector<ekg::layout::mask::component_t> components {};
     float respective_all {};
     float respective_center {};
     ekg::flags_t axis {};
@@ -98,7 +125,7 @@ namespace ekg::layout {
     );
     
     void insert(
-      ekg::rect_descriptor_t rect_descriptor
+      const ekg::layout::mask::component_t &rect_descriptor
     );
 
     void docknize();
@@ -110,7 +137,11 @@ namespace ekg::layout {
    * Note: Recursive.
    **/
   void docknize_widget(
-    ekg::ui::abstract *p_parent_widget
+    ekg::property_t &property
+  );
+
+  float get_widget_height_by_children(
+    ekg::property_t &property
   );
 }
 

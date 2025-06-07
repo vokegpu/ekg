@@ -1,62 +1,62 @@
 {
-	"folders":
-	[
-		{
-			"path": ".",
-		}
-	],
-	"settings":
-	{
-		"tab_size": 2,
-		"translate_tabs_to_spaces": true,
-		"LSP":
-		{
-			"binary": "clang++",
-    	"clangd":
-    	{
-      	"initializationOptions":
-      	{
-      		"clangd.compile-commands-dir": "$folder/cmake-build",
-      	},
-			},
-		},
-	},
-	"build_systems":
-	[
-		{
-			"name": "Build Linux GNU",
-			"shell_cmd":
-				"cd $folder && EKG_BUILD_MODE=build-only EKG_BUILD_COMPILER=/usr/bin/g++ sh ./linux.sh"
-		},
-		{
-			"name": "Build-&-Test Linux GNU",
-			"shell_cmd":
-				"cd $folder && EKG_BUILD_MODE=build-and-test EKG_BUILD_COMPILER=/usr/bin/g++ sh ./linux.sh"
-		},
-		{
-			"name": "Build Linux Clang",
-			"shell_cmd":
-				"cd $folder && EKG_BUILD_MODE=build-only EKG_BUILD_COMPILER=/usr/bin/g++ sh ./linux.sh"
-		},
-		{
-			"name": "Build-&-Test Linux Clang",
-			"shell_cmd": 
-				"cd $folder && EKG_BUILD_MODE=build-and-test EKG_BUILD_COMPILER=/usr/bin/clang++ sh ./linux.sh"
-		},
-		{
-			"name": "Build Linux WASM/emscripten",
-			"shell_cmd":
-				"cd $folder && EKG_BUILD_MODE=build-only EKG_BUILD_COMPILER=emscripten sh ./linux.sh"
-		},
-		{
-			"name": "Build Windows GNU",
-			"shell_cmd":
-				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=1 && cmake --build ./cmake-build/"
-		},
-		{
-			"name": "Build-&-Test Windows GNU",
-			"shell_cmd":
-				"cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=1 && cmake --build ./cmake-build/ && cd ./ekg-sandbox && cmake -S . -B ./cmake-build -G Ninja -DEKG_DEVELOPER_MODE=1 && cmake --build ./cmake-build && cd ./bin && ./ekg-showcase",
-		},
-	],
+  "folders":
+  [
+    {
+      "path": ".",
+    }
+  ],
+  "settings":
+  {
+    "tab_size": 2,
+    "translate_tabs_to_spaces": true,
+    "LSP":
+    {
+      "clangd":
+      {
+        "system_binary": "clangd",
+        "initializationOptions":
+        {
+          "clangd.compile-commands-dir": "$folder/cmake-build"
+        }
+      },
+    },
+  },
+  "build_systems":
+  [
+    {
+      "name": "Build Linux GNU",
+      "shell_cmd":
+        "cd $folder && EKG_BUILD_MODE=build-only EKG_BUILD_COMPILER=/usr/bin/g++ sh ./linux.sh"
+    },
+    {
+      "name": "Build-&-Test Linux GNU",
+      "shell_cmd":
+        "cd $folder && EKG_BUILD_MODE=build-and-test EKG_BUILD_COMPILER=/usr/bin/g++ sh ./linux.sh"
+    },
+    {
+      "name": "Build Linux Clang",
+      "shell_cmd":
+        "cd $folder && EKG_BUILD_MODE=build-only EKG_BUILD_COMPILER=/usr/bin/g++ sh ./linux.sh"
+    },
+    {
+      "name": "Build-&-Test Linux Clang",
+      "shell_cmd": 
+        "cd $folder && EKG_BUILD_MODE=build-and-test EKG_BUILD_COMPILER=/usr/bin/clang++ sh ./linux.sh"
+    },
+    {
+      "name": "Build Linux WASM/emscripten",
+      "shell_cmd":
+        "cd $folder && EKG_BUILD_MODE=build-only EKG_BUILD_COMPILER=emscripten sh ./linux.sh"
+    },
+    {
+      "name": "Build Windows GNU",
+      "shell_cmd":
+        "cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=1 && cmake --build ./cmake-build/"
+    },
+    {
+      "name": "Build-&-Test Windows GNU",
+      "shell_cmd":
+        "cd $folder && cmake -S . -B ./cmake-build/ -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=1 && cmake --build ./cmake-build/ && cd ./ekg-sandbox && cmake -S . -B ./cmake-build -G Ninja -DEKG_DEVELOPER_MODE=1 && cmake --build ./cmake-build && cd ./bin && ./ekg-showcase",
+    },
+  ],
 }

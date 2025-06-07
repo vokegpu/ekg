@@ -21,21 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 #ifndef EKG_UI_STACK_HPP
 #define EKG_UI_STACK_HPP
 
-#include <vector>
-#include <string_view>
+#include "ekg/io/memory.hpp"
+#include "ekg/io/descriptor.hpp"
 
-#include "ekg/ui/abstract.hpp"
+#include <vector>
+#include <string>
 
 namespace ekg {
   struct stack_t {
   public:
-    std::string_view tag {};
-    std::vector<ekg::ui::abstract*> children {};
-    uint64_t counter {};
+    static constexpr ekg::type type {ekg::type::stack};
+    static ekg::stack_t not_found;
+  public:
+    std::string tag {};
+    std::vector<ekg::at_t> widgets {};
+  public:
+    ekg_descriptor(ekg::stack_t);
   };
 }
 

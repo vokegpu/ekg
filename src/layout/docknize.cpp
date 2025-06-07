@@ -1,6 +1,31 @@
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #include "ekg/layout/docknize.hpp"
 #include "ekg/core/runtime.hpp"
 #include "ekg/layout/extentnize.hpp"
+#include "ekg/core/pools.hpp"
+#include "ekg/math/floating_point.hpp"
 
 void ekg::layout::mask::preset(
   ekg::vec3_t<float> offset,
@@ -11,24 +36,26 @@ void ekg::layout::mask::preset(
   this->offset = offset;
   this->respective_all = initial_respective_size;
 
-  ekg::layout::extent_t::v_rect_descriptor = {};
-  ekg::layout::extent_t::h_rect_descriptor = {};
+  ekg::layout::extent_t::v_mask = {};
+  ekg::layout::extent_t::h_mask = {};
 }
 
 void ekg::layout::mask::insert(
-  ekg::rect_descriptor_t rect_descriptor
+  const ekg::layout::mask::component_t &component
 ) {
-  if (ekg::has(rect_descriptor.flags, ekg::dock::none)) {
-    rect_descriptor.p_rect->w = 0.0f;
-    rect_descriptor.p_rect->h = 0.0f;
+  if (ekg::has(component.dock, ekg::dock::none)) {
+    component.p_rect->w = 0.0f;
+    component.p_rect->h = 0.0f;
     return;
   }
 
-  this->rect_descriptor_list.push_back(rect_descriptor);
+  this->components.push_back(component);
 }
 
 void ekg::layout::mask::docknize() {
+  size_t size {};
   int32_t count {};
+
   float dimensional_extent {};
   float rect_height {};
   float rect_width {};
@@ -69,7 +96,7 @@ void ekg::layout::mask::docknize() {
 
   switch (this->axis) {
   case ekg::axis::horizontal:
-    if (this->rect_descriptor_list.empty()) {
+    if (this->components.empty()) {
       this->mask.w = this->respective_all;
       this->mask.h = this->offset.z;
       return;
@@ -90,26 +117,27 @@ void ekg::layout::mask::docknize() {
     center_right_corner.x = dimension_width / 2.0f;
     center_right_corner.w = this->offset.x;
 
-    for (size_t it {}; it < this->rect_descriptor_list.size(); it++) {
-      ekg::rect_descriptor_t &rect_descriptor {this->rect_descriptor_list.at(it)};
-      if (rect_descriptor.p_rect == nullptr) {
+    size = this->components.size();
+    for (size_t it {}; it < size; it++) {
+      ekg::layout::mask::component_t &component {this->components.at(it)};
+      if (component.p_rect == nullptr) {
         continue;
       }
 
-      is_left = ekg::has(rect_descriptor.flags, ekg::dock::left);
-      is_right = ekg::has(rect_descriptor.flags, ekg::dock::right);
-      is_bottom = ekg::has(rect_descriptor.flags, ekg::dock::bottom);
-      is_top = ekg::has(rect_descriptor.flags, ekg::dock::top);
-      is_not_concat = !ekg::has(rect_descriptor.flags, ekg::dock::concat);
+      is_left = ekg::has(component.dock, ekg::dock::left);
+      is_right = ekg::has(component.dock, ekg::dock::right);
+      is_bottom = ekg::has(component.dock, ekg::dock::bottom);
+      is_top = ekg::has(component.dock, ekg::dock::top);
+      is_not_concat = !ekg::has(component.dock, ekg::dock::concat);
       is_bind_dimension_not_zero = (dimension_bind > 0.0f);
 
-      rect_width = rect_descriptor.p_rect->w;
-      rect_height = rect_descriptor.p_rect->h;
+      rect_width = component.p_rect->w;
+      rect_height = component.p_rect->h;
 
-      if (ekg::has(rect_descriptor.flags, ekg::dock::fill)) {
+      if (ekg::has(component.dock, ekg::dock::fill)) {
         count = 0;
-        ekg::layout::extentnize_rect_descriptor(
-          this->rect_descriptor_list,
+        ekg::layout::extentnize_mask(
+          this->components,
           this->offset,
           ekg::dock::fill,
           ekg::dock::none,
@@ -130,11 +158,11 @@ void ekg::layout::mask::docknize() {
       }
 
       if (is_left) {
-        rect_descriptor.p_rect->x = (is_bind_dimension_not_zero * this->offset.x) + left_corner.w;
-        rect_descriptor.p_rect->w = rect_width;
+        component.p_rect->x = (is_bind_dimension_not_zero * this->offset.x) + left_corner.w;
+        component.p_rect->w = rect_width;
 
         dimension_bind += (
-          ((this->offset.x * is_bind_dimension_not_zero) + ((rect_descriptor.p_rect->w + this->offset.x) * !is_bind_dimension_not_zero))
+          ((this->offset.x * is_bind_dimension_not_zero) + ((component.p_rect->w + this->offset.x) * !is_bind_dimension_not_zero))
           *
           is_not_concat
         );
@@ -142,11 +170,11 @@ void ekg::layout::mask::docknize() {
         left_corner.w += dimension_bind;
         this->mask.w += dimension_bind;
       } else if (is_right) {
-        rect_descriptor.p_rect->w = rect_width;
-        rect_descriptor.p_rect->x = (is_bind_dimension_not_zero * this->offset.x) + dimension_width - right_corner.w - rect_descriptor.p_rect->w;
+        component.p_rect->w = rect_width;
+        component.p_rect->x = (is_bind_dimension_not_zero * this->offset.x) + dimension_width - right_corner.w - component.p_rect->w;
 
         dimension_bind += (
-          ((this->offset.x * is_bind_dimension_not_zero) + ((rect_descriptor.p_rect->w + this->offset.x) * !is_bind_dimension_not_zero))
+          ((this->offset.x * is_bind_dimension_not_zero) + ((component.p_rect->w + this->offset.x) * !is_bind_dimension_not_zero))
           *
           is_not_concat
         );
@@ -154,11 +182,11 @@ void ekg::layout::mask::docknize() {
         right_corner.w += dimension_bind;
         this->mask.w += dimension_bind;
       } else if (is_left) {
-        rect_descriptor.p_rect->w = rect_width;
-        rect_descriptor.p_rect->x = (is_bind_dimension_not_zero * this->offset.x) + center_left_corner.x - center_left_corner.w - rect_descriptor.p_rect->w;
+        component.p_rect->w = rect_width;
+        component.p_rect->x = (is_bind_dimension_not_zero * this->offset.x) + center_left_corner.x - center_left_corner.w - component.p_rect->w;
 
         dimension_bind += (
-          ((this->offset.x * is_bind_dimension_not_zero) + ((rect_descriptor.p_rect->w + this->offset.x) * !is_bind_dimension_not_zero))
+          ((this->offset.x * is_bind_dimension_not_zero) + ((component.p_rect->w + this->offset.x) * !is_bind_dimension_not_zero))
           *
           is_not_concat
         );
@@ -166,34 +194,34 @@ void ekg::layout::mask::docknize() {
         center_left_corner.w += dimension_bind;
         this->mask.w += dimension_bind;
       } else if (is_right) {
-        rect_descriptor.p_rect->x = (is_bind_dimension_not_zero * this->offset.x) + center_right_corner.x + center_right_corner.w;
-        rect_descriptor.p_rect->w = rect_width;
+        component.p_rect->x = (is_bind_dimension_not_zero * this->offset.x) + center_right_corner.x + center_right_corner.w;
+        component.p_rect->w = rect_width;
 
         dimension_bind += (
-          ((this->offset.x * is_bind_dimension_not_zero) + ((rect_descriptor.p_rect->w + this->offset.x) * !is_bind_dimension_not_zero))
+          ((this->offset.x * is_bind_dimension_not_zero) + ((component.p_rect->w + this->offset.x) * !is_bind_dimension_not_zero))
           *
           is_not_concat
         );
 
         center_right_corner.w += dimension_bind;
         this->mask.w += dimension_bind;
-      } else if (rect_descriptor.flags == ekg::dock::center) {
-        rect_descriptor.p_rect->w = rect_width;
-        rect_descriptor.p_rect->x = (dimension_width / 2.0f) - (rect_descriptor.p_rect->w / 2.0f);
+      } else if (component.dock == ekg::dock::center) {
+        component.p_rect->w = rect_width;
+        component.p_rect->x = (dimension_width / 2.0f) - (component.p_rect->w / 2.0f);
       }
 
       if (is_top | is_bottom) {
-        rect_descriptor.p_rect->y = (
+        component.p_rect->y = (
           is_top ? (this->offset.y) : (dimension_height - rect_height - this->offset.y)
         );
       } else {
-        rect_descriptor.p_rect->y = (
+        component.p_rect->y = (
           (dimension_height / 2.0f) - (rect_height / 2.0f)
         );
       }
 
-      if (!is_not_concat && rect_descriptor.p_rect->w > dimension_bind) {
-        dimension_bind = rect_descriptor.p_rect->w;
+      if (!is_not_concat && component.p_rect->w > dimension_bind) {
+        dimension_bind = component.p_rect->w;
       } else if (is_not_concat) {
         dimension_bind = 0.0f;
       }
@@ -207,7 +235,7 @@ void ekg::layout::mask::docknize() {
     );
     break;
   case ekg::axis::vertical:
-    if (this->rect_descriptor_list.empty()) {
+    if (this->components.empty()) {
       this->mask.w = this->offset.z;
       this->mask.h = this->respective_all;
       return;
@@ -218,7 +246,7 @@ void ekg::layout::mask::docknize() {
     break;
   }
 
-  this->rect_descriptor_list.clear();
+  this->components.clear();
 }
 
 ekg::rect_t<float> &ekg::layout::mask::get_rect() {
@@ -226,40 +254,34 @@ ekg::rect_t<float> &ekg::layout::mask::get_rect() {
 }
 
 void ekg::layout::docknize_widget(
-  ekg::ui::abstract *p_widget_parent
+  ekg::property_t &parent_property
 ) {
   if (
-      p_widget_parent->p_descriptor_rect == nullptr
+      parent_property == ekg::property_t::not_found
       ||
-      p_widget_parent == nullptr
-      ||
-      !p_widget_parent->properties.is_docknizable
+      !parent_property.widget.is_children_docknizable
   ) {
     return;
   }
 
-  bool is_group {p_widget_parent->properties.type == ekg::type::frame};
-  ekg::rect_t<float> &abs_parent_rect {p_widget_parent->get_abs_rect()};
-
-  if (!is_group || abs_parent_rect.w == 0 || abs_parent_rect.h == 0) {
+  if (
+    parent_property.widget.is_targeting_absolute_parent
+    &&
+    parent_property.abs_parent_at != ekg::at_t::not_found
+  ) {
+    parent_property.widget.is_targeting_absolute_parent = false;
+    ekg::layout::docknize_widget(ekg::query<ekg::property_t>(parent_property.abs_parent_at));
     return;
   }
 
-  if (p_widget_parent->states.is_targeting_absolute_parent) {
-    p_widget_parent->states.is_targeting_absolute_parent = false;
-
-    if (p_widget_parent->properties.p_abs_parent) {
-      ekg::layout::docknize_widget(
-        static_cast<ekg::ui::abstract*>(
-          p_widget_parent->properties.p_abs_parent->p_widget
-        )
-      );
-      return;
-    }
+  if (parent_property.widget.rect.w == 0.0f || parent_property.widget.rect.h == 0.0f) {
+    return;
   }
 
-  ekg::rect_t<float> container_rect {abs_parent_rect};
-  ekg::theme_t &current_global_theme {ekg::theme()};
+  parent_property.widget.is_targeting_absolute_parent = false;
+
+  ekg::rect_t<float> container_rect {parent_property.widget.rect};
+  ekg::theme_t &current_global_theme {ekg::p_core->handler_theme.get_current_theme()};
 
   float margin {static_cast<float>(current_global_theme.layout_margin_thickness) * 2.0f};
   container_rect.w -= margin;
@@ -269,30 +291,29 @@ void ekg::layout::docknize_widget(
    * Pixel correction to make margin aligned and symmetric. 
    **/
   container_rect.w -= (
-    static_cast<ekg::pixel_thickness_t>(abs_parent_rect.w - container_rect.w)
+    static_cast<ekg::pixel_thickness_t>(parent_property.widget.rect.w - container_rect.w)
     -
     current_global_theme.layout_margin_thickness
   );
 
   if (
-    p_widget_parent->states.is_scrolling.z
+    parent_property.scroll.is_scrolling.x
     ||
-    p_widget_parent->states.is_scrolling.w
+    parent_property.scroll.is_scrolling.y
   ) {
     float nearest_scroll_bar_thickness {
-      static_cast<float>(p_widget_parent->states.nearest_scroll_bar_thickness)
+      static_cast<float>(parent_property.scroll.nearest_scroll_bar_thickness)
     };
 
-    container_rect.w -= nearest_scroll_bar_thickness * static_cast<float>(p_widget_parent->states.is_scrolling.w);
-    container_rect.h -= nearest_scroll_bar_thickness * static_cast<float>(p_widget_parent->states.is_scrolling.z);
+    container_rect.w -= nearest_scroll_bar_thickness * static_cast<float>(parent_property.scroll.is_scrolling.x);
+    container_rect.h -= nearest_scroll_bar_thickness * static_cast<float>(parent_property.scroll.is_scrolling.y);
   }
 
-  ekg::ui::abstract *p_widgets {};
   ekg::flags_t flags {};
 
   float dimensional_extent {};
   float extent {};
-  int32_t it {};
+  int32_t it {}; 
   int32_t count {};
 
   ekg::rect_t<float> parent_offset {
@@ -343,29 +364,31 @@ void ekg::layout::docknize_widget(
   float projected_pixel_perfect_width {pixel_perfect_projection.x + pixel_perfect_projection.w};
   float unsolved_pixel_position {};
 
-  for (ekg::properties_t *&p_properties : p_widget_parent->properties.children) {
-    if (p_properties == nullptr || p_properties->p_widget == nullptr) {
+  ekg::rect_t<float> rect {};
+
+  for (ekg::at_t &at : parent_property.children) {
+    ekg::property_t &property {ekg::query<ekg::property_t>(at)};
+    if (property == ekg::property_t::not_found) {
       continue;
     }
 
-    p_widgets = static_cast<ekg::ui::abstract*>(p_properties->p_widget);
-    if (p_widgets->p_descriptor_rect == nullptr) {
-      continue;
+    if (property.widget.should_refresh_size) {
+      property.widget.should_refresh_size = true;
     }
 
-    if (p_widget_parent->properties.must_refresh_size) {
-      p_widgets->properties.must_refresh_size = true;
-    }
+    ekg_abstract_todo(
+      property.descriptor_at.flags,
+      property.descriptor_at,
+      ekg::ui::reload(property, descriptor);
+      flags = descriptor.dock;
+      rect = descriptor.rect;
+    );
 
-    // @TODO Prevent useless scrolling reload.
-    p_widgets->on_reload();
-
-    if (p_widgets->properties.type == ekg::type::scrollbar) {
+    if (property.at.flags == ekg::type::scrollbar) {
       it++;
       continue;
     }
 
-    flags     = p_properties->dock;
     is_right  = ekg::has(flags, ekg::dock::right);
     is_left   = ekg::has(flags, ekg::dock::left) || !is_right;
     is_bottom = ekg::has(flags, ekg::dock::bottom);
@@ -378,7 +401,7 @@ void ekg::layout::docknize_widget(
     if (is_fill) {
       count = it;
       ekg::layout::extentnize_widget(
-        p_widget_parent,
+        parent_property,
         ekg::dock::fill,
         ekg::dock::next | (is_top ? ekg::dock::bottom : ekg::dock::top),
         ekg::axis::horizontal,
@@ -393,7 +416,7 @@ void ekg::layout::docknize_widget(
           current_global_theme.layout_offset,
           count
         ),
-        p_widgets->min_size.x
+        property.widget.min_size.x
       );
 
       if (is_bottom) {
@@ -401,14 +424,12 @@ void ekg::layout::docknize_widget(
         align = (align - pixel_perfect_projection.w) * (align > pixel_perfect_projection.w) * (extent > 0.0f);
         align > 0.0f && (align = (align / count));
       } else {
-        if (p_properties->tag == "bt-2") ekg::log() << dimensional_extent << " meow " << pixel_perfect_projection.w;
         align = ((dimensional_extent + current_global_theme.layout_offset) * count) + (extent);
-        if (p_properties->tag == "bt-2") ekg::log() << align << " meow " << pixel_perfect_projection.w;
         align = (pixel_perfect_projection.w - align) * (align < pixel_perfect_projection.w) * (extent > 0.0f);
         align > 0.0f && (align = -(align / count));
       }
 
-      p_widgets->p_descriptor_rect->w = dimensional_extent - align;
+      rect.w = dimensional_extent - align;
 
       should_reload_widget = true;
       should_estimate_extent = false;
@@ -417,7 +438,7 @@ void ekg::layout::docknize_widget(
     switch (flags & ekg::dock::bottom) {
     case ekg::dock::bottom:
       if (ekg::fequalsf(corner_bottom_right.y, 0.0f)) {
-        highest_bottom = p_widgets->p_descriptor_rect->h;
+        highest_bottom = rect.h;
         corner_bottom_right.y += highest_bottom + current_global_theme.layout_offset;
         corner_bottom_left.y = corner_bottom_right.y;
       }
@@ -432,8 +453,8 @@ void ekg::layout::docknize_widget(
       }
 
       if (is_left) {
-        p_widgets->p_descriptor_rect->x = corner_bottom_left.x;
-        p_widgets->p_descriptor_rect->y = (
+        rect.x = corner_bottom_left.x;
+        rect.y = (
           ekg::clamp_min(
             ekg::layout::transform_to_pixel_perfect_position(
               corner_top_right.y,
@@ -445,7 +466,7 @@ void ekg::layout::docknize_widget(
           )
         );
 
-        corner_bottom_left.x += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
+        corner_bottom_left.x += rect.w + current_global_theme.layout_offset;
       }
 
       if (is_next && is_right) {
@@ -458,15 +479,15 @@ void ekg::layout::docknize_widget(
       }
 
       if (is_right) {
-        corner_bottom_right.x += p_widgets->p_descriptor_rect->w;
+        corner_bottom_right.x += rect.w;
 
-        p_widgets->p_descriptor_rect->x = projected_pixel_perfect_width - corner_bottom_right.x;
-        p_widgets->p_descriptor_rect->y = container_rect.h - corner_bottom_right.y;
+        rect.x = projected_pixel_perfect_width - corner_bottom_right.x;
+        rect.y = container_rect.h - corner_bottom_right.y;
 
         corner_bottom_right.x += current_global_theme.layout_offset;
       }
 
-      highest_bottom = ekg::clamp_min(highest_bottom, p_widgets->p_descriptor_rect->h);
+      highest_bottom = ekg::clamp_min(highest_bottom, rect.h);
       break;
     default:
       if (is_next && is_left) {
@@ -478,12 +499,10 @@ void ekg::layout::docknize_widget(
       }
 
       if (is_left) {
-        p_widgets->p_descriptor_rect->x = corner_top_left.x;
-        p_widgets->p_descriptor_rect->y = corner_top_left.y;
-
-        if (p_properties->tag == "bt-2") ekg::log() << corner_top_left.x + p_widgets->p_descriptor_rect->w << " xoxo ";
+        rect.x = corner_top_left.x;
+        rect.y = corner_top_left.y;
   
-        corner_top_left.x += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
+        corner_top_left.x += rect.w + current_global_theme.layout_offset;
       }
 
       if (is_next && is_right) {
@@ -495,8 +514,8 @@ void ekg::layout::docknize_widget(
       }
 
       if (is_right) {
-        corner_top_right.x += p_widgets->p_descriptor_rect->w;
-        p_widgets->p_descriptor_rect->x = (
+        corner_top_right.x += rect.w;
+        rect.x = (
           ekg::layout::transform_to_pixel_perfect_position(
             corner_top_left.x,
             corner_top_right.x,
@@ -506,17 +525,17 @@ void ekg::layout::docknize_widget(
         );
 
         corner_top_right.x += current_global_theme.layout_offset;
-        p_widgets->p_descriptor_rect->y = corner_top_right.y;
+        rect.y = corner_top_right.y;
       }
 
-      highest_top = ekg::clamp_min(highest_top, p_widgets->p_descriptor_rect->h);
+      highest_top = ekg::clamp_min(highest_top, rect.h);
       break;
     }
 
     if (should_estimate_extent) {
       count = it;
       //ekg::layout::extentnize_widget(
-      //  p_widget_parent,
+      //  parent_property,
       //  ekg::dock::fill,
       //  ekg::dock::next | (is_top ? ekg::dock::bottom : ekg::dock::top),
       //  ekg::axis::horizontal,
@@ -525,22 +544,96 @@ void ekg::layout::docknize_widget(
       //);
     }
 
-    max_previous_height = p_widgets->p_descriptor_rect->h > max_previous_height ? p_widgets->p_descriptor_rect->h : max_previous_height;
-    if (should_reload_widget) {
-      p_widgets->on_reload();
-      should_reload_widget = false;
-    }
+    max_previous_height = rect.h > max_previous_height ? rect.h : max_previous_height;
+    ekg_abstract_todo(
+      property.descriptor_at.flags,
+      property.descriptor_at,
+
+      descriptor.rect = rect;
+
+      if (should_reload_widget) {
+        ekg::ui::reload(property, descriptor);
+        should_reload_widget = false;
+      }
+    );
 
     h_extent_backup = ekg::layout::extent_t::h_widget;
-    if (p_properties->is_docknizable && !p_properties->children.empty()) {
-      ekg::layout::docknize_widget(p_widgets);
+    if (property.widget.is_children_docknizable && !property.children.empty()) {
+      ekg::layout::docknize_widget(property);
     }
 
     ekg::layout::extent_t::h_widget = h_extent_backup;
     it++;
   }
 
-  p_widget_parent->properties.must_refresh_size = false;
+  parent_property.widget.should_refresh_size = false;
 
   // TODO: may is necessary to re-docknize the parent widget if previous scroll is disabled but now enabled
+}
+
+float ekg::layout::get_widget_height_by_children(
+  ekg::property_t &parent_property
+) {
+  if (
+      parent_property == ekg::property_t::not_found
+      ||
+      !parent_property.widget.is_children_docknizable
+  ) {
+    return 0.0f;
+  }
+
+  ekg::theme_t &current_global_theme {ekg::p_core->handler_theme.get_current_theme()};
+  ekg::flags_t flags {};
+
+  float total_height {};
+  float height {};
+
+  for (ekg::at_t &at : parent_property.children) {
+    ekg::property_t &property {ekg::query<ekg::property_t>(at)};
+    if (
+        property == ekg::property_t::not_found
+      ) {
+      continue;
+    }
+
+    ekg_abstract_todo(
+      property.descriptor_at.flags,
+      property.descriptor_at,
+      flags = descriptor.dock;
+    );
+
+    height = property.widget.rect.h;
+
+    if (
+        property.widget.is_children_docknizable
+        &&
+        !property.children.empty()
+      ) {
+      height = ekg::layout::get_widget_height_by_children(property);
+    }
+
+    total_height += (
+      height
+      *
+      (
+        ekg::fequalsf(total_height, 0.0f)
+        ||
+        ekg::has(flags, ekg::dock::next)
+      )
+      +
+      current_global_theme.layout_offset
+    );
+  }
+
+  total_height += (
+    current_global_theme.layout_offset // top
+    +
+    current_global_theme.layout_offset // top
+    +
+    current_global_theme.layout_offset // bottom
+    +
+    current_global_theme.layout_offset // bottom
+  );
+
+  return total_height;
 }

@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #ifndef EKG_MATH_GEOMETRY_HPP
 #define EKG_MATH_GEOMETRY_HPP
 
@@ -353,6 +376,21 @@ namespace ekg {
     );
   }
 
+  /**
+   * @TODO: implement min/max for `ekg::rect_t<t>`, `ekg::vec4_t<t>`, etc
+   * note: do not implement clamp for these cases because clamping rect/vec is stupid
+   **/
+
+  template<typename t>
+  constexpr t min(t a, t b) {
+    return a < b ? a : b;
+  }
+
+  template<typename t>
+  constexpr t max(t a, t b) {
+    return a > b ? a : b;
+  }
+
   template<typename t>
   constexpr t clamp_min(t a, t b) {
     return a < b ? b : a;
@@ -386,12 +424,6 @@ namespace ekg {
   constexpr t lerp(t x, t y, t delta) {
     return x + (y - x) * delta;
   }
-
-  struct rect_descriptor_t {
-  public:
-    ekg::rect_t<float> *p_rect {};
-    ekg::flags_t flags {};
-  };
 
   struct aligned_t {
   public:
@@ -585,6 +617,9 @@ namespace ekg {
       static_cast<float>(a)
     ) / 255.0f;
   }
+
+  template<typename t>
+  using rgba_t =ekg::vec4_t<t>;
 
   void ortho(
     float *p_mat4x4,

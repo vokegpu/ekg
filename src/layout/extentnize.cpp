@@ -1,13 +1,38 @@
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #include "ekg/layout/extentnize.hpp"
 #include "ekg/core/runtime.hpp"
+#include "ekg/io/descriptor.hpp"
+#include "ekg/core/pools.hpp"
 
 ekg::layout::extent_t ekg::layout::extent_t::v_widget {};
 ekg::layout::extent_t ekg::layout::extent_t::h_widget {};
-ekg::layout::extent_t ekg::layout::extent_t::v_rect_descriptor {};
-ekg::layout::extent_t ekg::layout::extent_t::h_rect_descriptor {};
+ekg::layout::extent_t ekg::layout::extent_t::v_mask {};
+ekg::layout::extent_t ekg::layout::extent_t::h_mask {};
 
-void ekg::layout::extentnize_rect_descriptor(
-  std::vector<ekg::rect_descriptor_t> &rect_descriptor_list,
+void ekg::layout::extentnize_mask(
+  std::vector<ekg::layout::mask::component_t> &components,
   ekg::vec3_t<float> offset,
   ekg::flags_t flag_ok,
   ekg::flags_t flag_stop,
@@ -21,19 +46,19 @@ void ekg::layout::extentnize_rect_descriptor(
       int32_t it {in_out_count};
 
       if (
-          it > ekg::layout::extent_t::h_rect_descriptor.begin_index
+          it > ekg::layout::extent_t::h_mask.begin_index
           &&
-          it < ekg::layout::extent_t::h_rect_descriptor.end_index
+          it < ekg::layout::extent_t::h_mask.end_index
         ) {
-        in_out_count = ekg::layout::extent_t::h_rect_descriptor.count;
-        extent = ekg::layout::extent_t::h_rect_descriptor.extent;
+        in_out_count = ekg::layout::extent_t::h_mask.count;
+        extent = ekg::layout::extent_t::h_mask.extent;
         return;
       }
 
-      ekg::layout::extent_t::h_rect_descriptor.begin_index = static_cast<float>(it);
+      ekg::layout::extent_t::h_mask.begin_index = static_cast<float>(it);
 
-      int32_t size {static_cast<int32_t>(rect_descriptor_list.size())};
-      int32_t latest_index {static_cast<int32_t>(size - (!rect_descriptor_list.empty()))};
+      int32_t size {static_cast<int32_t>(components.size())};
+      int32_t latest_index {static_cast<int32_t>(size - (!components.empty()))};
       int32_t should_skip_next {};
       int32_t flag_ok_count {};
 
@@ -43,21 +68,21 @@ void ekg::layout::extentnize_rect_descriptor(
       extent += offset.x;
 
       for (it = it; it < size; it++) {
-        ekg::rect_descriptor_t &rect_descriptor {rect_descriptor_list.at(it)};
-        if (rect_descriptor.p_rect == nullptr) {
+        ekg::layout::mask::component_t &component {components.at(it)};
+        if (component.p_rect == nullptr) {
           continue;
         }
 
         is_last_index = it == latest_index;
 
         if (
-            (ekg::has(rect_descriptor.flags, flag_stop) && it != in_out_count)
+            (ekg::has(component.dock, flag_stop) && it != in_out_count)
             ||
             is_last_index
           ) {
           extent -= offset.x;
           flag_ok_count += (
-            (is_ok_flag = (!ekg::has(rect_descriptor.flags, flag_stop) && (ekg::has(rect_descriptor.flags, flag_ok)) && is_last_index))
+            (is_ok_flag = (!ekg::has(component.dock, flag_stop) && (ekg::has(component.dock, flag_ok)) && is_last_index))
           );
 
           /**
@@ -67,31 +92,31 @@ void ekg::layout::extentnize_rect_descriptor(
            * :blush:
            **/
           extent += ( 
-            (rect_descriptor.p_rect->w + offset.x)
+            (component.p_rect->w + offset.x)
             *
-            (is_last_index && (!ekg::has(rect_descriptor.flags, flag_ok) && should_skip_next == 0))
+            (is_last_index && (!ekg::has(component.dock, flag_ok) && should_skip_next == 0))
           );
 
-          ekg::layout::extent_t::h_rect_descriptor.end_index = it + is_last_index;
-          ekg::layout::extent_t::h_rect_descriptor.extent = extent;
-          ekg::layout::extent_t::h_rect_descriptor.count = flag_ok_count + (flag_ok_count == 0);
+          ekg::layout::extent_t::h_mask.end_index = it + is_last_index;
+          ekg::layout::extent_t::h_mask.extent = extent;
+          ekg::layout::extent_t::h_mask.count = flag_ok_count + (flag_ok_count == 0);
           break;
         }
 
-        should_skip_next += ekg::has(rect_descriptor.flags, ekg::dock::concat);
+        should_skip_next += ekg::has(component.dock, ekg::dock::concat);
 
         if (should_skip_next > 0) {
           should_skip_next = (should_skip_next + 1) * (should_skip_next < 2);
-          flag_ok_count += ekg::has(rect_descriptor.flags, flag_ok);
+          flag_ok_count += ekg::has(component.dock, flag_ok);
           continue;
         }
 
-        if (ekg::has(rect_descriptor.flags, flag_ok)) {
+        if (ekg::has(component.dock, flag_ok)) {
           flag_ok_count++;
           continue;
         }
 
-        extent += rect_descriptor.p_rect->w + offset.x;
+        extent += component.p_rect->w + offset.x;
       }
 
       in_out_count = flag_ok_count + (flag_ok_count == 0);
@@ -105,7 +130,7 @@ void ekg::layout::extentnize_rect_descriptor(
 }
 
 void ekg::layout::extentnize_widget(
-  ekg::ui::abstract *p_widget,
+  ekg::property_t &parent_property,
   ekg::flags_t flag_ok,
   ekg::flags_t flag_stop,
   ekg::flags_t flag_axis,
@@ -113,9 +138,6 @@ void ekg::layout::extentnize_widget(
   int32_t &in_out_count
 ) {
   extent = 0.0f;
-  if (p_widget == nullptr) {
-    return;
-  }
 
   int32_t begin_index {in_out_count};
   switch (flag_axis & ekg::axis::horizontal) {
@@ -134,35 +156,41 @@ void ekg::layout::extentnize_widget(
       }
 
       ekg::layout::extent_t::h_widget.begin_index = static_cast<float>(it);
-      ekg::ui::abstract *p_widgets {};
-      ekg::theme_t &current_global_theme {ekg::p_core->service_theme.get_current_theme()};
+      ekg::theme_t &current_global_theme {ekg::p_core->handler_theme.get_current_theme()};
 
-      int32_t size {static_cast<int32_t>(p_widget->properties.children.size())};
-      int32_t latest_index {size - (!p_widget->properties.children.empty())};
+      int32_t size {static_cast<int32_t>(parent_property.children.size())};
+      int32_t latest_index {size - (!parent_property.children.empty())};
       int32_t flag_ok_count {};
 
+      ekg::flags_t dock {};
       bool is_scrollbar {};
       bool is_last_index {};
       bool is_last_index_but {};
       bool is_ok {};
       bool is_stop {};
 
-      for (it = it; it < size; it++) {
-        ekg::properties_t *&p_properties {p_widget->properties.children.at(it)};
-        if (p_properties == nullptr) {
+      ekg::rect_t<float> rect {};
+      for (; it < size; it++) {
+        ekg::property_t &property {
+          ekg::query<ekg::property_t>(parent_property.children.at(it))
+        };
+
+        if (property == ekg::property_t::not_found) {
           continue;
         }
 
-        p_widgets = static_cast<ekg::ui::abstract*>(p_properties->p_widget);
-        if (p_widgets->p_descriptor_rect == nullptr) {
-          continue;
-        }
-
-        is_scrollbar = p_properties->type == ekg::type::scrollbar;
+        is_scrollbar = property.descriptor_at.flags == ekg::type::scrollbar;
         is_last_index = it == latest_index;
 
-        is_ok = ekg::has(p_properties->dock, flag_ok);
-        is_stop = ekg::has(p_properties->dock, flag_stop);
+        ekg_abstract_todo(
+          property.descriptor_at.flags,
+          property.descriptor_at,
+          dock = descriptor.dock;
+          rect = descriptor.rect;
+        );
+
+        is_ok = ekg::has(dock, flag_ok);
+        is_stop = ekg::has(dock, flag_stop);
 
         if (
             (is_stop && it != in_out_count)
@@ -202,7 +230,7 @@ void ekg::layout::extentnize_widget(
            * :blush:
            **/
           extent += (
-            p_widgets->p_descriptor_rect->w
+            rect.w
             *
             is_last_index_but
           );
@@ -244,7 +272,7 @@ void ekg::layout::extentnize_widget(
           continue;
         }
 
-        extent += p_widgets->p_descriptor_rect->w + current_global_theme.layout_offset;
+        extent += rect.w + current_global_theme.layout_offset;
       }
 
       in_out_count = flag_ok_count + (flag_ok_count == 0);

@@ -21,49 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 #ifndef EKG_UI_ABSTRACT_HPP
 #define EKG_UI_ABSTRACT_HPP
 
-#include "ekg/ui/properties.hpp"
 #include "ekg/math/geometry.hpp"
-#include "ekg/io/input.hpp"
-#include "ekg/io/task.hpp"
-
-#define EKG_ASSERT_VALUE(value) if (value.was_changed && !(value.was_changed = false)) ekg::p_core->dispatch_widget_op(this, ekg::io::operation::reload);
+#include "ekg/ui/property.hpp"
 
 namespace ekg::ui {
-  class abstract {
-  public:
-    ekg::rect_t<float> _blank_parent_rect {};
-    ekg::vec4_t<float> _blank_scroll_vec {};
-    ekg::rect_t<float> _blank_descriptor_rect {};
-  public:
-    ekg::properties_t properties {};
-    ekg::ui::states_t states {};
+  ekg::rect_t<float> &get_abs_rect(
+    ekg::property_t &property,
+    ekg::rect_t<float> &descriptor_rect
+  );
 
-    ekg::rect_t<float> scissor {};
-    ekg::vec2_t<float> min_size {};
+  void pre_event(
+    ekg::property_t &property,
+    ekg::rect_t<float> &descriptor_rect,
+    bool is_top_level
+  );
 
-    ekg::rect_t<float> *p_descriptor_rect {};
-    ekg::vec4_t<float> *p_scroll_vec {};
-    ekg::rect_t<float> *p_parent_rect {};
-    ekg::rect_t<float> *p_parent_scissor_rect {};
-  public:
-    ekg::rect_t<float> &get_abs_rect();
-  public:
-    virtual void on_create();
-    virtual void on_destroy();
-    virtual void on_reload();
-    virtual void on_event(ekg::io::stage stage);
-    virtual void on_update();
-    virtual void on_draw();
-  public:
-    template<typename t>
-    operator t() {
-      return *static_cast<t*>(this->properties.p_descriptor);
-    }
-  };
+  void post_event(
+    ekg::property_t &property
+  );
 }
 
 #endif

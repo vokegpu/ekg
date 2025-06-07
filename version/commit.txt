@@ -155,9 +155,9 @@
 -- CMake new features and d-vars: `EKG_FORCE_WINDOWS`, `EKG_FORCE_ANDROID` and `EKG_FORCE_LINUX`:
 -- - An else-if/elif condition that first match windows, android, and linux;
 -- - or forced d-var sequentially.
--- Little optmization in `ekg::utf_decode` (break-line string decode to a vector of strings).
+-- Little optmization in `ekg::utf8_split_new_line` (break-line string decode to a vector of strings).
 -- Fixed small pixel-escape from rendering, any non-concave draw when reached zero was forcing generate one pixel fragment, so it was rendering a small pixel.
--- Fixed break-line decode: `ekg::utf_decode` was not emplacing back at 0 pos.
+-- Fixed break-line decode: `ekg::utf8_split_new_line` was not emplacing back at 0 pos.
 -- Added column header font size and align for listbox.
 -- GLFW3 interface support.
 -- New key cross-interface for IO serialized events.
@@ -234,27 +234,42 @@
 -- Added WASM build-type compatibility.
 -- Fixed GLES3 font format, GLES3 is stricly about image format, so now for GLES3 (applies: Android, Emscripten, and desktop GLES3), texture is swizzle by CPU-side and not in the driver (like desktop OpenGL core-profile does).
 
+2.0.0-deprecated 25/01/25
+
+-- ~~Added properties, stack, and new IO features.~~
+-- ~~Added bitwise op on `io/memory.hpp` template.~~
+-- ~~Added properties overload operator for casting widget and descriptor.~~
+-- ~~Refactored and optimized input-service with addressed input bind without useless hash queries.~~
+-- ~~New individual-theme-scheme system for service theme.~~
+-- ~~Refactored font-renderer and moved part of implementations to `io/` package.~~
+-- ~~Refactored layout docknization, extentinzation, and scale. Separated into individuals headers.~~
+-- ~~Rendering Hardware-Interface (RHI): OpenGL module refactored.~~
+-- ~~OS Platform-Interface (OPI): SDL2, GLFW modules refactored.~~
+-- ~~Added floating point features and algebra linear features.~~
+-- ~~Properties can be cast to reference and ptr, both with different reasons and complete utility.~~
+-- ~~Added new reload, layout docknization, and scale update runtime operation tasks. ~~
+-- ~~Properties has a visible absolute rect to user-programmer.~~
+-- ~~Unsafe properties linked to the descriptor also.~~
+-- ~~Dynamic widget-text rendering via `ekg::value` wrapper.~~
+-- ~~Frame widget impl. on new memory-model.~~
+-- ~~Button widget impl. on new memory-model.~~
+-- ~~Label widget impl. on new memory-model.~~
+-- ~~Scrollbar widget impl. on new memory-model.~~
+-- ~~Scrollbar scrolling speed fix.~~
+-- ~~Moved callback-actions to descriptors instead as before in properties, also actions are type-based named `ekg::actions`.~~
+-- ~~Fixed pixel align on container docknization, margin layout and offset layout both are separed now.~~
+
 2.0.0 25/01/25
 
--- Added properties, stack, and new IO features.
--- Added bitwise op on `io/memory.hpp` template.
--- Added properties overload operator for casting widget and descriptor.
--- Refactored and optimized input-service with addressed input bind without useless hash queries.
--- New individual-theme-scheme system for service theme.
--- Refactored font-renderer and moved part of implementations to `io/` package.
--- Refactored layout docknization, extentinzation, and scale. Separated into individuals headers.
--- Rendering Hardware-Interface (RHI): OpenGL module refactored.
--- OS Platform-Interface (OPI): SDL2, GLFW modules refactored.
--- Added floating point features and algebra linear features.
--- Properties can be cast to reference and ptr, both with different reasons and complete utility.
--- Added new reload, layout docknization, and scale update runtime operation tasks. 
--- Properties has a visible absolute rect to user-programmer.
--- Unsafe properties linked to the descriptor also.
--- Dynamic widget-text rendering via `ekg::value` wrapper.
--- Frame widget impl. on new memory-model.
--- Button widget impl. on new memory-model.
--- Label widget impl. on new memory-model.
--- Scrollbar widget impl. on new memory-model.
--- Scrollbar scrolling speed fix.
--- Moved callback-actions to descriptors instead as before in properties, also actions are type-based named `ekg::actions`.
--- Fixed pixel align on container docknization, margin layout and offset layout both are separed now.
+-- IO Memory. 
+-- Memory pools fundamentals: `ekg::pool<t>` it self.
+-- Query `ekg::query<t>` and make `ekg::make<t>` fundamentals functions.
+-- Base platform and base rendering-hardware interface.
+-- Platform `SDL2`.
+-- API `OpenGL`.
+-- Allocator.
+-- Font rendering.
+-- Layout docknization, scalenize, extentnize, and mask.
+-- Theme system.
+-- Basic descriptors: callback, property, sampler, stack, button, frame.
+-- Internal features as dispatch for callbacks.

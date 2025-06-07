@@ -1,40 +1,77 @@
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #ifndef EKG_UI_BUTTON_HPP
 #define EKG_UI_BUTTON_HPP
 
+#include "ekg/io/descriptor.hpp"
+#include "ekg/io/font.hpp"
 #include "ekg/math/geometry.hpp"
-#include "ekg/io/typography.hpp"
-#include "ekg/io/gpu.hpp"
-#include "ekg/ui/types.hpp"
-#include "ekg/io/task.hpp"
 
 namespace ekg {
-  struct button_theme_t {
+  struct button_color_scheme_t {
   public:
-    ekg::vec4_t<float> background {};
-    ekg::vec4_t<float> text {};
-    ekg::vec4_t<float> outline {};
-    ekg::vec4_t<float> active {};
-    ekg::vec4_t<float> active_outline {};
-    ekg::vec4_t<float> highlight {};
+    ekg::rgba_t<uint8_t> text_foreground {};
 
-    /**
-     * [0] ekg::button_t;
-     **/
-    ekg::layer_t<1> layers {};
+    ekg::rgba_t<uint8_t> background {};
+    ekg::rgba_t<uint8_t> outline {};
+    ekg::rgba_t<uint8_t> highlight {};
+
+    ekg::rgba_t<uint8_t> box_background {};
+    ekg::rgba_t<uint8_t> box_outline {};
+    ekg::rgba_t<uint8_t> box_highlight {};
+    ekg::rgba_t<uint8_t> box_active {};
   };
 
   struct button_t {
   public:
+    struct check_t {
+    public:
+      struct widget_t {
+      public:
+        ekg::rect_t<float> rect_text {};
+        ekg::rect_t<float> rect_box {};
+      };
+    public:
+      ekg::value<std::string> text {};
+      ekg::font font_size {ekg::font::medium};
+      bool is_check_box {};
+      ekg::flags_t dock {};
+      ekg::button_t::check_t::widget_t widget {};
+    };
+
+    static ekg::button_t not_found;
+    static constexpr ekg::type type {ekg::type::button};
+  public:
+    ekg::at_t property_at {};
+  public:
     std::string tag {};
-    ekg::flags_t dock {ekg::dock::left};
-    ekg::value<std::string> text {};
-    ekg::flags_t text_dock {ekg::dock::left};
-    ekg::value<bool> value {};
-    ekg::font text_font_size {ekg::font::normal};
+    ekg::flags_t dock {};
     ekg::rect_t<float> rect {};
-    ekg::type type {ekg::type::button};
-    ekg::actions actions {};
-    ekg::button_theme_t theme {};
+    std::vector<ekg::button_t::check_t> checks {};
+    ekg::button_color_scheme_t color_scheme {};
+  public:
+    ekg_descriptor(ekg::button_t);
   };
 }
 
