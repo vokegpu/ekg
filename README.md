@@ -68,6 +68,11 @@ auto &my_frame = ekg::make<ekg::frame_t>(frame_template);
 
 ## Building
 
+EKG is C++17-based and is supported by:
+| - | GNU-MinGW-w64  
+| - | GNU-G++  
+| - | Clang++  
+
 Dependencies for building binary:  
 | - | [FreeType](https://freetype.org/)  
 | - | [GLEW](https://glew.sourceforge.net/)  
@@ -82,11 +87,6 @@ Run the following commands:
 cmake -S . -B ./cmake-build -G Ninja -D CMAKE_BUILD_TYPE=Release
 cmake --build ./cmake-build
 ```
-
-Supported compilers:  
-| - | GNU-MinGW64 stable buildable  
-| - | GNU-G++ stable buildable  
-| - | Clang++ stable buildable  
 
 Supported video APIs:  
 | - | OpenGL 3.1~4.6  
