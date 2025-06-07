@@ -68,7 +68,7 @@ auto &my_frame = ekg::make<ekg::frame_t>(frame_template);
 
 ## Building
 
-EKG is C++17-based and is supported by:
+EKG is C++17-based and is supported by:  
 | - | GNU-MinGW-w64  
 | - | GNU-G++  
 | - | Clang++  
