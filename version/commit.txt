@@ -262,11 +262,14 @@
 2.0.0 25/01/25
 
 -- IO Memory. 
--- Memory pools fundamentals: `ekg::pool<t>` it self, `ekg::callback_t`, `ekg::sampler_t`.
+-- Memory pools fundamentals: `ekg::pool<t>` it self.
 -- Query `ekg::query<t>` and make `ekg::make<t>` fundamentals functions.
--- Descriptors: `ekg::callback_t`, `ekg::callback_t`.
 -- Base platform and base rendering-hardware interface.
 -- Platform `SDL2`.
 -- API `OpenGL`.
 -- Allocator.
 -- Font rendering.
+-- Layout docknization, scalenize, extentnize, and mask.
+-- Theme system.
+-- Basic descriptors: callback, property, sampler, stack, button, frame.
+-- Internal features as dispatch for callbacks.
