@@ -50,9 +50,11 @@ while (true) {
 
 A simple frame using the basic of `ekg::make<t>`!
 ```cpp
-ekg::stack_t meow {
-  .tag = "moo"
-};
+ekg::make<ekg::stack_t>(
+  ekg::stack_t meow {
+    .tag = "moo"
+  }
+);
 
 ekg::frame_t frame_template {
   .tag = "meows",
