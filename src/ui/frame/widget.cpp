@@ -30,6 +30,7 @@
 #include "ekg/core/pools.hpp"
 #include "ekg/layout/docknize.hpp"
 #include "ekg/draw/shape/shape.hpp"
+#include "ekg/io/log.hpp"
 
 void ekg::ui::reload(
   ekg::property_t &property,
@@ -289,7 +290,7 @@ void ekg::ui::pass(
   ekg::property_t &property,
   ekg::frame_t &frame
 ) {
-
+  property.widget.should_buffering = true;
 }
 
 void ekg::ui::buffering(

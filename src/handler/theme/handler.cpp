@@ -22,6 +22,32 @@
  * SOFTWARE.
  */
 #include "ekg/handler/theme/handler.hpp"
+#include "ekg/io/log.hpp"
+
+void ekg::handler::theme::init() {
+  ekg::log() << "Initializing default themes";
+
+  ekg::theme_t light_pinky_theme {
+    .tag = "light-pinky",
+    .author = "Rina Wilk",
+    .description = "Pasted light-theme... moow",
+  };
+
+  light_pinky_theme.frame_color_scheme.background = {242, 242, 242, 255};
+  light_pinky_theme.frame_color_scheme.highlight = {242, 242, 242, 0};
+  light_pinky_theme.frame_color_scheme.outline = {190, 190, 190, 0};
+  light_pinky_theme.frame_color_scheme.active = {242, 242, 242, 0};
+  light_pinky_theme.frame_color_scheme.focused_background = {242, 242, 242, 0};
+  light_pinky_theme.frame_color_scheme.focused_outline = {242, 242, 242, 0};
+  light_pinky_theme.frame_color_scheme.warning_outline = {242, 242, 0, 100};
+  light_pinky_theme.frame_color_scheme.actions_margin_pixel_thickness = 18;
+
+  this->registry(light_pinky_theme.tag) = light_pinky_theme;
+  this->set_current_theme(light_pinky_theme.tag);
+}
+
+void ekg::handler::theme::quit() {
+}
 
 ekg::theme_t &ekg::handler::theme::registry(const std::string_view &tag) {
   return this->themes[tag];

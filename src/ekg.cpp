@@ -42,11 +42,11 @@ ekg::flags_t ekg::init(
   ekg::runtime_t *p_runtime
 ) {
   if (p_runtime == nullptr) {
-    ekg::log("[EKG] ~ERROR~ invalid (?) `ekg::runtime_t` pointer address: nullptr");
+    ekg::log("~ERROR~ invalid (?) `ekg::runtime_t` pointer address: nullptr");
     return ekg::result::failed;
   }
 
-  ekg::log() << "[EKG] Initializing...";
+  ekg::log() << "Initializing...";
 
   ekg::p_core = p_runtime;
 
@@ -54,8 +54,12 @@ ekg::flags_t ekg::init(
   ekg::p_core->p_gpu_api = runtime_properties_info.p_gpu_api;
   ekg::p_core->ft_library = runtime_properties_info.ft_library;
 
+  ekg::p_core->p_platform_base->init();
+  ekg::p_core->p_gpu_api->init();
+
   ekg::p_core->handler_callback.init();
   ekg::p_core->handler_input.init();
+  ekg::p_core->handler_theme.init();
   ekg::p_core->draw_allocator.init();
 
   /* deprecated soon */
@@ -73,9 +77,12 @@ ekg::flags_t ekg::init(
   ekg::p_core->draw_font_big.init();
   ekg::p_core->draw_font_big.set_font(runtime_properties_info.default_font_path_text);
   ekg::p_core->draw_font_big.set_font_emoji(runtime_properties_info.default_font_path_emoji);
-  ekg::p_core->draw_font_big.get_atlas_texture_sampler().gl_protected_active_index = true;;
+  ekg::p_core->draw_font_big.get_atlas_texture_sampler().gl_protected_active_index = true;
 
-  ekg::log() << "[EKG] Successfully initialized";
+  ekg::info_t info {};
+  ekg::core::scalenize(info);
+
+  ekg::log() << "Successfully initialized";
 
   return ekg::result::success;
 }
@@ -90,6 +97,8 @@ void ekg::update() {
   if (ekg::p_core == nullptr) {
     return;
   }
+
+  ekg::p_core->handler_input.update();
 
   size_t size {ekg::p_core->high_frequency.size()};
   for (size_t it {}; it < size; it++) {
@@ -116,6 +125,12 @@ void ekg::update() {
       size = ekg::p_core->high_frequency.size();
     }
   }
+
+  ekg::p_core->handler_callback.update();
+  ekg::p_core->p_platform_base->update();
+  ekg::p_core->p_platform_base->event.type = ekg::io::event_type::none;
+
+  ekg::log::flush();
 }
 
 void ekg::render() {

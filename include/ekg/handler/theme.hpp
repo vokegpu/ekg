@@ -39,6 +39,9 @@ namespace ekg {
     ekg::button_color_scheme_t button_color_scheme {};
     ekg::frame_color_scheme_t frame_color_scheme {};
   };
+
+  ekg::theme_t &theme(std::string_view tag = "");
+  ekg::theme_t &set_current_theme(std::string_view tag);
 }
 
 #endif

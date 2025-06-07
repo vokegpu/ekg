@@ -57,10 +57,10 @@ void ekg::draw::rect(
   data.buffer[1] = y;
   data.buffer[2] = w;
   data.buffer[3] = h;
-  data.buffer[4] = static_cast<float>(color.x / 255);
-  data.buffer[5] = static_cast<float>(color.y / 255);
-  data.buffer[6] = static_cast<float>(color.z / 255);
-  data.buffer[7] = static_cast<float>(color.w / 255);
+  data.buffer[4] = static_cast<float>(color.x) / 255;
+  data.buffer[5] = static_cast<float>(color.y) / 255;
+  data.buffer[6] = static_cast<float>(color.z) / 255;
+  data.buffer[7] = static_cast<float>(color.w) / 255;
 
   data.line_thickness = static_cast<int8_t>(line_thickness);
   data.hash = 1;

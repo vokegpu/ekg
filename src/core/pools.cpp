@@ -26,4 +26,9 @@
 
 void ekg::core::registry(ekg::property_t &property) {
   ekg::p_core->registry.push_back(property.at);
+
+  ekg::io::dispatch(
+    ekg::io::operation::swap,
+    property.at
+  );
 }

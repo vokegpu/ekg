@@ -30,6 +30,7 @@
 #include "ekg/ui/property.hpp"
 #include "ekg/ui/stack.hpp"
 #include "context.hpp"
+#include "ekg/handler/theme.hpp"
 
 #include "ekg/ui/button/button.hpp"
 #include "ekg/ui/button/widget.hpp"
@@ -80,6 +81,8 @@ namespace ekg::core {
 \
   property.at.flags = widget_descriptor_t::type; \
   widget.property_at = property.at; \
+\
+  ekg::theme_t &global_theme {ekg::theme()};\
 \
   register_settings; \
 \
@@ -196,6 +199,7 @@ namespace ekg {
         {
           property.widget.is_childnizate = false;
           property.widget.is_children_docknizable = false;
+          widget.color_scheme = global_theme.button_color_scheme;
         }
       );
     }
@@ -208,6 +212,7 @@ namespace ekg {
         {
           property.widget.is_childnizate = true;
           property.widget.is_children_docknizable = true;
+          widget.color_scheme = global_theme.frame_color_scheme;
         }
       );
     }}

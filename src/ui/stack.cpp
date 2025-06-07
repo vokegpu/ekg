@@ -23,10 +23,4 @@
  */
 #include "ekg/ui/stack.hpp"
 
-ekg::stack_t ekg::stack_t::not_found {
-  .at = {
-    .index = ekg::not_found,
-    .unique_id = ekg::not_found,
-    .flags = ekg::not_found
-  }
-};
+ekg::stack_t ekg::stack_t::not_found {};

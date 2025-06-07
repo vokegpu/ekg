@@ -75,7 +75,7 @@ namespace ekg::core {
   void reload(ekg::info_t &info);
   void docknize(ekg::info_t &info);
   void scalenize(ekg::info_t &info);
-  void poll_events();
+  void poll_event();
 }
 
 #endif

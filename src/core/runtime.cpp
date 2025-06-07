@@ -205,10 +205,12 @@ void ekg::core::scalenize(ekg::info_t &info) {
   }
 }
 
-void ekg::core::poll_events() {
+void ekg::core::poll_event() {
   if (ekg::p_core == nullptr) {
     return;
   }
+
+  ekg::p_core->handler_input.poll_event();
 
   ekg::input_info_t &input {
     ekg::p_core->handler_input.input

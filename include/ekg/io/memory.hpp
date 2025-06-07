@@ -58,13 +58,13 @@ namespace ekg {
 
   template<typename t>
   constexpr bool has(ekg::flags_t bits, t bit) {
-    return bits & bit;
+    return (bits & bit) == bit;
   }
 
   template<typename t>
   constexpr bool strip(ekg::flags_t &bits, t bit) {
     bits = bits & ~(bit);
-    return bits & bit;
+    return ekg::has<t>(bits, bit);
   }
 
   template<typename t>

@@ -21,6 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "ekg/ui/frame/frame.hpp"
+#include "ekg/handler/theme.hpp"
+#include "ekg/core/runtime.hpp"
 
-ekg::frame_t ekg::frame_t::not_found {};
+ekg::theme_t &ekg::theme(
+  std::string_view tag
+) {
+  if (tag.empty()) {
+    return ekg::p_core->handler_theme.get_current_theme();
+  }
+
+  return ekg::p_core->handler_theme.registry(tag);
+}
+
+ekg::theme_t &ekg::set_current_theme(
+  std::string_view tag
+) {
+  ekg::p_core->handler_theme.set_current_theme(tag);
+  return ekg::theme(tag);
+}

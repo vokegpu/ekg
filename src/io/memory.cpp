@@ -25,11 +25,7 @@
 #include "ekg/core/context.hpp"
 #include "ekg/core/pools.hpp"
 
-ekg::at_t ekg::at_t::not_found {
-  .index = ekg::not_found,
-  .unique_id = ekg::not_found,
-  .flags = ekg::not_found
-};
+ekg::at_t ekg::at_t::not_found {};
 
 ekg::signed_address_info_t ekg::sign {};
 

@@ -46,11 +46,8 @@ namespace ekg::handler {
     );
   public:
     void init();
-
     void quit();
-
-    void on_event();
-
+    void poll_event();
     void update();
 
     void insert_input_bind(

@@ -23,10 +23,4 @@
  */
 #include "ekg/gpu/data.hpp"
 
-ekg::gpu::data_t ekg::gpu::data_t::not_found {
-  .at = {
-    .index = ekg::not_found,
-    .unique_id = ekg::not_found,
-    .flags = ekg::not_found
-  }
-};
+ekg::gpu::data_t ekg::gpu::data_t::not_found {};

@@ -35,7 +35,7 @@
  * if the content is not visible to the parent rect_scissor.
  **/
 #define ekg_assert_scissor(rect_scissor, rect_child, rect_parent, is_parented) \
-  if (ekg::p_core->draw_allocator.sync_scissor(rect_scissor, rect_child, rect_parent, is_parented)) return;
+  if (!ekg::p_core->draw_allocator.sync_scissor(rect_scissor, rect_child, rect_parent, is_parented)) return;
 
 namespace ekg::draw {
   class allocator {

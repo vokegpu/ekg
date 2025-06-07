@@ -104,7 +104,7 @@ void ekg::handler::input::init() {
   this->special_keys[6][6] = '\0';
   this->special_keys[6][7] = '\0';
 
-  ekg::log() << "Registering default user-input bindings";
+  ekg::log() << "Initialising default user-input bindings";
 
   /**
    * https://github.com/vokegpu/ekg-docs/blob/master/model/input-binding-tag-style.md
@@ -193,7 +193,7 @@ void ekg::handler::input::quit() {
   ekg::log() << "Quitting input-service";
 }
 
-void ekg::handler::input::on_event() {
+void ekg::handler::input::poll_event() {
   this->input.was_pressed = false;
   this->input.was_released = false;
   this->input.has_motion = false;

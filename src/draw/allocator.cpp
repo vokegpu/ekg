@@ -104,17 +104,17 @@ void ekg::draw::allocator::dispatch() {
     this->stride_instance.y = 0;
 
     /**
+     * Simple shade contains only 4 vertices because it is indexed-rendered.
+     **/
+    p_data->begin_stride = this->simple_shape_instance;
+    p_data->end_stride = 4;
+  } else {
+    /**
      * Peek `ekg/gpu/gl/shaders.cpp`.
      * Any value less than -1.0 is considered a concave by the vertex shader.
      **/
     p_data->buffer[3] = -1.1f;
 
-    /**
-     * Simple shade contains only 4 vertices because it is indexed-rendered.
-     **/
-    p_data->begin_stride = this->simple_shape_instance;
-    p_data->end_stride = 4;
-  } else {    
     p_data->begin_stride = this->stride_instance.x;
     p_data->end_stride = this->stride_instance.y;
   }
