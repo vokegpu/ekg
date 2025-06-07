@@ -1,6 +1,6 @@
 # 🐄 EKG 🐈
 
-EKG is a descriptor-based low-latency memory-safe modular UI-toolkit for desktop-apps, mobile-apps, and high-performance apps.
+EKG is a descriptor-based low-latency memory-safety modular UI-toolkit for desktop-apps, mobile-apps, and high-performance apps.
 
 The purpose of EKG is to be an alternative way to create fancy and low-latency C++ memory-safety GUI-context. EKG is under an experimental-buildable-unstable version, which means no ready-prod release was made before.
 
@@ -66,7 +66,7 @@ auto &my_frame = ekg::make<ekg::frame_t>(frame_template);
 
 ## Building
 
-Dependencies required for building:
+Dependencies for building binary:
 - [FreeType](https://freetype.org/)
 - [GLEW](https://glew.sourceforge.net/)
 - [SDL2](https://www.libsdl.org/)
