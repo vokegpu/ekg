@@ -8,10 +8,6 @@ The complete article of EKG memory-safety model can be read [here](https://githu
 
 ## GUIs with EKG
 
-### Purpose
-
-EKG mu
-
 ### Initializing
 
 This is an example for SDL2 and OpenGL 4.5, for a complete desired program [looks here](https://github.com/vokegpu/ekg-sandbox).
