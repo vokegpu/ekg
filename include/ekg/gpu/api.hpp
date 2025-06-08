@@ -93,7 +93,7 @@ namespace ekg::gpu {
     ) { return ekg::result::failed_not_implemented; };
 
     virtual ekg::at_t &bind_sampler(
-      ekg::sampler_t &sampler
+      ekg::at_t &sampler_at
     ) { return ekg::at_t::not_found; };
   };
 }

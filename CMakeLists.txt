@@ -63,6 +63,11 @@ target_compile_options(
   #-g
 )
 
+target_compile_definitions(
+  ekg PRIVATE
+  EKG_VERSION="${EKG_VERSION}"
+)
+
 set_target_properties(
   ekg PROPERTIES
   CXX_STANDARD 17

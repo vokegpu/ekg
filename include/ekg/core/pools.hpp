@@ -92,13 +92,15 @@ namespace ekg::core {
   } \
 \
   ekg::property_t &parent {ekg::query<ekg::property_t>(ekg::gui.bind.parent_at)}; \
-  if (parent != ekg::property_t::not_found && is_container) { \
-    if (widget.dock != ekg::dock::none) { \
+  if (is_container) { \
+    if (parent != ekg::property_t::not_found && widget.dock != ekg::dock::none) { \
       parent.children.push_back(widget.at); \
+      property.parent_at = ekg::gui.bind.parent_at; \
     } else { \
       ekg::gui.bind.parent_at = widget.at; \
     } \
   } else if (parent != ekg::property_t::not_found) { \
+    property.parent_at = ekg::gui.bind.parent_at; \
     parent.children.push_back(widget.at); \
   } \
 \

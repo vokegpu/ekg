@@ -62,13 +62,9 @@ void ekg::draw::allocator::invoke() {
   this->stride_instance.y = 0;
 }
 
-void ekg::draw::allocator::bind_texture(ekg::sampler_t &sampler) {
-  if (sampler == ekg::sampler_t::not_found) {
-    return;
-  }
-
+void ekg::draw::allocator::bind_texture(ekg::at_t &sampler_at) {
   ekg::gpu::data_t &data {this->gpu_data_buffer.at(this->data_instance)};
-  data.sampler_at = ekg::p_core->p_gpu_api->bind_sampler(sampler);
+  data.sampler_at = ekg::p_core->p_gpu_api->bind_sampler(sampler_at);
 }
 
 void ekg::draw::allocator::dispatch() {

@@ -81,6 +81,7 @@ void ekg::handler::callback::dispatch(uint64_t index) {
 void ekg::handler::callback::update() {
   while (!this->queue.empty()) {
     ekg::callback_t &callback {ekg::query<ekg::callback_t>(this->queue.front())};
+    callback.at.flags = 0;
     this->queue.pop();
 
     if (callback == ekg::callback_t::not_found) {

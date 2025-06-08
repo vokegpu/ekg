@@ -181,6 +181,8 @@ void ekg::core::scalenize(ekg::info_t &info) {
     )
   };
 
+  ekg::log() << "Scalenize font size to " << ekg::dpi.font_scale;
+
   if (ekg::p_core->draw_font_medium.font_size != font_size) {
     ekg::p_core->draw_font_small.set_size(
       ekg::clamp_min(

@@ -65,7 +65,7 @@ namespace ekg::draw {
     void revoke();
     void to_gpu();
 
-    void bind_texture(ekg::sampler_t &sampler);
+    void bind_texture(ekg::at_t &sampler_at);
     ekg::gpu::data_t &bind_current_data();
     size_t get_current_data_id();
     ekg::gpu::data_t &get_data_by_index(size_t index);

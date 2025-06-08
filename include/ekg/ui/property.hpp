@@ -62,8 +62,8 @@ namespace ekg {
       bool is_focused {};
       bool is_warning {};
       bool is_high_frequency {};
-      bool should_refresh_size {};
-      bool should_buffering {};
+      bool should_refresh_size {true};
+      bool should_buffering {true};
     };
   public:
     static ekg::property_t not_found;

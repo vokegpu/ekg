@@ -46,7 +46,7 @@ ekg::flags_t ekg::init(
     return ekg::result::failed;
   }
 
-  ekg::log() << "Initializing...";
+  ekg::log() << "Initializing EKG version " << EKG_VERSION;
 
   ekg::p_core = p_runtime;
 

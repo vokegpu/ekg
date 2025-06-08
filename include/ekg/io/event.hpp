@@ -60,7 +60,7 @@ namespace ekg {
     std::array<ekg::at_t, s> ats {};
   public:
     ekg::at_t &operator[](t item) {
-      return this->ats[static_cast<size>(item)];
+      return this->ats[static_cast<size_t>(item)];
     }
 
     ekg::at_t &operator[](size_t index) {

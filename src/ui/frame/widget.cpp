@@ -36,12 +36,13 @@ void ekg::ui::reload(
   ekg::property_t &property,
   ekg::frame_t &frame
 ) {
-  if (property.widget.should_refresh_size) {
+  if (property.widget.should_refresh_size && static_cast<ekg::pixel_t>(frame.rect.h) == 0) {
     frame.rect.h = ekg::layout::get_widget_height_by_children(
       property
     );
-    property.widget.should_refresh_size = false;
   }
+
+  property.widget.should_refresh_size = false;
 }
 
 void ekg::ui::event(
@@ -310,7 +311,7 @@ void ekg::ui::buffering(
     rect,
     property.widget.is_focused ? frame.color_scheme.focused_background : frame.color_scheme.background,
     ekg::draw::mode::fill,
-    ekg::sampler_t::not_found
+    ekg::at_t::not_found
   );
 
   if (property.widget.is_active) {
@@ -318,7 +319,7 @@ void ekg::ui::buffering(
       rect,
       frame.color_scheme.highlight,
       ekg::draw::mode::fill,
-      ekg::sampler_t::not_found
+      ekg::at_t::not_found
     );
   }
 
@@ -327,7 +328,7 @@ void ekg::ui::buffering(
       rect,
       frame.color_scheme.highlight,
       ekg::draw::mode::fill,
-      ekg::sampler_t::not_found
+      ekg::at_t::not_found
     );
   }
 
@@ -335,7 +336,7 @@ void ekg::ui::buffering(
     rect,
     property.widget.is_focused ? frame.color_scheme.focused_outline : frame.color_scheme.outline,
     ekg::draw::mode::outline,
-    ekg::sampler_t::not_found
+    ekg::at_t::not_found
   );
 
   if (property.widget.is_warning) {
@@ -343,7 +344,7 @@ void ekg::ui::buffering(
       rect,
       frame.color_scheme.warning_outline,
       ekg::draw::mode::outline,
-      ekg::sampler_t::not_found
+      ekg::at_t::not_found
     );
   }
 }

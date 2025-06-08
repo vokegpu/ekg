@@ -561,7 +561,15 @@ ekg::flags_t ekg::opengl::gen_font_atlas_and_map_glyph(
   return ekg::result::success;
 }
 
-ekg::at_t &ekg::opengl::bind_sampler(ekg::sampler_t &sampler) {
+ekg::at_t &ekg::opengl::bind_sampler(ekg::at_t &sampler_at) {
+  ekg::sampler_t &sampler {
+    ekg::query<ekg::sampler_t>(sampler_at)
+  };
+
+  if (sampler == ekg::sampler_t::not_found) {
+    return ekg::at_t::not_found;
+  }
+
   uint64_t size {this->bound_sampler_list.size()};
   for (uint64_t it {}; it < this->bound_sampler_list.size(); it++) {
     ekg::at_t &at {this->bound_sampler_list.at(it)};
@@ -576,7 +584,7 @@ ekg::at_t &ekg::opengl::bind_sampler(ekg::sampler_t &sampler) {
     sampler.gl_protected_active_index = this->protected_texture_active_index++;
   }
 
-  this->bound_sampler_list.emplace_back() = sampler;
+  this->bound_sampler_list.emplace_back() = sampler.at;
   return sampler.at;
 }
 
