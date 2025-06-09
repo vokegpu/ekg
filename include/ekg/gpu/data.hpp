@@ -38,8 +38,8 @@ namespace ekg::gpu {
     int8_t line_thickness {};
     int32_t begin_stride {};
     int32_t end_stride {};
-    int32_t prev_mem_block_size {};
-    int32_t mem_block_offset {};
+    // int32_t prev_mem_block_size {};
+    // int32_t mem_block_offset {};
     bool is_new {};
     ekg::hash_t hash {};
     int32_t scissor_id {-1};

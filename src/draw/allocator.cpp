@@ -161,7 +161,7 @@ void ekg::draw::allocator::dispatch() {
 }
 
 void ekg::draw::allocator::pass() {
-  if (!this->p_local_gpu_data_buffer->empty()) {
+  /*if (!this->p_local_gpu_data_buffer->empty()) {
     ekg::gpu::data_t &data {this->p_local_gpu_data_buffer->at(0)};
     if (
       !data.is_new
@@ -170,21 +170,21 @@ void ekg::draw::allocator::pass() {
     }
 
     data.prev_mem_block_size = this->p_local_geometry_buffer->size();
+  }*/
 
-    this->gpu_data_buffer.insert(
-      this->gpu_data_buffer.end(),
-      this->p_local_gpu_data_buffer->begin(),
-      this->p_local_gpu_data_buffer->begin() + this->data_instance
-    );
-  
-    this->geometry_buffer.insert(
-      this->geometry_buffer.end(),
-      this->p_local_geometry_buffer->begin(),
-      this->p_local_geometry_buffer->end()
-    );
+  this->gpu_data_buffer.insert(
+    this->gpu_data_buffer.end(),
+    this->p_local_gpu_data_buffer->begin(),
+    this->p_local_gpu_data_buffer->begin() + this->data_instance
+  );
 
-    this->global_data_instance += this->gpu_data_buffer.size();
-  }
+  this->geometry_buffer.insert(
+    this->geometry_buffer.end(),
+    this->p_local_geometry_buffer->begin(),
+    this->p_local_geometry_buffer->end()
+  );
+
+  this->global_data_instance += this->gpu_data_buffer.size();
 }
 
 bool ekg::draw::allocator::sync_scissor(

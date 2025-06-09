@@ -51,9 +51,9 @@ void ekg::handler::theme::init() {
   light_pinky_theme.button_color_scheme.highlight = {245, 169, 184, 50};
   light_pinky_theme.button_color_scheme.text_foreground = {141, 141, 141, 255};
   light_pinky_theme.button_color_scheme.box_outline = light_pinky_theme.button_color_scheme.outline;
-  light_pinky_theme.button_color_scheme.box_active = {202, 207, 222, 50};
-  light_pinky_theme.button_color_scheme.box_highlight = light_pinky_theme.button_color_scheme.highlight;
-  light_pinky_theme.button_color_scheme.box_background = light_pinky_theme.button_color_scheme.background;
+  light_pinky_theme.button_color_scheme.box_active = {245, 169, 184, 200};
+  light_pinky_theme.button_color_scheme.box_highlight = {245, 169, 184, 50};
+  light_pinky_theme.button_color_scheme.box_background = {202, 207, 222, 100};
 
   this->registry(light_pinky_theme.tag) = light_pinky_theme;
   this->set_current_theme(light_pinky_theme.tag);

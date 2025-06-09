@@ -166,7 +166,7 @@ namespace ekg {
   class value {
   protected:
     t val {};
-    t *p {};
+    t *p {nullptr};
     t previous {};
     bool changed {};
   public:
@@ -190,7 +190,7 @@ namespace ekg {
     }
   
     bool set(const t &val) {
-      this->get() = p;
+      this->get() = val;
       this->changed = true;
       return true;
     }

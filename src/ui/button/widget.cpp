@@ -62,7 +62,10 @@ void ekg::ui::reload(
     );
   }
 
+  ekg::theme_t &global_theme {ekg::p_core->handler_theme.get_current_theme()};
   ekg::aligned_t aligned_dimension {};
+
+  float width {};
   for (ekg::button_t::check_t &check : button.checks) {
     ekg::draw::font &draw_font {
       ekg::draw::get_font_renderer(check.font_size)
@@ -78,6 +81,14 @@ void ekg::ui::reload(
       ekg::dpi.min_sizes,
       aligned_dimension
     );
+
+    check.widget.rect_box = check.widget.rect_text;
+    check.widget.rect_box.w += global_theme.layout_offset * 2.0f;
+
+    if (check.box == ekg::dock::none) {
+      check.widget.rect_text.x = (check.widget.rect_text.w / 2) - (check.widget.rect_box.w / 2);
+      check.widget.rect_box.h = aligned_dimension.h;
+    }
   }
 
   button.rect.scaled_height = ekg::max<ekg::pixel_thickness_t>(1, button.rect.scaled_height);
@@ -156,13 +167,10 @@ void ekg::ui::event(
             ?
             property.widget.rect
             :
-            property.widget.rect + check.widget.rect_text
+            check.widget.rect_box + property.widget.rect
         );
 
         is_checkbox = check.box != ekg::dock::none;
-        if (is_checkbox) {
-          rect = property.widget.rect + check.widget.rect_box;
-        }
 
         ekg_set(
           property.widget.should_buffering,
@@ -222,10 +230,6 @@ void ekg::ui::event(
           ekg_action(
             check.actions,
             ekg::action::active,
-            (
-              check.widget.is_highlight
-            )
-            &&
             (is_checkbox ? (check.value.set(!check.value.get())) : (check.value.set(false)))
             &&
             (is_active_any = true)
@@ -347,17 +351,16 @@ void ekg::ui::buffering(
   bool is_checkbox {};
 
   for (ekg::button_t::check_t &check : button.checks) {
+    is_checkbox = check.box != ekg::dock::none;
     rect = (
       is_checks_size_equals_to_one
         ?
         property.widget.rect
         :
-        property.widget.rect + check.widget.rect_text
+        check.widget.rect_box + property.widget.rect
     );
 
-    is_checkbox = check.box != ekg::dock::none;
     if (is_checkbox) {
-      rect = property.widget.rect + check.widget.rect_box;
       ekg::draw::rect(
         rect,
         button.color_scheme.box_background,
@@ -365,7 +368,7 @@ void ekg::ui::buffering(
         check.layers[ekg::layer::bg]
       );
 
-      if (check.widget.is_active) {
+      if (check.value.get()) {
         ekg::draw::rect(
           rect,
           button.color_scheme.box_active,
@@ -377,7 +380,7 @@ void ekg::ui::buffering(
       if (check.widget.is_highlight) {
         ekg::draw::rect(
           rect,
-          button.color_scheme.box_background,
+          button.color_scheme.box_highlight,
           ekg::draw::mode::fill,
           check.layers[ekg::layer::highlight_bg]
         );
@@ -389,15 +392,6 @@ void ekg::ui::buffering(
         ekg::draw::mode::outline,
         check.layers[ekg::layer::outline]
       );
-
-      if (check.widget.is_active) {
-        ekg::draw::rect(
-          rect,
-          button.color_scheme.box_active,
-          ekg::draw::mode::fill,
-          check.layers[ekg::layer::active_bg]
-        );
-      }
 
       ekg::draw::get_font_renderer(check.font_size)
         .blit(
@@ -415,7 +409,7 @@ void ekg::ui::buffering(
         );
       }
 
-      if (check.widget.is_active) {
+      if (check.value.get()) {
         ekg::draw::rect(
           rect,
           button.color_scheme.active,
