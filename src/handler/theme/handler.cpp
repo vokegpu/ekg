@@ -33,6 +33,7 @@ void ekg::handler::theme::init() {
     .description = "Pasted light-theme... moow",
   };
 
+  light_pinky_theme.layout_offset = 2.0f;
   light_pinky_theme.frame_color_scheme.background = {242, 242, 242, 255};
   light_pinky_theme.frame_color_scheme.highlight = {242, 242, 242, 0};
   light_pinky_theme.frame_color_scheme.outline = {190, 190, 190, 0};

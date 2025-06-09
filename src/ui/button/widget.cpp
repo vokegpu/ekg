@@ -168,10 +168,14 @@ void ekg::ui::event(
           check.actions,
           ekg::action::hover,
           (
-            check.widget.is_highlight = property.widget.is_hovering && ekg::rect_collide_vec2(rect, interact)
+            ekg_set(
+              property.widget.should_buffering,
+              check.widget.is_highlight,
+              property.widget.is_hovering && ekg::rect_collide_vec2(rect, interact)
+            )
           )
           &&
-          (is_hovering_any = true) // make sure it is hovering any
+          (is_hovering_any = true)
           &&
           ekg::timing_t::second > ekg::gui.ui.frequency
         );
@@ -187,7 +191,11 @@ void ekg::ui::event(
             check.actions,
             ekg::action::press,
             (
-              check.widget.is_active = true
+              ekg_set(
+                property.widget.should_buffering,
+                check.widget.is_active,
+                true
+              )
             )
             &&
             (was_pressed_any = true)
@@ -203,7 +211,11 @@ void ekg::ui::event(
           &&
           check.widget.is_active
         ) {
-          check.widget.is_active = false;
+          ekg_set(
+            property.widget.should_buffering,
+            check.widget.is_active,
+            false
+          );
 
           ekg_action(
             check.actions,
@@ -289,13 +301,20 @@ void ekg::ui::pass(
   ekg::property_t &property,
   ekg::button_t &button
 ) {
-  property.widget.should_buffering = true;
+  ekg_draw_allocator_bind_local(&property.widget.geometry_buffer, &property.widget.gpu_data_buffer);
+
+  if (property.widget.should_buffering) {
+    return;
+  }
+
   for (ekg::button_t::check_t &check : button.checks) {
     if (check.value.was_changed()) {
       property.widget.should_buffering = true;
       return;
     }
   }
+
+  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::buffering(
@@ -306,7 +325,7 @@ void ekg::ui::buffering(
     ekg::ui::get_abs_rect(property, button.rect)
   };
 
-  ekg_assert_scissor(
+  ekg_draw_allocator_assert_scissor(
     property.widget.rect_scissor,
     rect_abs,
     ekg::query<ekg::property_t>(property.parent_at).widget.rect,
@@ -427,6 +446,8 @@ void ekg::ui::buffering(
     ekg::draw::mode::outline,
     button.layers[ekg::layer::bg]
   );
+
+  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::unmap(

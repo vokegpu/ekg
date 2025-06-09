@@ -32,11 +32,15 @@ namespace ekg::gpu {
   public:
     static ekg::gpu::data_t not_found;
   public:
-    float buffer[12] {};
     ekg::at_t sampler_at {ekg::at_t::not_found};
+  public:
+    float buffer[12] {};
     int8_t line_thickness {};
     int32_t begin_stride {};
     int32_t end_stride {};
+    int32_t prev_mem_block_size {};
+    int32_t mem_block_offset {};
+    bool is_new {};
     ekg::hash_t hash {};
     int32_t scissor_id {-1};
   public:

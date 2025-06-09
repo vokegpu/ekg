@@ -132,6 +132,8 @@ namespace ekg::io {
   };
 }
 
+
 #define ekg_action(actions, action, state) if (state) ekg::io::dispatch(actions[action]);
+#define ekg_set(should_rebuffering, state, new_state) ((state != new_state) && (should_rebuffering = true) && ((state = new_state) || true))
 
 #endif

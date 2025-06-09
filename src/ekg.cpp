@@ -67,17 +67,14 @@ ekg::flags_t ekg::init(
   ekg::p_core->draw_font_small.init();
   ekg::p_core->draw_font_small.set_font(runtime_properties_info.default_font_path_text);
   ekg::p_core->draw_font_small.set_font_emoji(runtime_properties_info.default_font_path_emoji);
-  ekg::p_core->draw_font_small.get_atlas_texture_sampler().gl_protected_active_index = true;;
 
   ekg::p_core->draw_font_medium.init();
   ekg::p_core->draw_font_medium.set_font(runtime_properties_info.default_font_path_text);
   ekg::p_core->draw_font_medium.set_font_emoji(runtime_properties_info.default_font_path_emoji);
-  ekg::p_core->draw_font_medium.get_atlas_texture_sampler().gl_protected_active_index = true;;
 
   ekg::p_core->draw_font_big.init();
   ekg::p_core->draw_font_big.set_font(runtime_properties_info.default_font_path_text);
   ekg::p_core->draw_font_big.set_font_emoji(runtime_properties_info.default_font_path_emoji);
-  ekg::p_core->draw_font_big.get_atlas_texture_sampler().gl_protected_active_index = true;
 
   ekg::info_t info {};
   ekg::core::scalenize(info);

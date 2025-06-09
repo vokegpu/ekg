@@ -34,7 +34,7 @@ namespace ekg {
     static constexpr ekg::type type {ekg::type::sampler};
     static ekg::sampler_t not_found;
   public:
-    const char *p_tag {};
+    std::string tag {};
     uint32_t w {};
     uint32_t h {};
     uint32_t channel {};
@@ -47,7 +47,7 @@ namespace ekg {
 
   struct sampler_info_t {
   public:
-    const char *p_tag {};
+    std::string tag {};
     int32_t offset[2] {};
     int32_t w {};
     int32_t h {};

@@ -345,7 +345,7 @@ ekg::flags_t ekg::opengl::allocate_sampler(
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  sampler.p_tag = sampler_allocate_info.p_tag;
+  sampler.tag = sampler_allocate_info.tag;
   return ekg::result::success;
 }
 
@@ -584,6 +584,8 @@ ekg::at_t &ekg::opengl::bind_sampler(ekg::at_t &sampler_at) {
     sampler.gl_protected_active_index = this->protected_texture_active_index++;
   }
 
+  ekg::log() << sampler.tag;
+
   this->bound_sampler_list.emplace_back() = sampler.at;
   return sampler.at;
 }
@@ -617,7 +619,7 @@ void ekg::opengl::pass_gpu_data_buffer_to_gpu(
 
   glActiveTexture(GL_TEXTURE0 + this->protected_texture_active_index);
 
-  ekg::at_t previous_sampler_bound {.unique_id = ekg::not_found};
+  ekg::at_t previous_sampler_bound {.index = UINT64_MAX};
   bool sampler_going_on {};
 
   for (ekg::gpu::data_t &data : gpu_data_buffer) {

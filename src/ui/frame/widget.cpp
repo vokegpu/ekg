@@ -291,7 +291,13 @@ void ekg::ui::pass(
   ekg::property_t &property,
   ekg::frame_t &frame
 ) {
-  property.widget.should_buffering = true;
+  ekg_draw_allocator_bind_local(&property.widget.geometry_buffer, &property.widget.gpu_data_buffer);
+
+  if (property.widget.should_buffering) {
+    return;
+  }
+
+  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::buffering(
@@ -300,7 +306,7 @@ void ekg::ui::buffering(
 ) {
   ekg::rect_t<float> &rect {ekg::ui::get_abs_rect(property, frame.rect)};
 
-  ekg_assert_scissor(
+  ekg_draw_allocator_assert_scissor(
     property.widget.rect_scissor,
     rect,
     ekg::query<ekg::property_t>(property.parent_at).widget.rect,
@@ -347,6 +353,8 @@ void ekg::ui::buffering(
       ekg::at_t::not_found
     );
   }
+
+  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::unmap(

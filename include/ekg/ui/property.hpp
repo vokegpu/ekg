@@ -26,6 +26,7 @@
 
 #include "ekg/io/descriptor.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/gpu/data.hpp"
 
 namespace ekg {
   struct property_t {
@@ -47,6 +48,8 @@ namespace ekg {
 
     struct widget_t {
     public:
+      std::vector<float> geometry_buffer {};
+      std::vector<ekg::gpu::data_t> gpu_data_buffer {};
       ekg::rect_t<float> rect_scissor {};
       ekg::vec2_t<float> min_size {};
       ekg::rect_t<float> rect {};
