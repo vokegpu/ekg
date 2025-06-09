@@ -26,6 +26,7 @@
 
 #include "ekg/handler/input.hpp"
 #include "ekg/handler/callback.hpp"
+#include "ekg/core/context.hpp"
 
 #include <array>
 
@@ -134,6 +135,6 @@ namespace ekg::io {
 
 
 #define ekg_action(actions, action, state) if (state) ekg::io::dispatch(actions[action]);
-#define ekg_set(should_rebuffering, state, new_state) ((state != new_state) && (should_rebuffering = true) && ((state = new_state) || true))
+#define ekg_set(should_rebuffering, state, new_state) ((state != new_state) && (ekg::gui.ui.redraw = true) && (should_rebuffering = true) && ((state = new_state) || true))
 
 #endif

@@ -59,8 +59,8 @@ namespace ekg {
       bool is_absolute {};
       bool is_active {};
       bool is_hovering {};
-      bool is_visible {};
-      bool is_enabled {};
+      bool is_visible {true};
+      bool is_enabled {true};
       bool is_highlight {};
       bool is_focused {};
       bool is_warning {};

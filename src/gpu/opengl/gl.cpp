@@ -625,6 +625,8 @@ void ekg::opengl::pass_gpu_data_buffer_to_gpu(
   for (ekg::gpu::data_t &data : gpu_data_buffer) {
     sampler_going_on = data.sampler_at != ekg::at_t::not_found;
 
+    //ekg_log_low_level(" meow " << data.mem_block_offset);
+
     if (
         sampler_going_on
         &&

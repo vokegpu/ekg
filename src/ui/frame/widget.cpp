@@ -36,6 +36,8 @@ void ekg::ui::reload(
   ekg::property_t &property,
   ekg::frame_t &frame
 ) {
+  ekg::ui::get_abs_rect(property, frame.rect);
+
   if (property.widget.should_refresh_size && static_cast<ekg::pixel_t>(frame.rect.h) == 0) {
     frame.rect.h = ekg::layout::get_widget_height_by_children(
       property

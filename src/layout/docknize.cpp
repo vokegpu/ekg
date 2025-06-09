@@ -274,6 +274,14 @@ void ekg::layout::docknize_widget(
     return;
   }
 
+  if (parent_property.widget.should_refresh_size) {
+    ekg_abstract_todo(
+      parent_property.descriptor_at.flags,
+      parent_property.descriptor_at,
+      ekg::ui::reload(parent_property, descriptor);
+    );
+  }
+
   if (parent_property.widget.rect.w == 0.0f || parent_property.widget.rect.h == 0.0f) {
     return;
   }
@@ -403,7 +411,7 @@ void ekg::layout::docknize_widget(
       ekg::layout::extentnize_widget(
         parent_property,
         ekg::dock::fill,
-        ekg::dock::next | (is_top ? ekg::dock::bottom : ekg::dock::top),
+        (is_top ? ekg::dock::bottom : ekg::dock::bottom),
         ekg::axis::horizontal,
         extent,
         count

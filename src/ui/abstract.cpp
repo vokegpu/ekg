@@ -62,7 +62,7 @@ void ekg::ui::pre_event(
         ||
         property.parent_at == ekg::at_t::not_found
         ||
-        ekg::rect_collide_vec2(property.widget.rect_scissor, interact)
+        ekg::rect_collide_vec2<float>(property.widget.rect_scissor, interact)
       )
     );
   }

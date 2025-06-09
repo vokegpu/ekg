@@ -135,7 +135,7 @@ void ekg::ui::event(
   switch (stage) {
     case ekg::io::stage::process: {
       ekg::input_info_t &input {ekg::p_core->handler_input.input};
-      if (!input.has_motion || !input.was_pressed || !input.was_released) {
+      if (!input.has_motion && !input.was_pressed && !input.was_released) {
         return;
       }
 
@@ -164,15 +164,17 @@ void ekg::ui::event(
           rect = property.widget.rect + check.widget.rect_box;
         }
 
+        ekg_set(
+          property.widget.should_buffering,
+          check.widget.is_highlight,
+          (property.widget.is_hovering && ekg::rect_collide_vec2(rect, interact))
+        );
+
         ekg_action(
           check.actions,
           ekg::action::hover,
           (
-            ekg_set(
-              property.widget.should_buffering,
-              check.widget.is_highlight,
-              property.widget.is_hovering && ekg::rect_collide_vec2(rect, interact)
-            )
+            check.widget.is_highlight
           )
           &&
           (is_hovering_any = true)

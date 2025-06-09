@@ -58,7 +58,7 @@ namespace ekg {
 
   template<typename t>
   constexpr bool has(ekg::flags_t bits, t bit) {
-    return (bits & bit) == bit;
+    return (bits & bit) >= bit;
   }
 
   template<typename t>

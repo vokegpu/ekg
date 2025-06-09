@@ -96,11 +96,14 @@ namespace ekg::core {
     if (parent != ekg::property_t::not_found && widget.dock != ekg::dock::none) { \
       parent.children.push_back(widget.at); \
       property.parent_at = ekg::gui.bind.parent_at; \
+      property.abs_parent_at = parent.abs_parent_at; \
     } else { \
-      ekg::gui.bind.parent_at = widget.at; \
+      ekg::gui.bind.parent_at = property.at; \
+      property.abs_parent_at = property.at; \
     } \
   } else if (parent != ekg::property_t::not_found) { \
     property.parent_at = ekg::gui.bind.parent_at; \
+    property.abs_parent_at = parent.abs_parent_at; \
     parent.children.push_back(widget.at); \
   } \
 \

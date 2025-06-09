@@ -45,6 +45,7 @@ void ekg::draw::allocator::invoke() {
   this->simple_shape_instance = 0;
   this->geometry_instance = 0;
   this->global_data_instance = 0;
+
   this->gpu_data_buffer.clear();
   this->geometry_buffer.clear();
 
@@ -173,7 +174,7 @@ void ekg::draw::allocator::pass() {
     this->gpu_data_buffer.insert(
       this->gpu_data_buffer.end(),
       this->p_local_gpu_data_buffer->begin(),
-      this->p_local_gpu_data_buffer->end()
+      this->p_local_gpu_data_buffer->begin() + this->data_instance
     );
   
     this->geometry_buffer.insert(

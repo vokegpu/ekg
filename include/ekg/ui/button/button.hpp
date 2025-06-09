@@ -63,7 +63,7 @@ namespace ekg {
       ekg::flags_t box {ekg::dock::none};
       ekg::flags_t dock {ekg::dock::left};
       ekg::button_t::check_t::widget_t widget {};
-      ekg::at_array_t<ekg::layer, 12> layers {}; 
+      ekg::at_array_t<ekg::layer, 12> layers {};
       ekg::at_array_t<ekg::action, 12> actions {};
     };
 
@@ -73,7 +73,7 @@ namespace ekg {
     ekg::at_t property_at {};
   public:
     std::string tag {};
-    ekg::flags_t dock {};
+    ekg::flags_t dock {ekg::dock::left | ekg::dock::fill};
     ekg::rect_t<float> rect {};
     ekg::at_array_t<ekg::layer, 12> layers {}; 
      ekg::at_array_t<ekg::action, 12> actions {};
