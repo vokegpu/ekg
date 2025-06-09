@@ -36,11 +36,11 @@ namespace ekg {
   extern struct dpi_t {
   public:
     ekg::rect_t<float> viewport {};
-    ekg::rect_t<float> scale {0.0f, 0.0f, 1080.0f, 1920.0f};
-    bool auto_scale {};
+    ekg::rect_t<float> scale {0.0f, 0.0f, 1920.0f, 1080.0f};
+    bool auto_scale {true};
     float scale_interval {25.0f};
     float factor_scale {};
-    float font_scale {};
+    float font_scale {18.0f};
     float min_sizes {10.0f};
     ekg::vec2_t<uint32_t> font_offset {4, 6};
   } dpi;
@@ -66,6 +66,7 @@ namespace ekg {
       ekg::at_t pressed_at {ekg::at_t::not_found};
       ekg::type released_type {};
       ekg::at_t released_at {ekg::at_t::not_found};
+      int64_t frequency {500};
       float dt {};
       bool redraw {};
     };

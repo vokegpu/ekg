@@ -106,7 +106,7 @@ namespace ekg {
     ) override;
 
     ekg::at_t &bind_sampler(
-      ekg::sampler_t &sampler
+      ekg::at_t &sampler_at
     ) override;
   };
 }

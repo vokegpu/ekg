@@ -36,12 +36,15 @@ void ekg::ui::reload(
   ekg::property_t &property,
   ekg::frame_t &frame
 ) {
-  if (property.widget.should_refresh_size) {
+  ekg::ui::get_abs_rect(property, frame.rect);
+
+  if (property.widget.should_refresh_size && static_cast<ekg::pixel_t>(frame.rect.h) == 0) {
     frame.rect.h = ekg::layout::get_widget_height_by_children(
       property
     );
-    property.widget.should_refresh_size = false;
   }
+
+  property.widget.should_refresh_size = false;
 }
 
 void ekg::ui::event(
@@ -290,7 +293,13 @@ void ekg::ui::pass(
   ekg::property_t &property,
   ekg::frame_t &frame
 ) {
-  property.widget.should_buffering = true;
+  ekg_draw_allocator_bind_local(&property.widget.geometry_buffer, &property.widget.gpu_data_buffer);
+
+  if (property.widget.should_buffering) {
+    return;
+  }
+
+  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::buffering(
@@ -299,7 +308,7 @@ void ekg::ui::buffering(
 ) {
   ekg::rect_t<float> &rect {ekg::ui::get_abs_rect(property, frame.rect)};
 
-  ekg_assert_scissor(
+  ekg_draw_allocator_assert_scissor(
     property.widget.rect_scissor,
     rect,
     ekg::query<ekg::property_t>(property.parent_at).widget.rect,
@@ -310,7 +319,7 @@ void ekg::ui::buffering(
     rect,
     property.widget.is_focused ? frame.color_scheme.focused_background : frame.color_scheme.background,
     ekg::draw::mode::fill,
-    ekg::sampler_t::not_found
+    ekg::at_t::not_found
   );
 
   if (property.widget.is_active) {
@@ -318,7 +327,7 @@ void ekg::ui::buffering(
       rect,
       frame.color_scheme.highlight,
       ekg::draw::mode::fill,
-      ekg::sampler_t::not_found
+      ekg::at_t::not_found
     );
   }
 
@@ -327,7 +336,7 @@ void ekg::ui::buffering(
       rect,
       frame.color_scheme.highlight,
       ekg::draw::mode::fill,
-      ekg::sampler_t::not_found
+      ekg::at_t::not_found
     );
   }
 
@@ -335,7 +344,7 @@ void ekg::ui::buffering(
     rect,
     property.widget.is_focused ? frame.color_scheme.focused_outline : frame.color_scheme.outline,
     ekg::draw::mode::outline,
-    ekg::sampler_t::not_found
+    ekg::at_t::not_found
   );
 
   if (property.widget.is_warning) {
@@ -343,9 +352,11 @@ void ekg::ui::buffering(
       rect,
       frame.color_scheme.warning_outline,
       ekg::draw::mode::outline,
-      ekg::sampler_t::not_found
+      ekg::at_t::not_found
     );
   }
+
+  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::unmap(

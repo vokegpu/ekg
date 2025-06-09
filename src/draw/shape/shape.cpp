@@ -29,13 +29,13 @@ void ekg::draw::rect(
   const ekg::rect_t<float> &rect,
   const ekg::rgba_t<uint8_t> &color,
   ekg::pixel_thickness_t line_thickness,
-  ekg::sampler_t &sampler
+  ekg::at_t &sampler_at
 ) {
   ekg::draw::rect(
     rect.x, rect.y, rect.w, rect.h,
     color,
     line_thickness,
-    sampler
+    sampler_at
   );
 }
 
@@ -43,7 +43,7 @@ void ekg::draw::rect(
   float x, float y, float w, float h,
   const ekg::rgba_t<uint8_t> &color,
   ekg::pixel_thickness_t line_thickness,
-  ekg::sampler_t &sampler
+  ekg::at_t &sampler_at
 ) {
   if (color.w < 10) {
     return;
@@ -66,7 +66,7 @@ void ekg::draw::rect(
   data.hash = 1;
 
   ekg::draw::allocator::is_simple_shape = true;
-  ekg::p_core->draw_allocator.bind_texture(sampler);
+  ekg::p_core->draw_allocator.bind_texture(sampler_at);
   ekg::p_core->draw_allocator.dispatch();
 }
 

@@ -25,10 +25,48 @@
 #define EKG_IO_EVENT_HPP
 
 #include "ekg/handler/input.hpp"
+#include "ekg/handler/callback.hpp"
+#include "ekg/core/context.hpp"
+
+#include <array>
 
 namespace ekg {
   enum behavior : ekg::flags_t {
     no_auto_set_viewport_when_resize = 2 << 1
+  };
+
+  constexpr size_t enum_layer_size {8};
+  enum class layer {
+    bg,
+    outline,
+    highlight_bg,
+    highlight_fg,
+    active_bg,
+    active_outline,
+    text_fg,
+    text_outline
+  };
+
+  constexpr size_t enum_action_size {8};
+  enum class action {
+    hover,
+    active,
+    press,
+    release
+  };
+
+  template<typename t, size_t s>
+  struct at_array_t {
+  protected:
+    std::array<ekg::at_t, s> ats {};
+  public:
+    ekg::at_t &operator[](t item) {
+      return this->ats[static_cast<size_t>(item)];
+    }
+
+    ekg::at_t &operator[](size_t index) {
+      return this->ats[index];
+    }
   };
 }
 
@@ -44,6 +82,10 @@ namespace ekg::io {
   void dispatch(
     ekg::io::operation op,
     ekg::at_t &property_at = ekg::at_t::not_found
+  );
+
+  void dispatch(
+    ekg::at_t &callback_at
   );
 
   enum class stage {
@@ -91,8 +133,8 @@ namespace ekg::io {
   };
 }
 
-namespace ekg::io {
 
-}
+#define ekg_action(actions, action, state) if (state) ekg::io::dispatch(actions[action]);
+#define ekg_set(should_rebuffering, state, new_state) ((state != new_state) && (ekg::gui.ui.redraw = true) && (should_rebuffering = true) && ((state = new_state) || true))
 
 #endif

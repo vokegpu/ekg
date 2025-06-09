@@ -33,6 +33,8 @@ void ekg::handler::theme::init() {
     .description = "Pasted light-theme... moow",
   };
 
+  light_pinky_theme.layout_offset = 2.0f;
+  light_pinky_theme.layout_margin_thickness = 2;
   light_pinky_theme.frame_color_scheme.background = {242, 242, 242, 255};
   light_pinky_theme.frame_color_scheme.highlight = {242, 242, 242, 0};
   light_pinky_theme.frame_color_scheme.outline = {190, 190, 190, 0};
@@ -41,6 +43,17 @@ void ekg::handler::theme::init() {
   light_pinky_theme.frame_color_scheme.focused_outline = {242, 242, 242, 0};
   light_pinky_theme.frame_color_scheme.warning_outline = {242, 242, 0, 100};
   light_pinky_theme.frame_color_scheme.actions_margin_pixel_thickness = 18;
+
+  light_pinky_theme.button_color_scheme.text_foreground = {141, 141, 141, 255};
+  light_pinky_theme.button_color_scheme.background = {204, 204, 204, 50};
+  light_pinky_theme.button_color_scheme.active = {245, 169, 184, 100};
+  light_pinky_theme.button_color_scheme.outline = {202, 207, 222, 0};
+  light_pinky_theme.button_color_scheme.highlight = {245, 169, 184, 50};
+  light_pinky_theme.button_color_scheme.text_foreground = {141, 141, 141, 255};
+  light_pinky_theme.button_color_scheme.box_outline = light_pinky_theme.button_color_scheme.outline;
+  light_pinky_theme.button_color_scheme.box_active = {245, 169, 184, 200};
+  light_pinky_theme.button_color_scheme.box_highlight = {245, 169, 184, 50};
+  light_pinky_theme.button_color_scheme.box_background = {202, 207, 222, 100};
 
   this->registry(light_pinky_theme.tag) = light_pinky_theme;
   this->set_current_theme(light_pinky_theme.tag);

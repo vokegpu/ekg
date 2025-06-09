@@ -175,7 +175,7 @@ void ekg::gpu::glsl_opengl_pipeline_fsh(
               textureColor.a - (1.0f - aFragColor.a)
             );
 
-            //aFragColor = vec4(aFragColor.a, 0.0f, 0.0f, 1.0f);
+            //aFragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
             break;
           case 2:
             textureColor = texture(uTextureSampler, vPos);
@@ -184,6 +184,8 @@ void ekg::gpu::glsl_opengl_pipeline_fsh(
               textureColor.rgb,
               textureColor.a - (1.0f - aFragColor.a)
             );
+
+            //aFragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);            
             break;
         }
       }

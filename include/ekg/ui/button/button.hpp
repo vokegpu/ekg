@@ -27,6 +27,7 @@
 #include "ekg/io/descriptor.hpp"
 #include "ekg/io/font.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/io/event.hpp"
 
 namespace ekg {
   struct button_color_scheme_t {
@@ -36,6 +37,7 @@ namespace ekg {
     ekg::rgba_t<uint8_t> background {};
     ekg::rgba_t<uint8_t> outline {};
     ekg::rgba_t<uint8_t> highlight {};
+    ekg::rgba_t<uint8_t> active {};
 
     ekg::rgba_t<uint8_t> box_background {};
     ekg::rgba_t<uint8_t> box_outline {};
@@ -49,15 +51,20 @@ namespace ekg {
     public:
       struct widget_t {
       public:
+        bool is_highlight {};
+        bool is_active {};
         ekg::rect_t<float> rect_text {};
         ekg::rect_t<float> rect_box {};
       };
     public:
       ekg::value<std::string> text {};
+      ekg::value<bool> value {};
       ekg::font font_size {ekg::font::medium};
-      bool is_check_box {};
-      ekg::flags_t dock {};
+      ekg::flags_t box {ekg::dock::none};
+      ekg::flags_t dock {ekg::dock::left};
       ekg::button_t::check_t::widget_t widget {};
+      ekg::at_array_t<ekg::layer, 12> layers {};
+      ekg::at_array_t<ekg::action, 12> actions {};
     };
 
     static ekg::button_t not_found;
@@ -66,8 +73,10 @@ namespace ekg {
     ekg::at_t property_at {};
   public:
     std::string tag {};
-    ekg::flags_t dock {};
+    ekg::flags_t dock {ekg::dock::left | ekg::dock::fill};
     ekg::rect_t<float> rect {};
+    ekg::at_array_t<ekg::layer, 12> layers {}; 
+     ekg::at_array_t<ekg::action, 12> actions {};
     std::vector<ekg::button_t::check_t> checks {};
     ekg::button_color_scheme_t color_scheme {};
   public:

@@ -35,7 +35,7 @@ namespace ekg {
     std::string description {};
   public:
     float layout_offset {};
-    ekg::pixel_t layout_margin_thickness {};
+    ekg::pixel_t layout_margin_thickness {2};
     ekg::button_color_scheme_t button_color_scheme {};
     ekg::frame_color_scheme_t frame_color_scheme {};
   };

@@ -26,6 +26,7 @@
 
 #include "ekg/io/descriptor.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/gpu/data.hpp"
 
 namespace ekg {
   struct property_t {
@@ -47,6 +48,8 @@ namespace ekg {
 
     struct widget_t {
     public:
+      std::vector<float> geometry_buffer {};
+      std::vector<ekg::gpu::data_t> gpu_data_buffer {};
       ekg::rect_t<float> rect_scissor {};
       ekg::vec2_t<float> min_size {};
       ekg::rect_t<float> rect {};
@@ -56,14 +59,14 @@ namespace ekg {
       bool is_absolute {};
       bool is_active {};
       bool is_hovering {};
-      bool is_visible {};
-      bool is_enabled {};
+      bool is_visible {true};
+      bool is_enabled {true};
       bool is_highlight {};
       bool is_focused {};
       bool is_warning {};
       bool is_high_frequency {};
-      bool should_refresh_size {};
-      bool should_buffering {};
+      bool should_refresh_size {true};
+      bool should_buffering {true};
     };
   public:
     static ekg::property_t not_found;

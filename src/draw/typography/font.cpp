@@ -263,7 +263,6 @@ void ekg::draw::font::set_font(const std::string_view &path) {
     font_face.path = path;
     font_face.was_face_changed = true;
     font_face.was_size_changed = true;
-
     this->reload();
   }
 }
@@ -306,6 +305,8 @@ void ekg::draw::font::reload() {
   if (this->atlas_texture_sampler_at == ekg::at_t::not_found) {
     ekg::sampler_t &sampler {ekg::make<ekg::sampler_t>({})};
     this->atlas_texture_sampler_at = sampler.at;
+    sampler.tag = "font-renderer";
+    sampler.gl_protected_active_index = true;
   }
 
   size_t functional_fonts {};
@@ -581,7 +582,7 @@ void ekg::draw::font::blit(
   this->flush();
 
   ekg::draw::allocator::is_simple_shape = false;
-  ekg::p_core->draw_allocator.bind_texture(ekg::query<ekg::sampler_t>(this->atlas_texture_sampler_at));
+  ekg::p_core->draw_allocator.bind_texture(this->atlas_texture_sampler_at);
   ekg::p_core->draw_allocator.dispatch();
 }
 

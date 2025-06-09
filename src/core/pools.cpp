@@ -31,4 +31,14 @@ void ekg::core::registry(ekg::property_t &property) {
     ekg::io::operation::swap,
     property.at
   );
+
+  ekg::io::dispatch(
+    ekg::io::operation::reload,
+    property.at
+  );
+
+  ekg::io::dispatch(
+    ekg::io::operation::docknize,
+    property.abs_parent_at
+  );
 }

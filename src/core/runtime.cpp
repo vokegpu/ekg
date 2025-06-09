@@ -69,9 +69,9 @@ void ekg::core::swap(ekg::info_t &info) {
     return;
   }
 
-  bool was_found {};
-  ekg::p_core->top_level_stack.clear();
+  ekg::p_core->stack.clear();
 
+  bool was_found {};
   for (ekg::at_t &at : ekg::p_core->registry) {
     ekg::property_t &property {ekg::query<ekg::property_t>(at)};
 
@@ -84,6 +84,7 @@ void ekg::core::swap(ekg::info_t &info) {
     }
 
     // recurse
+    was_found = false;
     ekg::p_core->collector.clear();
     ekg::core::swap_collector(was_found, at);
 
@@ -108,6 +109,7 @@ void ekg::core::swap(ekg::info_t &info) {
     ekg::p_core->top_level_stack.end()
   );
 
+  ekg::p_core->top_level_stack.clear();
   ekg::p_core->collector.clear();
   ekg::gui.bind.swap_at = ekg::at_t::not_found;
 }
@@ -140,9 +142,9 @@ void ekg::core::docknize(ekg::info_t &info) {
     return;
   }
 
-  for (ekg::at_t &at : ekg::p_core->reload) {
+  for (ekg::at_t &at : ekg::p_core->docknize) {
     ekg::property_t &property {ekg::query<ekg::property_t>(at)};
-    if (property == ekg::property_t::not_found) {
+    if (property == ekg::property_t::not_found || !property.operation.should_docknize) {
       continue;
     }
 
@@ -182,6 +184,8 @@ void ekg::core::scalenize(ekg::info_t &info) {
   };
 
   if (ekg::p_core->draw_font_medium.font_size != font_size) {
+    ekg::log() << "Scalenize font size updated from-to: " << ekg::p_core->draw_font_medium.font_size << ' ' << font_size;
+
     ekg::p_core->draw_font_small.set_size(
       ekg::clamp_min(
         font_size - ekg::dpi.font_offset.x,

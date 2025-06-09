@@ -37,7 +37,7 @@
 /**
  * A low-level assert used in risks cases where virtual-address should be warned.
  **/
-#define ekg_assert_low_level(state, alarm, end) if (state) alarm; end;
+#define ekg_assert_low_level(state, alarm, end) if (state) { alarm; end; }
 
 /**
  * A dev-purpose log level untracked for EKG.
@@ -58,7 +58,7 @@ namespace ekg {
 
   template<typename t>
   constexpr bool has(ekg::flags_t bits, t bit) {
-    return (bits & bit) == bit;
+    return (bits & bit) >= bit;
   }
 
   template<typename t>
@@ -166,7 +166,7 @@ namespace ekg {
   class value {
   protected:
     t val {};
-    t *p {};
+    t *p {nullptr};
     t previous {};
     bool changed {};
   public:
@@ -189,9 +189,10 @@ namespace ekg {
       this->changed = true;
     }
   
-    void set(const t &val) {
-      this->get() = p;
+    bool set(const t &val) {
+      this->get() = val;
       this->changed = true;
+      return true;
     }
   
     t &get() {
@@ -219,6 +220,13 @@ namespace ekg {
       }
   
       return false;
+    }
+  public:
+    template<typename s>
+    ekg::value<t> &operator = (const s &val) {
+      this->get() = val;
+      this->changed = true;
+      return *this;
     }
   };
 

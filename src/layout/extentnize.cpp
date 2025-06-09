@@ -64,6 +64,7 @@ void ekg::layout::extentnize_mask(
 
       bool is_last_index {};
       bool is_ok_flag {};
+      bool is_stop_flag {};
  
       extent += offset.x;
 
@@ -74,15 +75,16 @@ void ekg::layout::extentnize_mask(
         }
 
         is_last_index = it == latest_index;
+        is_stop_flag = ekg::has(component.dock, ekg::dock::next) || ekg::has(component.dock, flag_stop);
 
         if (
-            (ekg::has(component.dock, flag_stop) && it != in_out_count)
+            (is_stop_flag && it != in_out_count)
             ||
             is_last_index
           ) {
           extent -= offset.x;
           flag_ok_count += (
-            (is_ok_flag = (!ekg::has(component.dock, flag_stop) && (ekg::has(component.dock, flag_ok)) && is_last_index))
+            (is_ok_flag = (!is_stop_flag && (ekg::has(component.dock, flag_ok)) && is_last_index))
           );
 
           /**
@@ -190,7 +192,7 @@ void ekg::layout::extentnize_widget(
         );
 
         is_ok = ekg::has(dock, flag_ok);
-        is_stop = ekg::has(dock, flag_stop);
+        is_stop = ekg::has(dock, ekg::dock::next) || ekg::has(dock, flag_stop);
 
         if (
             (is_stop && it != in_out_count)

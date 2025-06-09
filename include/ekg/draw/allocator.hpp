@@ -34,8 +34,15 @@
  * This macro prevent from dispatching any GPU-data under a render section
  * if the content is not visible to the parent rect_scissor.
  **/
-#define ekg_assert_scissor(rect_scissor, rect_child, rect_parent, is_parented) \
+#define ekg_draw_allocator_assert_scissor(rect_scissor, rect_child, rect_parent, is_parented) \
   if (!ekg::p_core->draw_allocator.sync_scissor(rect_scissor, rect_child, rect_parent, is_parented)) return;
+
+#define ekg_draw_allocator_bind_local(p_geometry_buffer, p_gpu_data_buffer) \
+  ekg::p_core->draw_allocator.bind_local(p_geometry_buffer, p_gpu_data_buffer);
+
+#define ekg_draw_allocator_pass() \
+  ekg::p_core->draw_allocator.pass(); \
+  return;
 
 namespace ekg::draw {
   class allocator {
@@ -43,6 +50,7 @@ namespace ekg::draw {
     static bool enable_high_priority;
     static bool is_simple_shape;
   protected:
+    size_t global_data_instance {};
     size_t data_instance {};
     ekg::vec2_t<size_t> stride_instance {};
     size_t simple_shape_instance {};
@@ -53,7 +61,12 @@ namespace ekg::draw {
     std::vector<ekg::gpu::data_t> gpu_data_buffer {};
     std::vector<ekg::gpu::data_t> high_priority_gpu_data_buffer {};
     std::vector<float> geometry_buffer {};
+
+    std::vector<float> *p_local_geometry_buffer {};
+    std::vector<ekg::gpu::data_t> *p_local_gpu_data_buffer {};
+
     size_t last_geometry_buffer_size {};
+    size_t memory_block_offset_counter {};
 
     bool was_hash_changed {};
     int32_t previous_hash {};
@@ -65,12 +78,15 @@ namespace ekg::draw {
     void revoke();
     void to_gpu();
 
-    void bind_texture(ekg::sampler_t &sampler);
+    void bind_texture(ekg::at_t &sampler_at);
+    void bind_local(
+      std::vector<float> *p_geometry_buffer,
+      std::vector<ekg::gpu::data_t> *p_gpu_data_buffer
+    );
+
     ekg::gpu::data_t &bind_current_data();
-    size_t get_current_data_id();
-    ekg::gpu::data_t &get_data_by_index(size_t index);
-    void clear_current_data();
     void dispatch();
+    void pass();
 
     bool sync_scissor(
       ekg::rect_t<float> &rect_scissor,
