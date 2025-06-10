@@ -1,10 +1,9 @@
-name: CMake Worker
+name: Windows-&-Linux Building
 
 on:
   push:
-    branches: [ "version-core" ]
-  pull_request:
-    branches: [ "version-core" ]
+    branches:
+      - "**"
 
 jobs:
   release:  
