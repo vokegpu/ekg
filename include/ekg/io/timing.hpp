@@ -25,6 +25,7 @@
 #define EKG_IO_TIMING_HPP
 
 #include <iostream>
+#include <cstdint>
 
 namespace ekg {
   struct timing_t {
