@@ -21,48 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_IO_DESCRIPTOR_HPP
-#define EKG_IO_DESCRIPTOR_HPP
+#ifndef EKG_UI_LABEL_HPP
+#define EKG_UI_LABEL_HPP
 
-#include "ekg/io/memory.hpp"
+#include "ekg/io/descriptor.hpp"
+#include "ekg/math/geometry.hpp"
+#include "ekg/io/event.hpp"
+#include "ekg/io/font.hpp"
 
 namespace ekg {
-  enum type : ekg::flags_t {
-    unknown = 0,
-    callback = 1,
-    property = 2,
-    sampler = 3,
-    stack = 4,
-    button = 5,
-    scrollbar = 6,
-    frame = 7,
-    label = 8
+  struct label_color_scheme_t {
+  public:
+    ekg::rgba_t<uint8_t> background {};
+    ekg::rgba_t<uint8_t> outline {};
+    ekg::rgba_t<uint8_t> text_foreground {};
+  };
+
+  struct label_t {
+  public:
+    static constexpr ekg::type type {ekg::type::label};
+    static ekg::label_t not_found;
+  public:
+    std::string tag {};
+    ekg::rect_t<float> rect {};
+    ekg::value<std::string> text {};
+    ekg::flags_t dock {};
+    ekg::flags_t dock_text {};
+    ekg::font font_size {};
+    ekg::at_array_t<ekg::action, 12> actions {};
+  public:
+    ekg_descriptor(ekg::label_t);
   };
 }
-
-#define ekg_descriptor(descriptor_t) \
-  public: \
-    ekg::at_t at { \
-      .unique_id = ekg::not_found, \
-      .index = ekg::not_found, \
-      .flags = ekg::not_found \
-    }; \
-    bool is_dead {}; \
-  public: \
-    bool operator == (descriptor_t &descriptor) { \
-      return ( \
-        (this->is_dead && descriptor.at == descriptor_t::not_found.at) \
-        || \
-        (!this->is_dead && this->at == descriptor.at) \
-      ); \
-    } \
-\
-    bool operator != (descriptor_t &descriptor) { \
-      return !(*this == descriptor); \
-    } \
-\
-    operator ekg::at_t() { \
-      return this->at; \
-    }
 
 #endif

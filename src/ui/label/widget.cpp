@@ -21,48 +21,73 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_IO_DESCRIPTOR_HPP
-#define EKG_IO_DESCRIPTOR_HPP
+#include "ekg/ui/label/widget.hpp"
 
-#include "ekg/io/memory.hpp"
+void ekg::ui::reload(
+  ekg::property_t &property,
+  ekg::label_t &label
+) {
+  ekg::ui::get_abs_rect(
+    property,
+    button.rect
+  );
 
-namespace ekg {
-  enum type : ekg::flags_t {
-    unknown = 0,
-    callback = 1,
-    property = 2,
-    sampler = 3,
-    stack = 4,
-    button = 5,
-    scrollbar = 6,
-    frame = 7,
-    label = 8
+  ekg::axis pick_axis {
+    ekg::axis::horizontal
   };
+
+  label.rect.scaled_height = ekg::max<ekg::pixel_thickness_t>(1, label.rect.scaled_height);
+
+  if (property.widget.should_refresh_size) {
+    label.rect.h = ekg::min();
+    property.widget.should_refresh_size = false;
+  }
+
+  ekg::layout::mask mask {};
+  mask.preset(
+    {
+      aligned_dimension.offset,
+      aligned_dimension.offset,
+      label.rect.h
+    },
+    pick_axis,
+    label.rect.w
+  );
+
+  mask.docknize();
 }
 
-#define ekg_descriptor(descriptor_t) \
-  public: \
-    ekg::at_t at { \
-      .unique_id = ekg::not_found, \
-      .index = ekg::not_found, \
-      .flags = ekg::not_found \
-    }; \
-    bool is_dead {}; \
-  public: \
-    bool operator == (descriptor_t &descriptor) { \
-      return ( \
-        (this->is_dead && descriptor.at == descriptor_t::not_found.at) \
-        || \
-        (!this->is_dead && this->at == descriptor.at) \
-      ); \
-    } \
-\
-    bool operator != (descriptor_t &descriptor) { \
-      return !(*this == descriptor); \
-    } \
-\
-    operator ekg::at_t() { \
-      return this->at; \
-    }
+void ekg::ui::event(
+  ekg::property_t &property,
+  ekg::label_t &label,
+  const ekg::io::stage &stage
+) {
 
-#endif
+}
+
+void ekg::ui::high_frequency(
+  ekg::property_t &property,
+  ekg::label_t &label
+) {
+
+}
+
+void ekg::ui::pass(
+  ekg::property_t &property,
+  ekg::label_t &label
+) {
+
+}
+
+void ekg::ui::buffering(
+  ekg::property_t &property,
+  ekg::label_t &label
+) {
+
+}
+
+void ekg::ui::unmap(
+  ekg::label_t &label
+) {
+  label.text.ownership(nullptr);
+}
