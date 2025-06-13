@@ -21,29 +21,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_HANDLER_THEME_HPP
-#define EKG_HANDLER_THEME_HPP
+#ifndef EKG_UI_LABEL_WIDGET_HPP
+#define EKG_UI_LABEL_WIDGET_HPP
 
-#include "ekg/ui/button/button.hpp"
-#include "ekg/ui/frame/frame.hpp"
+#include "ekg/ui/property.hpp"
 #include "ekg/ui/label/label.hpp"
 
-namespace ekg {
-  struct theme_t {
-  public:
-    std::string tag {};
-    std::string author {};
-    std::string description {};
-  public:
-    float layout_offset {};
-    ekg::pixel_t layout_margin_thickness {2};
-    ekg::button_color_scheme_t button_color_scheme {};
-    ekg::frame_color_scheme_t frame_color_scheme {};
-    ekg::label_color_scheme_t label_color_scheme {};
-  };
+namespace ekg::ui {
+  void reload(
+    ekg::property_t &property,
+    ekg::label_t &label
+  );
 
-  ekg::theme_t &theme(std::string_view tag = "");
-  ekg::theme_t &set_current_theme(std::string_view tag);
+  void event(
+    ekg::property_t &property,
+    ekg::label_t &label,
+    const ekg::io::stage &stage
+  );
+
+  void high_frequency(
+    ekg::property_t &property,
+    ekg::label_t &label
+  );
+
+  void pass(
+    ekg::property_t &property,
+    ekg::label_t &label
+  );
+
+  void buffering(
+    ekg::property_t &property,
+    ekg::label_t &label
+  );
+
+  void unmap(
+    ekg::label_t &label
+  );
 }
 
 #endif

@@ -125,7 +125,7 @@ void ekg::core::reload(ekg::info_t &info) {
       continue;
     }
 
-    ekg_abstract_todo(
+    ekg_core_abstract_todo(
       property.descriptor_at.flags,
       property.descriptor_at,
       ekg::ui::reload(property, descriptor);
@@ -233,7 +233,7 @@ void ekg::core::poll_event() {
       (abs_widget.widget.is_absolute || is_on_scrolling_timeout)
     ) {
 
-    ekg_abstract_todo(
+    ekg_core_abstract_todo(
       abs_widget.descriptor_at.flags,
       abs_widget.descriptor_at,
 
@@ -273,7 +273,7 @@ void ekg::core::poll_event() {
       continue;
     }
 
-    ekg_abstract_todo(
+    ekg_core_abstract_todo(
       property.descriptor_at.flags,
       property.descriptor_at,
 
@@ -326,7 +326,7 @@ void ekg::core::poll_event() {
   };
 
   if (focused_property != ekg::property_t::not_found) {
-    ekg_abstract_todo(
+    ekg_core_abstract_todo(
       focused_at.flags,
       focused_at,
 

@@ -35,7 +35,8 @@ namespace ekg {
     stack = 4,
     button = 5,
     scrollbar = 6,
-    frame = 7
+    frame = 7,
+    label = 8
   };
 }
 

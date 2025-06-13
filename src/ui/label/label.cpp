@@ -21,29 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_HANDLER_THEME_HPP
-#define EKG_HANDLER_THEME_HPP
-
-#include "ekg/ui/button/button.hpp"
-#include "ekg/ui/frame/frame.hpp"
 #include "ekg/ui/label/label.hpp"
 
-namespace ekg {
-  struct theme_t {
-  public:
-    std::string tag {};
-    std::string author {};
-    std::string description {};
-  public:
-    float layout_offset {};
-    ekg::pixel_t layout_margin_thickness {2};
-    ekg::button_color_scheme_t button_color_scheme {};
-    ekg::frame_color_scheme_t frame_color_scheme {};
-    ekg::label_color_scheme_t label_color_scheme {};
-  };
-
-  ekg::theme_t &theme(std::string_view tag = "");
-  ekg::theme_t &set_current_theme(std::string_view tag);
-}
-
-#endif
+ekg::label_t ekg::label_t::not_found {
+  .at = ekg::at_t::not_found
+};

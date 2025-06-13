@@ -21,29 +21,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_HANDLER_THEME_HPP
-#define EKG_HANDLER_THEME_HPP
+#ifndef EKG_UI_LABEL_HPP
+#define EKG_UI_LABEL_HPP
 
-#include "ekg/ui/button/button.hpp"
-#include "ekg/ui/frame/frame.hpp"
-#include "ekg/ui/label/label.hpp"
+#include "ekg/io/descriptor.hpp"
+#include "ekg/math/geometry.hpp"
+#include "ekg/io/event.hpp"
+#include "ekg/io/font.hpp"
 
 namespace ekg {
-  struct theme_t {
+  struct label_color_scheme_t {
   public:
-    std::string tag {};
-    std::string author {};
-    std::string description {};
-  public:
-    float layout_offset {};
-    ekg::pixel_t layout_margin_thickness {2};
-    ekg::button_color_scheme_t button_color_scheme {};
-    ekg::frame_color_scheme_t frame_color_scheme {};
-    ekg::label_color_scheme_t label_color_scheme {};
+    ekg::rgba_t<uint8_t> background {};
+    ekg::rgba_t<uint8_t> outline {};
+    ekg::rgba_t<uint8_t> text_foreground {};
   };
 
-  ekg::theme_t &theme(std::string_view tag = "");
-  ekg::theme_t &set_current_theme(std::string_view tag);
+  struct label_t {
+  public:
+    struct widget_t {
+    public:
+      ekg::rect_t<float> rect_text {};
+    };
+  public:
+    static constexpr ekg::type type {ekg::type::label};
+    static ekg::label_t not_found;
+  public:
+    ekg::at_t property_at {};
+  public:
+    std::string tag {};
+    ekg::rect_t<float> rect {};
+    ekg::value<std::string> text {};
+    ekg::flags_t dock {};
+    ekg::flags_t dock_text {};
+    ekg::font font_size {ekg::font::medium};
+    ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
+    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
+    ekg::label_t::widget_t widget {};
+    ekg::label_color_scheme_t color_scheme {};
+  public:
+    ekg_descriptor(ekg::label_t);
+  };
 }
 
 #endif

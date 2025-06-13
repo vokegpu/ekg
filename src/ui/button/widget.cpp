@@ -35,18 +35,6 @@ void ekg::ui::reload(
   ekg::property_t &property,
   ekg::button_t &button
 ) {
-  ekg_assert_low_level(
-    property == ekg::property_t::not_found,
-    ekg::log() << "warn: invalid property on reload",
-    return
-  );
-
-  ekg_assert_low_level(
-    button == ekg::button_t::not_found,
-    ekg::log() << "warn: invalid button on reload",
-    return
-  );
-
   ekg::ui::get_abs_rect(
     property,
     button.rect
@@ -134,6 +122,7 @@ void ekg::ui::reload(
 
   if (property.widget.should_refresh_size) {
     button.rect.w = ekg::max(ekg::dpi.min_sizes, mask.get_rect().w);
+    property.widget.should_buffering = true;
     property.widget.should_refresh_size = false;
   }
 }
@@ -307,7 +296,10 @@ void ekg::ui::pass(
   ekg::property_t &property,
   ekg::button_t &button
 ) {
-  ekg_draw_allocator_bind_local(&property.widget.geometry_buffer, &property.widget.gpu_data_buffer);
+  ekg_draw_allocator_bind_local(
+    &property.widget.geometry_buffer,
+    &property.widget.gpu_data_buffer
+  );
 
   if (property.widget.should_buffering) {
     return;

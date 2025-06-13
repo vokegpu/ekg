@@ -35,7 +35,6 @@ namespace ekg {
     no_auto_set_viewport_when_resize = 2 << 1
   };
 
-  constexpr size_t enum_layer_size {8};
   enum class layer {
     bg,
     outline,
@@ -46,14 +45,15 @@ namespace ekg {
     text_fg,
     text_outline
   };
+  constexpr size_t enum_layer_size {static_cast<size_t>(ekg::layer::text_outline)+1};
 
-  constexpr size_t enum_action_size {8};
   enum class action {
     hover,
     active,
     press,
     release
   };
+  constexpr size_t enum_action_size {static_cast<size_t>(ekg::action::release)+1};
 
   template<typename t, size_t s>
   struct at_array_t {
