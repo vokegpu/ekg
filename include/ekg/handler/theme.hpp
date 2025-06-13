@@ -26,6 +26,7 @@
 
 #include "ekg/ui/button/button.hpp"
 #include "ekg/ui/frame/frame.hpp"
+#include "ekg/ui/label/label.hpp"
 
 namespace ekg {
   struct theme_t {
@@ -38,6 +39,7 @@ namespace ekg {
     ekg::pixel_t layout_margin_thickness {2};
     ekg::button_color_scheme_t button_color_scheme {};
     ekg::frame_color_scheme_t frame_color_scheme {};
+    ekg::label_color_scheme_t label_color_scheme {};
   };
 
   ekg::theme_t &theme(std::string_view tag = "");

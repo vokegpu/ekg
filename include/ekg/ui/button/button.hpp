@@ -63,8 +63,8 @@ namespace ekg {
       ekg::flags_t box {ekg::dock::none};
       ekg::flags_t dock {ekg::dock::left};
       ekg::button_t::check_t::widget_t widget {};
-      ekg::at_array_t<ekg::layer, 12> layers {};
-      ekg::at_array_t<ekg::action, 12> actions {};
+      ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
+      ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
     };
 
     static ekg::button_t not_found;
@@ -75,8 +75,8 @@ namespace ekg {
     std::string tag {};
     ekg::flags_t dock {ekg::dock::left | ekg::dock::fill};
     ekg::rect_t<float> rect {};
-    ekg::at_array_t<ekg::layer, 12> layers {}; 
-     ekg::at_array_t<ekg::action, 12> actions {};
+    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {}; 
+    ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
     std::vector<ekg::button_t::check_t> checks {};
     ekg::button_color_scheme_t color_scheme {};
   public:

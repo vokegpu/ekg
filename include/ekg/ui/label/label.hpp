@@ -39,16 +39,26 @@ namespace ekg {
 
   struct label_t {
   public:
+    struct widget_t {
+    public:
+      ekg::rect_t<float> rect_text {};
+    };
+  public:
     static constexpr ekg::type type {ekg::type::label};
     static ekg::label_t not_found;
+  public:
+    ekg::at_t property_at {};
   public:
     std::string tag {};
     ekg::rect_t<float> rect {};
     ekg::value<std::string> text {};
     ekg::flags_t dock {};
     ekg::flags_t dock_text {};
-    ekg::font font_size {};
-    ekg::at_array_t<ekg::action, 12> actions {};
+    ekg::font font_size {ekg::font::medium};
+    ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
+    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
+    ekg::label_t::widget_t widget {};
+    ekg::label_color_scheme_t color_scheme {};
   public:
     ekg_descriptor(ekg::label_t);
   };

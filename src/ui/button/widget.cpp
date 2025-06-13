@@ -296,7 +296,10 @@ void ekg::ui::pass(
   ekg::property_t &property,
   ekg::button_t &button
 ) {
-  ekg_draw_allocator_bind_local(&property.widget.geometry_buffer, &property.widget.gpu_data_buffer);
+  ekg_draw_allocator_bind_local(
+    &property.widget.geometry_buffer,
+    &property.widget.gpu_data_buffer
+  );
 
   if (property.widget.should_buffering) {
     return;

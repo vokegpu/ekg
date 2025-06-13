@@ -22,6 +22,14 @@
  * SOFTWARE.
  */
 #include "ekg/ui/label/widget.hpp"
+#include "ekg/math/geometry.hpp"
+#include "ekg/draw/shape/shape.hpp"
+#include "ekg/draw/typography/font.hpp"
+#include "ekg/layout/docknize.hpp"
+#include "ekg/ui/abstract.hpp"
+#include "ekg/core/pools.hpp"
+#include "ekg/core/runtime.hpp"
+#include "ekg/draw/allocator.hpp"
 
 void ekg::ui::reload(
   ekg::property_t &property,
@@ -29,19 +37,30 @@ void ekg::ui::reload(
 ) {
   ekg::ui::get_abs_rect(
     property,
-    button.rect
+    label.rect
   );
 
   ekg::axis pick_axis {
     ekg::axis::horizontal
   };
 
-  label.rect.scaled_height = ekg::max<ekg::pixel_thickness_t>(1, label.rect.scaled_height);
+  ekg::draw::font &draw_font {
+    ekg::draw::get_font_renderer(label.font_size)
+  };
 
-  if (property.widget.should_refresh_size) {
-    label.rect.h = ekg::min();
-    property.widget.should_refresh_size = false;
-  }
+  label.widget.rect_text.w = draw_font.get_text_width(label.text.get());
+  label.widget.rect_text.h = draw_font.get_text_height();
+
+  ekg::aligned_t aligned_dimension {};
+  ekg::align_rect_dimension(
+    pick_axis,
+    label.widget.rect_text,
+    ekg::dpi.min_sizes,
+    aligned_dimension
+  );
+
+  label.rect.scaled_height = ekg::max<ekg::pixel_thickness_t>(1, label.rect.scaled_height);
+  label.rect.h = aligned_dimension.h * label.rect.scaled_height;
 
   ekg::layout::mask mask {};
   mask.preset(
@@ -54,7 +73,19 @@ void ekg::ui::reload(
     label.rect.w
   );
 
+  mask.insert(
+    {
+      .p_rect = &label.widget.rect_text,
+      .dock = label.dock_text
+    }
+  );
+
   mask.docknize();
+
+  if (property.widget.should_refresh_size) {
+    label.rect.w = ekg::max(ekg::dpi.min_sizes, mask.get_rect().w);
+    property.widget.should_refresh_size = false;
+  }
 }
 
 void ekg::ui::event(
@@ -62,7 +93,16 @@ void ekg::ui::event(
   ekg::label_t &label,
   const ekg::io::stage &stage
 ) {
-
+  switch (stage) {
+  case ekg::io::stage::pre:
+    ekg::ui::pre_event(property, label.rect, false);
+    break;
+  case ekg::io::stage::post:
+    ekg::ui::post_event(property);
+    break;
+  default:
+    break;
+  }
 }
 
 void ekg::ui::high_frequency(
@@ -76,14 +116,58 @@ void ekg::ui::pass(
   ekg::property_t &property,
   ekg::label_t &label
 ) {
+  ekg_draw_allocator_bind_local(
+    &property.widget.geometry_buffer,
+    &property.widget.gpu_data_buffer
+  );
 
+  if (property.widget.should_buffering) {
+    return;
+  }
+
+  if (label.text.was_changed()) {
+    property.widget.should_buffering = true;
+    return;
+  }
+
+  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::buffering(
   ekg::property_t &property,
   ekg::label_t &label
 ) {
+  ekg::rect_t<float> &rect_abs {ekg::ui::get_abs_rect(property, label.rect)};
 
+  ekg_draw_allocator_assert_scissor(
+    property.widget.rect_scissor,
+    rect_abs,
+    ekg::query<ekg::property_t>(property.parent_at).widget.rect,
+    true
+  );
+
+  ekg::draw::rect(
+    rect_abs,
+    label.color_scheme.background,
+    ekg::draw::mode::fill,
+    label.layers[ekg::layer::bg]
+  );
+
+  ekg::draw::get_font_renderer(label.font_size)
+    .blit(
+      label.text.get(),
+      rect_abs.x + label.widget.rect_text.x, rect_abs.y + label.widget.rect_text.y,
+      label.color_scheme.text_foreground
+    );
+
+  ekg::draw::rect(
+    rect_abs,
+    label.color_scheme.outline,
+    ekg::draw::mode::outline,
+    label.layers[ekg::layer::outline]
+  );
+
+  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::unmap(

@@ -275,7 +275,7 @@ void ekg::layout::docknize_widget(
   }
 
   if (parent_property.widget.should_refresh_size) {
-    ekg_abstract_todo(
+    ekg_core_abstract_todo(
       parent_property.descriptor_at.flags,
       parent_property.descriptor_at,
       ekg::ui::reload(parent_property, descriptor);
@@ -384,7 +384,7 @@ void ekg::layout::docknize_widget(
       property.widget.should_refresh_size = true;
     }
 
-    ekg_abstract_todo(
+    ekg_core_abstract_todo(
       property.descriptor_at.flags,
       property.descriptor_at,
       ekg::ui::reload(property, descriptor);
@@ -553,7 +553,7 @@ void ekg::layout::docknize_widget(
     }
 
     max_previous_height = rect.h > max_previous_height ? rect.h : max_previous_height;
-    ekg_abstract_todo(
+    ekg_core_abstract_todo(
       property.descriptor_at.flags,
       property.descriptor_at,
 
@@ -604,7 +604,7 @@ float ekg::layout::get_widget_height_by_children(
       continue;
     }
 
-    ekg_abstract_todo(
+    ekg_core_abstract_todo(
       property.descriptor_at.flags,
       property.descriptor_at,
       flags = descriptor.dock;

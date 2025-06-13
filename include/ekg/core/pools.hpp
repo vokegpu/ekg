@@ -38,32 +38,30 @@
 #include "ekg/ui/frame/frame.hpp"
 #include "ekg/ui/frame/widget.hpp"
 
+#include "ekg/ui/label/label.hpp"
+#include "ekg/ui/label/widget.hpp"
+
 namespace ekg::core {
   void registry(ekg::property_t &property);
 }
 
-#define ekg_abstract_todo(ekg_abstract_todo_at_type, ekg_abstract_todo_at, ekg_abstract_todo_todo) \
-  switch (ekg_abstract_todo_at_type) { \
-    case ekg::type::button: { \
-      ekg::button_t &descriptor { \
-        ekg::query<ekg::button_t>(ekg_abstract_todo_at) \
+#define ekg_core_declare_widget_case_todo(descriptor_t, widget_descriptor_at, ekg_core_widget_todo) \
+    case descriptor_t::type: { \
+      descriptor_t &descriptor { \
+        ekg::query<descriptor_t>(widget_descriptor_at) \
       }; \
-      if (descriptor == ekg::button_t::not_found) { \
+      if (descriptor == descriptor_t::not_found) { \
         break; \
       } \
-      ekg_abstract_todo_todo \
+      ekg_core_widget_todo \
       break; \
-    } \
-    case ekg::type::frame: { \
-      ekg::frame_t &descriptor { \
-        ekg::query<ekg::frame_t>(ekg_abstract_todo_at) \
-      }; \
-      if (descriptor == ekg::frame_t::not_found) { \
-        break; \
-      } \
-      ekg_abstract_todo_todo \
-      break; \
-    } \
+    }
+
+#define ekg_core_abstract_todo(widget_descriptor_type, widget_descriptor_at, ekg_core_widget_todo) \
+  switch (widget_descriptor_type) { \
+    ekg_core_declare_widget_case_todo(ekg::frame_t, widget_descriptor_at, ekg_core_widget_todo); \
+    ekg_core_declare_widget_case_todo(ekg::button_t, widget_descriptor_at, ekg_core_widget_todo); \
+    ekg_core_declare_widget_case_todo(ekg::label_t, widget_descriptor_at, ekg_core_widget_todo); \
   }
 
 #define ekg_registry_widget(widget_descriptor_t, register_widget_pool, register_property_pool, is_container, register_settings) \
@@ -122,6 +120,9 @@ namespace ekg {
 
     ekg::pool<ekg::property_t> frame_property {};
     ekg::pool<ekg::frame_t> frame {};
+
+    ekg::pool<ekg::property_t> label_property {};
+    ekg::pool<ekg::label_t> label {};
   } pools;
 
   template<typename t>
@@ -151,6 +152,10 @@ namespace ekg {
         return ekg::io::any_static_cast<t>(
           &ekg::pools.frame_property.query(at)
         );
+      case ekg::type::label:
+        return ekg::io::any_static_cast<t>(
+          &ekg::pools.label_property.query(at)
+        );
       }
     case ekg::type::button:
       return ekg::io::any_static_cast<t>(
@@ -159,6 +164,10 @@ namespace ekg {
     case ekg::type::frame:
       return ekg::io::any_static_cast<t>(
         &ekg::pools.frame.query(at)
+      );
+    case ekg::type::label:
+      return ekg::io::any_static_cast<t>(
+        &ekg::pools.label.query(at)
       );
     }
 
@@ -170,6 +179,47 @@ namespace ekg {
     t descriptor
   ) {
     switch (t::type) {
+      case ekg::type::frame: {
+        ekg_registry_widget(
+          ekg::frame_t,
+          ekg::pools.frame,
+          ekg::pools.frame_property,
+          true,
+          {
+            property.widget.is_childnizate = true;
+            property.widget.is_children_docknizable = true;
+            widget.color_scheme = global_theme.frame_color_scheme;
+          }
+        );
+      }
+
+      case ekg::type::button: {
+        ekg_registry_widget(
+          ekg::button_t,
+          ekg::pools.button,
+          ekg::pools.button_property,
+          false,
+          {
+            property.widget.is_childnizate = false;
+            property.widget.is_children_docknizable = false;
+            widget.color_scheme = global_theme.button_color_scheme;
+          }
+        );
+      }
+
+      case ekg::type::label: {
+        ekg_registry_widget(
+          ekg::label_t,
+          ekg::pools.label,
+          ekg::pools.label_property,
+          true,
+          {
+            property.widget.is_childnizate = false;
+            property.widget.is_children_docknizable = false;
+            widget.color_scheme = global_theme.label_color_scheme;
+          }
+        );
+      }
     case ekg::type::stack: {
       ekg::stack_t &stack {
         ekg::pools.stack.push_back(
@@ -195,32 +245,7 @@ namespace ekg {
           ekg::io::any_static_cast<ekg::sampler_t>(&descriptor)
         )
       );
-    case ekg::type::button: {
-      ekg_registry_widget(
-        ekg::button_t,
-        ekg::pools.button,
-        ekg::pools.button_property,
-        false,
-        {
-          property.widget.is_childnizate = false;
-          property.widget.is_children_docknizable = false;
-          widget.color_scheme = global_theme.button_color_scheme;
-        }
-      );
     }
-    case ekg::type::frame: {
-      ekg_registry_widget(
-        ekg::frame_t,
-        ekg::pools.frame,
-        ekg::pools.frame_property,
-        true,
-        {
-          property.widget.is_childnizate = true;
-          property.widget.is_children_docknizable = true;
-          widget.color_scheme = global_theme.frame_color_scheme;
-        }
-      );
-    }}
 
     return t::not_found;
   }
