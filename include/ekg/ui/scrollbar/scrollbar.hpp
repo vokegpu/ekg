@@ -24,8 +24,7 @@
 #ifndef EKG_UI_SCROLLBAR_HPP
 #define EKG_UI_SCROLLBAR_HPP
 
-#include "ekg/io/descriptor.hpp"
-#include "ekg/math/geometry.hpp"
+#include "ekg/ui/property.hpp"
 #include "ekg/io/event.hpp"
 
 namespace ekg {
@@ -33,15 +32,18 @@ namespace ekg {
   public:
     ekg::rgba_t<uint8_t> background {};
     ekg::rgba_t<uint8_t> foreground {};
+    ekg::pixel_thickness_t nearest_scroll_bar_thickness {};
   };
 
   struct scrollbar_t {
   public:
     struct widget_t {
     public:
-      ekg::rect_t<float> rect_scrollable_area {};
+      ekg::property_t::states_t states_horizontal_bar {};
+      ekg::property_t::states_t states_vertical_bar {};
       ekg::rect_t<float> rect_horizontal {};
       ekg::rect_t<float> rect_vertical {};
+      ekg::rect_t<float> rect_delta {};
     };
   public:
     static constexpr ekg::type type {ekg::type::scrollbar};
@@ -49,8 +51,11 @@ namespace ekg {
   public:
     ekg::at_t property_at {};
   public:
+    ekg::rect_t<float> rect {};
     ekg::vec2_t<float> acceleration {};
     ekg::scrollbar_color_scheme_t color_scheme {};
+    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
+    ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
     ekg::scrollbar_t::widget_t widget {};
   public:
     ekg_descriptor(ekg::scrollbar_t);

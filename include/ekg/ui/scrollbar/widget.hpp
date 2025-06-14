@@ -72,10 +72,22 @@ namespace ekg::ui {
     ekg::scrollbar_t &scrollbar
   );
 
+  void process_event(
+    ekg::property_t &property,
+    ekg::scrollbar_t &scrollbar,
+    ekg::rect_t<float> &rect_parent
+  );
+
   void event(
     ekg::property_t &property,
     ekg::scrollbar_t &scrollbar,
     const ekg::io::stage &stage
+  );
+
+  void high_frequency(
+    ekg::property_t &property,
+    ekg::scrollbar_t &scrollbar,
+    ekg::rect_t<float> &rect_parent
   );
 
   void high_frequency(

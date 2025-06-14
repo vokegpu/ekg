@@ -27,6 +27,8 @@
 #include "ekg/core/runtime.hpp"
 #include "ekg/core/pools.hpp"
 #include "ekg/math/floating_point.hpp"
+#include "ekg/core/context.hpp"
+#include "ekg/ui/abstract.hpp"
 
 float ekg::ui::get_horizontal_scrollbar_normalized(
   ekg::property_t &property,
@@ -47,8 +49,8 @@ void ekg::ui::check_scrollbar(
   ekg::scrollbar_t &scrollbar,
   ekg::rect_t<float> &rect_parent
 ) {
-  property.scroll.is_enabled.x = scrollbar.widget.rect_scrollable_area.w > rect_parent.w;
-  property.scroll.is_enabled.y = scrollbar.widget.rect_scrollable_area.h > rect_parent.h;
+  property.scroll.is_enabled.x = scrollbar.rect.w > rect_parent.w;
+  property.scroll.is_enabled.y = scrollbar.rect.h > rect_parent.h;
 }
 
 void ekg::ui::reset_scrollbar(
@@ -63,8 +65,8 @@ void ekg::ui::clamp_scrollbar(
   ekg::scrollbar_t &scrollbar,
   ekg::rect_t<float> &rect_parent
 ) {
-  ekg::vec2_t<float> h_limit {0.0f, rect_parent.w - scrollbar.widget.rect_scrollable_area.w};
-  if (scrollbar.widget.rect_scrollable_area.w < rect_parent.w) {
+  ekg::vec2_t<float> h_limit {0.0f, rect_parent.w - scrollbar.rect.w};
+  if (scrollbar.rect.w < rect_parent.w) {
     property.scroll.position.x = 0.0f;
     property.scroll.position.z = 0.0f;
   } else if (property.scroll.position.x < h_limit.y) {
@@ -75,8 +77,8 @@ void ekg::ui::clamp_scrollbar(
     property.scroll.position.z = h_limit.x;
   }
 
-  ekg::vec2_t<float> v_limit {0.0f, rect_parent.h - scrollbar.widget.rect_scrollable_area.h};
-  if (scrollbar.widget.rect_scrollable_area.h < rect_parent.h) {
+  ekg::vec2_t<float> v_limit {0.0f, rect_parent.h - scrollbar.rect.h};
+  if (scrollbar.rect.h < rect_parent.h) {
     property.scroll.position.y = 0.0f;
     property.scroll.position.w = 0.0f;
   } else if (property.scroll.position.y < v_limit.y) {
@@ -133,7 +135,7 @@ void ekg::ui::reload(
     return;
   }
 
-  scrollbar.widget.rect_scrollable_area = {};
+  scrollbar.rect = {};
   scrollbar.acceleration.x = ekg::draw::get_font_renderer(ekg::font::medium).get_text_height();
 
   float place {};
@@ -142,12 +144,12 @@ void ekg::ui::reload(
       at.flags,
       at,
 
-      scrollbar.widget.rect_scrollable_area.w = (
-        ekg::max(scrollbar.widget.rect_scrollable_area.w, descriptor.rect.x + descriptor.rect.w)
+      scrollbar.rect.w = (
+        ekg::max(scrollbar.rect.w, descriptor.rect.x + descriptor.rect.w)
       );
 
-      scrollbar.widget.rect_scrollable_area.h = (
-        ekg::max(scrollbar.widget.rect_scrollable_area.h, descriptor.rect.y + descriptor.rect.h)
+      scrollbar.rect.h = (
+        ekg::max(scrollbar.rect.h, descriptor.rect.y + descriptor.rect.h)
       );
 
 
@@ -179,6 +181,238 @@ void ekg::ui::reload(
   );
 }
 
+void ekg::ui::process_event(
+  ekg::property_t &property,
+  ekg::scrollbar_t &scrollbar,
+  ekg::rect_t<float> &rect_parent
+) {
+  ekg::ui::check_scrollbar(
+    property,
+    scrollbar,
+    rect_parent
+  );
+
+  ekg::input_info_t &input {ekg::p_core->handler_input.input};
+  bool is_scroll_fired {ekg::fire("scrollbar-scroll")};
+
+  property.scroll.is_scrolling.x = false;
+  property.scroll.is_scrolling.y = false;
+
+  #if defined(ANDROID)
+    if (property.states.is_hovering && property.states.is_enabled.x && is_scroll_fired) {
+      property.scroll.is_scrolling.x = true;
+      property.scroll.position.z = ekg::clamp<float>(
+        property.scroll.position.x + (-input.interact.z * scrollbar.acceleration.y),
+        rect_parent.w - scrollbar.rect.w,
+        0.0f
+      );
+    }
+
+    if (property.states.is_hovering && property.states.is_enabled.y && is_scroll_fired) {
+      property.scroll.is_scrolling.x = true;
+      property.scroll.position.w = ekg::clamp<float>(
+        property.scroll.position.y + (-input.interact.w * scrollbar.acceleration.y),
+        rect_parent.h - scrollbar.rect.h,
+        0.0f
+      );
+    }
+  #else
+    bool is_scroll_horizontal_fired {
+      ekg::fire("scrollbar-scroll-horizontal")
+    };
+
+    if (property.states.is_hovering && property.scroll.is_enabled.x && is_scroll_horizontal_fired) {
+      property.scroll.is_scrolling.x = true;
+      property.scroll.position.z = ekg::clamp<float>(
+        property.scroll.position.x + (input.interact.w * scrollbar.acceleration.x),
+        rect_parent.w - scrollbar.rect.w,
+        0.0f
+      );
+    }
+
+    if (property.states.is_hovering && property.scroll.is_enabled.y && !is_scroll_horizontal_fired) {
+      property.scroll.is_scrolling.x = true;
+      property.scroll.position.w = ekg::clamp<float>(
+        property.scroll.position.y + (input.interact.w * scrollbar.acceleration.y),
+        rect_parent.h - scrollbar.rect.h,
+        0.0f
+      );
+    }
+  #endif
+
+  if (input.has_motion) {
+    ekg_set(
+      property.widget.should_buffering,
+      scrollbar.widget.states_horizontal_bar.is_highlight,
+      scrollbar.widget.states_horizontal_bar.is_hovering
+    );
+
+    ekg_set(
+      property.widget.should_buffering,
+      scrollbar.widget.states_vertical_bar.is_highlight,
+      scrollbar.widget.states_vertical_bar.is_hovering
+    );
+  }
+
+  if (
+    property.states.is_hovering
+    &&
+    input.was_pressed
+    &&
+    ekg::fire("scrollbar-drag")
+  ) {
+    ekg::rect_t<float> h_bar {scrollbar.widget.rect_horizontal};
+    h_bar.x += rect_parent.x;
+    scrollbar.widget.rect_delta.x = input.interact.x - h_bar.x;
+
+    ekg_set(
+      property.widget.should_buffering,
+      scrollbar.widget.states_horizontal_bar.is_active,
+      scrollbar.widget.states_horizontal_bar.is_hovering
+    );
+
+    ekg::rect_t<float> v_bar {scrollbar.widget.rect_vertical};
+    v_bar.x += rect_parent.x;
+    scrollbar.widget.rect_delta.y = input.interact.y - h_bar.y;
+
+    ekg_set(
+      property.widget.should_buffering,
+      scrollbar.widget.states_vertical_bar.is_active,
+      scrollbar.widget.states_vertical_bar.is_hovering
+    );
+
+    ekg_action(
+      scrollbar.actions,
+      ekg::action::press,
+      (
+        scrollbar.widget.states_horizontal_bar.is_active
+        ||
+        scrollbar.widget.states_vertical_bar.is_active
+      )
+    );
+  }
+
+  if (
+    (
+      scrollbar.widget.states_horizontal_bar.is_focused = (
+        input.has_motion
+        &&
+        scrollbar.widget.states_horizontal_bar.is_active
+        &&
+        !is_scroll_fired
+      )
+    )
+  ) {
+    ekg::rect_t<float> h_bar {scrollbar.widget.rect_horizontal};
+    h_bar.x = (input.interact.x - scrollbar.widget.rect_delta.x) - rect_parent.x;
+
+    property.scroll.position.z = (
+      -ekg::clamp<float>(
+        h_bar.x / (rect_parent.w - scrollbar.widget.rect_horizontal.w),
+        0.0f,
+        1.0
+      )
+      *
+      scrollbar.rect.w - rect_parent.w
+    );
+
+    property.scroll.is_scrolling.x = true;
+    property.scroll.position.x = property.scroll.position.z;
+    property.widget.should_buffering = true;
+    ekg::gui.ui.redraw = true;
+  }
+
+  if (
+    (
+      scrollbar.widget.states_vertical_bar.is_focused = (
+        scrollbar.widget.states_vertical_bar.is_active
+        &&
+        input.has_motion
+        &&
+        !is_scroll_fired
+      )
+    )
+  ) {
+    ekg::rect_t<float> v_bar {scrollbar.widget.rect_vertical};
+    v_bar.x = (input.interact.y - scrollbar.widget.rect_delta.y) - rect_parent.y;
+
+    property.scroll.position.w = (
+      -ekg::clamp<float>(
+        v_bar.y / (rect_parent.h - scrollbar.widget.rect_vertical.h),
+        0.0f,
+        1.0
+      )
+      *
+      scrollbar.rect.h - rect_parent.h
+    );
+
+    property.scroll.is_scrolling.y = true;
+    property.scroll.position.y = property.scroll.position.w;
+    property.widget.should_buffering = true;
+    ekg::gui.ui.redraw = true;
+  }
+
+  if (input.was_released) {
+    ekg_action(
+      scrollbar.actions,
+      ekg::action::release,
+      (
+        input.was_pressed
+        &&
+        (
+          scrollbar.widget.states_horizontal_bar.is_active
+          ||
+          scrollbar.widget.states_vertical_bar.is_active
+        )
+      )
+    );
+
+    ekg_set(
+      property.widget.should_buffering,
+      scrollbar.widget.states_horizontal_bar.is_active,
+      (property.scroll.is_scrolling.x = false)
+    );
+
+    ekg_set(
+      property.widget.should_buffering,
+      scrollbar.widget.states_vertical_bar.is_active,
+      (property.scroll.is_scrolling.y = false)
+    );
+  }
+
+  ekg_action(
+    scrollbar.actions,
+    ekg::action::drag,
+    (
+      input.has_motion
+      &&
+      (
+        scrollbar.widget.states_horizontal_bar.is_focused
+        ||
+        scrollbar.widget.states_vertical_bar.is_focused
+      )
+      &&
+      (ekg::timing_t::second > ekg::gui.ui.frequency)
+    )
+  );
+
+  ekg_action(
+    scrollbar.actions,
+    ekg::action::hover,
+    (
+      input.has_motion
+      &&
+      (
+        scrollbar.widget.states_horizontal_bar.is_hovering
+        ||
+        scrollbar.widget.states_vertical_bar.is_hovering
+      )
+      &&
+      (ekg::timing_t::second > ekg::gui.ui.frequency)
+    )
+  );
+}
+
 void ekg::ui::event(
   ekg::property_t &property,
   ekg::scrollbar_t &scrollbar,
@@ -197,13 +431,7 @@ void ekg::ui::event(
         input.has_motion
         ||
         input.was_wheel
-      ) {
-        ekg::rect_t<float> h_bar {scrollbar.widget.rect_horizontal};
-        h_bar.x += property.widget.rect.x;
-
-        ekg::rect_t<float> v_bar {scrollbar.widget.rect_vertical};
-        v_bar.y += property.widget.rect.y;
-        
+      ) {        
         bool is_visible {
           ekg::rect_collide_vec2<float>(property.widget.rect_scissor, interact)
         };
@@ -214,17 +442,77 @@ void ekg::ui::event(
           (property.scroll.is_scrolling.x || property.scroll.is_scrolling.y)
           &&
           ekg::fire("scrollbar-scroll")
-        );         
+        );
+
+        ekg::rect_t<float> h_bar {scrollbar.widget.rect_horizontal};
+        h_bar.x += property.widget.rect.x;
+
+        scrollbar.widget.states_horizontal_bar.is_hovering = (
+          is_visible
+          &&
+          ekg::rect_collide_vec2(h_bar, interact)
+        );
+
+        ekg::rect_t<float> v_bar {scrollbar.widget.rect_vertical};
+        v_bar.y += property.widget.rect.y;
+
+        scrollbar.widget.states_vertical_bar.is_hovering = (
+          is_visible
+          &&
+          ekg::rect_precise_collide_vec2(v_bar, interact)
+        );
+
+        property.states.is_hovering = (
+          property.states.is_active
+          ||
+          scrollbar.widget.states_horizontal_bar.is_hovering
+          ||
+          scrollbar.widget.states_vertical_bar.is_hovering
+        );
       }
+
+      property.states.is_absolute = (
+        (property.scroll.is_scrolling.x || property.scroll.is_scrolling.y)
+        ||
+        property.states.is_active
+      );
 
       break;
     }
 
     case ekg::io::stage::post: {
+      property.states.is_hovering = false;
+      scrollbar.widget.states_horizontal_bar.is_hovering = false;
+      scrollbar.widget.states_vertical_bar.is_hovering = false;
       break;
     }
 
     case ekg::io::stage::process: {
+      ekg::property_t &parent {ekg::query<ekg::property_t>(property.parent_at)};
+      if (parent == ekg::property_t::not_found) {
+        return;
+      }
+
+      ekg::ui::process_event(
+        property,
+        scrollbar,
+        parent.widget.rect
+      );
+
+      if (
+        (scrollbar.widget.states_horizontal_bar.is_hovering || scrollbar.widget.states_vertical_bar.is_hovering)
+        &&
+        !property.widget.is_high_frequency
+      ) {
+        ekg::io::dispatch(
+          ekg::io::operation::high_frequency,
+          property.at
+        );
+      }
+
+      parent.scroll.is_enabled = property.scroll.is_enabled;
+      parent.scroll.is_enabled = property.scroll.is_enabled;
+      parent.scroll.nearest_scroll_bar_thickness = scrollbar.color_scheme.nearest_scroll_bar_thickness;
       break;
     }
   }
@@ -232,16 +520,88 @@ void ekg::ui::event(
 
 void ekg::ui::high_frequency(
   ekg::property_t &property,
+  ekg::scrollbar_t &scrollbar,
+  ekg::rect_t<float> &rect_parent
+) {
+  float speed {
+    ekg::p_core->handler_input.scroll_speed
+  };
+
+  property.scroll.position.x = ekg::lerp<float>(
+    property.scroll.position.x,
+    property.scroll.position.z,
+    ekg::gui.ui.dt * scrollbar.acceleration.x * speed
+  );
+
+  property.scroll.position.y = ekg::lerp<float>(
+    property.scroll.position.y,
+    property.scroll.position.w,
+    ekg::gui.ui.dt * scrollbar.acceleration.y * speed
+  );
+
+  ekg::ui::clamp_scrollbar(
+    property,
+    scrollbar,
+    rect_parent
+  );
+
+  if (
+    (
+      property.widget.is_high_frequency = ekg::ui::is_scrollbar_scrolling(
+        property,
+        property.states.is_hovering || property.states.is_active
+      )
+    )
+  ) {
+    property.widget.should_buffering = true;
+    ekg::gui.ui.redraw = true;
+  }
+}
+
+void ekg::ui::high_frequency(
+  ekg::property_t &property,
   ekg::scrollbar_t &scrollbar
 ) {
+  ekg::property_t &parent {ekg::query<ekg::property_t>(property.parent_at)};
+  if (parent == ekg::property_t::not_found) {
+    property.widget.is_high_frequency = false;
+    return;
+  }
 
+  ekg::ui::high_frequency(
+    property,
+    scrollbar,
+    parent.widget.rect
+  );
 }
 
 void ekg::ui::pass(
   ekg::property_t &property,
   ekg::scrollbar_t &scrollbar
 ) {
+  ekg_draw_allocator_bind_local(
+    &property.widget.geometry_buffer,
+    &property.widget.gpu_data_buffer
+  );
 
+  if (property.widget.should_buffering) {
+    return;
+  }
+
+  ekg_draw_allocator_pass();
+}
+
+void ekg::ui::buffering(
+  ekg::property_t &property,
+  ekg::scrollbar_t &scrollbar,
+  ekg::rect_t<float> &rect_parent
+) {
+  ekg_draw_allocator_assert_scissor(
+    property.widget.rect_scissor,
+    ekg::ui::get_abs_rect(property, scrollbar.rect),
+    rect_parent,
+    true
+  );
 }
 
 void ekg::ui::buffering(

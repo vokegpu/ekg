@@ -31,18 +31,27 @@
 #include "ekg/gpu/sampler.hpp"
 
 /**
+ * Each rendering section must begin with this, so we can do smart-caching
+ * for CPU-side.
+ **/
+#define ekg_draw_allocator_bind_local(p_geometry_buffer, p_gpu_data_buffer) \
+  ekg::p_core->draw_allocator.bind_local(p_geometry_buffer, p_gpu_data_buffer);
+
+/**
+ * Each rendering section must end with this, for send buffers to GPU.
+ **/
+#define ekg_draw_allocator_pass() \
+  ekg::p_core->draw_allocator.pass(); \
+  return;
+
+/**
  * This macro prevent from dispatching any GPU-data under a render section
  * if the content is not visible to the parent rect_scissor.
  **/
 #define ekg_draw_allocator_assert_scissor(rect_scissor, rect_child, rect_parent, is_parented) \
-  if (!ekg::p_core->draw_allocator.sync_scissor(rect_scissor, rect_child, rect_parent, is_parented)) return;
-
-#define ekg_draw_allocator_bind_local(p_geometry_buffer, p_gpu_data_buffer) \
-  ekg::p_core->draw_allocator.bind_local(p_geometry_buffer, p_gpu_data_buffer);
-
-#define ekg_draw_allocator_pass() \
-  ekg::p_core->draw_allocator.pass(); \
-  return;
+  if (!ekg::p_core->draw_allocator.sync_scissor(rect_scissor, rect_child, rect_parent, is_parented)) { \
+    ekg_draw_allocator_pass(); \
+  };
 
 namespace ekg::draw {
   class allocator {
