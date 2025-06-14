@@ -54,7 +54,7 @@ void ekg::ui::pre_event(
     ekg::rect_t<float> &abs {ekg::ui::get_abs_rect(property, descriptor_rect)};
     ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
-    property.widget.is_hovering = (
+    property.states.is_hovering = (
       ekg::rect_collide_vec2<float>(abs, interact)
       &&
       (
@@ -71,13 +71,13 @@ void ekg::ui::pre_event(
 void ekg::ui::post_event(
   ekg::property_t &property
 ) {
-  property.widget.is_hovering = false;
+  property.states.is_hovering = false;
 
   #if defined(__ANDROID__)
-    property.widget.is_highlight = (
-      !(!property.widget.is_hovering && ekg::p_core->handler_input.input.was_released)
+    property.states.is_highlight = (
+      !(!property.states.is_hovering && ekg::p_core->handler_input.input.was_released)
       &&
-      property.widget.is_highlight
+      property.states.is_highlight
     );
   #endif
 }

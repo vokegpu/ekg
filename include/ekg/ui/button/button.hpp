@@ -28,6 +28,7 @@
 #include "ekg/io/font.hpp"
 #include "ekg/math/geometry.hpp"
 #include "ekg/io/event.hpp"
+#include "ekg/ui/property.hpp"
 
 namespace ekg {
   struct button_color_scheme_t {
@@ -51,8 +52,6 @@ namespace ekg {
     public:
       struct widget_t {
       public:
-        bool is_highlight {};
-        bool is_active {};
         ekg::rect_t<float> rect_text {};
         ekg::rect_t<float> rect_box {};
       };
@@ -63,6 +62,7 @@ namespace ekg {
       ekg::flags_t box {ekg::dock::none};
       ekg::flags_t dock {ekg::dock::left};
       ekg::button_t::check_t::widget_t widget {};
+      ekg::property_t::states_t states {};
       ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
       ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
     };

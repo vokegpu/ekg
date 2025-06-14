@@ -259,7 +259,7 @@ void ekg::layout::docknize_widget(
   if (
       parent_property == ekg::property_t::not_found
       ||
-      !parent_property.widget.is_children_docknizable
+      !parent_property.is_children_docknizable
   ) {
     return;
   }
@@ -566,7 +566,7 @@ void ekg::layout::docknize_widget(
     );
 
     h_extent_backup = ekg::layout::extent_t::h_widget;
-    if (property.widget.is_children_docknizable && !property.children.empty()) {
+    if (property.is_children_docknizable && !property.children.empty()) {
       ekg::layout::docknize_widget(property);
     }
 
@@ -585,7 +585,7 @@ float ekg::layout::get_widget_height_by_children(
   if (
       parent_property == ekg::property_t::not_found
       ||
-      !parent_property.widget.is_children_docknizable
+      !parent_property.is_children_docknizable
   ) {
     return 0.0f;
   }
@@ -613,7 +613,7 @@ float ekg::layout::get_widget_height_by_children(
     height = property.widget.rect.h;
 
     if (
-        property.widget.is_children_docknizable
+        property.is_children_docknizable
         &&
         !property.children.empty()
       ) {

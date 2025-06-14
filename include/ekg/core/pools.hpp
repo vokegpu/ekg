@@ -186,8 +186,8 @@ namespace ekg {
           ekg::pools.frame_property,
           true,
           {
-            property.widget.is_childnizate = true;
-            property.widget.is_children_docknizable = true;
+            property.is_childnizate = true;
+            property.is_children_docknizable = true;
             widget.color_scheme = global_theme.frame_color_scheme;
           }
         );
@@ -200,8 +200,8 @@ namespace ekg {
           ekg::pools.button_property,
           false,
           {
-            property.widget.is_childnizate = false;
-            property.widget.is_children_docknizable = false;
+            property.is_childnizate = false;
+            property.is_children_docknizable = false;
             widget.color_scheme = global_theme.button_color_scheme;
           }
         );
@@ -214,8 +214,8 @@ namespace ekg {
           ekg::pools.label_property,
           true,
           {
-            property.widget.is_childnizate = false;
-            property.widget.is_children_docknizable = false;
+            property.is_childnizate = false;
+            property.is_children_docknizable = false;
             widget.color_scheme = global_theme.label_color_scheme;
           }
         );
