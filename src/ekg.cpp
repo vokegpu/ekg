@@ -26,6 +26,7 @@
 #include "ekg/core/context.hpp"
 #include "ekg/core/pools.hpp"
 
+#include "ekg/ui/abstract.hpp"
 #include "ekg/ui/button/widget.hpp"
 
 ekg::runtime_t *ekg::p_core {nullptr};
@@ -95,8 +96,6 @@ void ekg::update() {
     return;
   }
 
-  ekg::p_core->handler_input.update();
-
   size_t size {ekg::p_core->high_frequency.size()};
   for (size_t it {}; it < size; it++) {
     ekg::property_t &property {
@@ -112,6 +111,8 @@ void ekg::update() {
     if (
       // no not-found-check because `t::not_found` bool fields are always false
       !property.widget.is_high_frequency
+      &&
+      false
     ) {
       property.operation.should_enable_high_frequency = false; // same here
 
@@ -123,6 +124,7 @@ void ekg::update() {
     }
   }
 
+  ekg::p_core->handler_input.update();
   ekg::p_core->handler_callback.update();
   ekg::p_core->p_platform_base->update();
   ekg::p_core->p_platform_base->event.type = ekg::io::event_type::none;
@@ -150,6 +152,22 @@ void ekg::render() {
       ekg_core_abstract_todo(
         property.descriptor_at.flags,
         property.descriptor_at,
+
+        /**
+         * @TODO: Fix this stupid glitch where scrolling is jittering because of something
+         * 
+         * I do not know why this is hapenning, likely wtf, if I remove this
+         * scrolling is horrible, I am not sure why this is hapning, I tried make the make redraw always,
+         * rendering everything, no allocators asserts. Nothing. I tried do a stupid `meow<t>` where t receives a descriptor,
+         * but nothing too. I do not know why this happens but it is very insanely weird. Post does not affect the performance
+         * a lot, may we consider to let for some long time. While no solution was found.
+         * 
+         * - @mrsrina / Rina Wilk
+         * 12:45am 6/17/2025
+         * 
+         **/
+        ekg::ui::event(property, descriptor, ekg::io::stage::post);
+        /* */
 
         ekg::ui::pass(property, descriptor);
         if (!property.widget.should_buffering) {

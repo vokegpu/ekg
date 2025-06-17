@@ -24,6 +24,7 @@
 #include "ekg/ui/abstract.hpp"
 #include "ekg/core/pools.hpp"
 #include "ekg/core/runtime.hpp"
+#include "ekg/io/descriptor.hpp"
 
 ekg::rect_t<float> &ekg::ui::get_abs_rect(
   ekg::property_t &property,

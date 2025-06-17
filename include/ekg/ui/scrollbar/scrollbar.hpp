@@ -31,8 +31,15 @@ namespace ekg {
   struct scrollbar_color_scheme_t {
   public:
     ekg::rgba_t<uint8_t> background {};
-    ekg::rgba_t<uint8_t> foreground {};
-    ekg::pixel_thickness_t nearest_scroll_bar_thickness {};
+    ekg::rgba_t<uint8_t> outline {};
+
+    ekg::rgba_t<uint8_t> bar_background {};
+    ekg::rgba_t<uint8_t> bar_highlight {};
+    ekg::rgba_t<uint8_t> bar_active {};
+    ekg::rgba_t<uint8_t> bar_outline {};
+
+    ekg::pixel_thickness_t bar_thickness {20};
+    ekg::pixel_t bar_size_limit {20};
   };
 
   struct scrollbar_t {
@@ -51,12 +58,14 @@ namespace ekg {
   public:
     ekg::at_t property_at {};
   public:
+    std::string tag {};
     ekg::rect_t<float> rect {};
     ekg::vec2_t<float> acceleration {};
     ekg::scrollbar_color_scheme_t color_scheme {};
     ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
     ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
     ekg::scrollbar_t::widget_t widget {};
+    ekg::flags_t dock {}; // useless
   public:
     ekg_descriptor(ekg::scrollbar_t);
   };

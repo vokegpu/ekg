@@ -121,7 +121,7 @@ void ekg::core::reload(ekg::info_t &info) {
 
   for (ekg::at_t &at : ekg::p_core->reload) {
     ekg::property_t &property {ekg::query<ekg::property_t>(at)};
-    if (property == ekg::property_t::not_found) {
+    if (property == ekg::property_t::not_found || !property.operation.should_reload) {
       continue;
     }
 

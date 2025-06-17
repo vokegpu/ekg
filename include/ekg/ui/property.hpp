@@ -77,6 +77,8 @@ namespace ekg {
     ekg::at_t parent_at {ekg::at_t::not_found};
     ekg::at_t abs_parent_at {ekg::at_t::not_found};
     ekg::at_t descriptor_at {ekg::at_t::not_found};
+    ekg::at_t nearest_scrollbar_at {ekg::at_t::not_found};
+
     bool is_childnizate {};
     bool is_children_docknizable {};
     std::vector<ekg::at_t> children {};

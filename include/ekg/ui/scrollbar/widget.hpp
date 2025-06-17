@@ -72,9 +72,10 @@ namespace ekg::ui {
     ekg::scrollbar_t &scrollbar
   );
 
-  void process_event(
+  void event(
     ekg::property_t &property,
     ekg::scrollbar_t &scrollbar,
+    const ekg::io::stage &stage,
     ekg::rect_t<float> &rect_parent
   );
 
@@ -98,6 +99,12 @@ namespace ekg::ui {
   void pass(
     ekg::property_t &property,
     ekg::scrollbar_t &scrollbar
+  );
+
+  void buffering(
+    ekg::property_t &property,
+    ekg::scrollbar_t &scrollbar,
+    ekg::rect_t<float> &rect_parent
   );
 
   void buffering(
