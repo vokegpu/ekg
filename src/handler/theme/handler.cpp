@@ -30,7 +30,7 @@ void ekg::handler::theme::init() {
   ekg::theme_t light_pinky_theme {
     .tag = "light-pinky",
     .author = "Rina Wilk",
-    .description = "Pasted light-theme... moow",
+    .description = "dim again, dim again, not even a light can undim my life, wasted love, wasted love...",
   };
 
   light_pinky_theme.layout_offset = 2.0f;
@@ -67,16 +67,57 @@ void ekg::handler::theme::init() {
 
   this->registry(light_pinky_theme.tag) = light_pinky_theme;
   this->set_current_theme(light_pinky_theme.tag);
+
+  ekg::theme_t black_light_pinky_theme {
+    .tag = "black-light-pinky",
+    .author = "Rina Wilk",
+    .description = "yea i loved you alot, but you broken my heart, I can not do nothing, this is obscure, I miss you 2666, but I do not know how to live anymore",
+  };
+
+  black_light_pinky_theme.layout_offset = 2.0f;
+  black_light_pinky_theme.layout_margin_thickness = 2;
+  black_light_pinky_theme.frame_color_scheme.background = {40, 40, 40, 255};
+  black_light_pinky_theme.frame_color_scheme.highlight = {242, 242, 242, 0};
+  black_light_pinky_theme.frame_color_scheme.outline = {190, 190, 190, 0};
+  black_light_pinky_theme.frame_color_scheme.active = {242, 242, 242, 0};
+  black_light_pinky_theme.frame_color_scheme.focused_background = {242, 242, 242, 0};
+  black_light_pinky_theme.frame_color_scheme.focused_outline = {242, 242, 242, 0};
+  black_light_pinky_theme.frame_color_scheme.warning_outline = {242, 242, 0, 100};
+  black_light_pinky_theme.frame_color_scheme.actions_margin_pixel_thickness = 18;
+
+  black_light_pinky_theme.button_color_scheme.text_foreground = {141, 141, 141, 255};
+  black_light_pinky_theme.button_color_scheme.background = {204, 204, 204, 50};
+  black_light_pinky_theme.button_color_scheme.active = {245, 169, 184, 100};
+  black_light_pinky_theme.button_color_scheme.outline = {202, 207, 222, 0};
+  black_light_pinky_theme.button_color_scheme.highlight = {245, 169, 184, 50};
+  black_light_pinky_theme.button_color_scheme.text_foreground = {141, 141, 141, 255};
+  black_light_pinky_theme.button_color_scheme.box_outline = light_pinky_theme.button_color_scheme.outline;
+  black_light_pinky_theme.button_color_scheme.box_active = {245, 169, 184, 200};
+  black_light_pinky_theme.button_color_scheme.box_highlight = {245, 169, 184, 50};
+  black_light_pinky_theme.button_color_scheme.box_background = {202, 207, 222, 100};
+
+  black_light_pinky_theme.label_color_scheme.background = {204, 204, 204, 0};
+  black_light_pinky_theme.label_color_scheme.outline = {202, 207, 222, 0};
+  black_light_pinky_theme.label_color_scheme.text_foreground = {141, 141, 141, 255};
+
+  black_light_pinky_theme.scrollbar_color_scheme.background = {204, 204, 204, 30};
+  black_light_pinky_theme.scrollbar_color_scheme.outline = {204, 204, 204, 0};
+  black_light_pinky_theme.scrollbar_color_scheme.bar_background = {245, 169, 184, 100};
+  black_light_pinky_theme.scrollbar_color_scheme.bar_highlight = {245, 169, 184, 50};
+  black_light_pinky_theme.scrollbar_color_scheme.bar_active = {245, 169, 184, 100};
+
+  this->registry(black_light_pinky_theme.tag) = black_light_pinky_theme;
+  //this->set_current_theme(black_light_pinky_theme.tag);
 }
 
 void ekg::handler::theme::quit() {
 }
 
-ekg::theme_t &ekg::handler::theme::registry(const std::string_view &tag) {
+ekg::theme_t &ekg::handler::theme::registry(const std::string &tag) {
   return this->themes[tag];
 }
 
-ekg::theme_t &ekg::handler::theme::set_current_theme(const std::string_view &tag) {
+ekg::theme_t &ekg::handler::theme::set_current_theme(const std::string &tag) {
   this->current_theme_tag = tag;
   return this->themes[tag];
 }

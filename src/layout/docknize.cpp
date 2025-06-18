@@ -397,7 +397,7 @@ void ekg::layout::docknize_widget(
       continue;
     }
 
-    if (property.widget.should_refresh_size) {
+    if (parent_property.widget.should_refresh_size) {
       property.widget.should_refresh_size = true;
     }
 

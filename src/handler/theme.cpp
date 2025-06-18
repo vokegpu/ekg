@@ -25,7 +25,7 @@
 #include "ekg/core/runtime.hpp"
 
 ekg::theme_t &ekg::theme(
-  std::string_view tag
+  std::string tag
 ) {
   if (tag.empty()) {
     return ekg::p_core->handler_theme.get_current_theme();
@@ -35,7 +35,7 @@ ekg::theme_t &ekg::theme(
 }
 
 ekg::theme_t &ekg::set_current_theme(
-  std::string_view tag
+  const std::string &tag
 ) {
   ekg::p_core->handler_theme.set_current_theme(tag);
   return ekg::theme(tag);

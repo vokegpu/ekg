@@ -844,7 +844,7 @@ void ekg::ui::buffering(
   ekg::ui::buffering(
     property,
     scrollbar,
-    ekg::query<ekg::property_t>(property.parent_at).widget.rect
+    ekg::query<ekg::property_t>(property.parent_at).widget.rect_scissor
   );
 }
 

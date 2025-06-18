@@ -44,8 +44,8 @@ namespace ekg {
     ekg::scrollbar_color_scheme_t scrollbar_color_scheme {};
   };
 
-  ekg::theme_t &theme(std::string_view tag = "");
-  ekg::theme_t &set_current_theme(std::string_view tag);
+  ekg::theme_t &theme(std::string tag = "");
+  ekg::theme_t &set_current_theme(const std::string &tag);
 }
 
 #endif

@@ -207,6 +207,27 @@ void ekg::core::scalenize(ekg::info_t &info) {
       )
     );
   }
+
+  for (ekg::at_t &at : ekg::p_core->stack) {
+    ekg::property_t &property {ekg::query<ekg::property_t>(at)};
+    if (property == ekg::property_t::not_found) {
+      continue;
+    }
+
+    ekg_core_abstract_todo(
+      property.descriptor_at.flags,
+      property.descriptor_at,
+
+      ekg::ui::reload(property, descriptor);
+
+      if (!property.is_children_docknizable) {
+        continue;
+      }
+    );
+
+    property.widget.should_refresh_size = true;
+    ekg::io::dispatch(ekg::io::operation::docknize, at);
+  }
 }
 
 void ekg::core::poll_event() {
