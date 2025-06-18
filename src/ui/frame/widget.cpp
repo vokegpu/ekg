@@ -70,7 +70,7 @@ void ekg::ui::event(
         (
           input.has_motion
           &&
-          property.widget.is_hovering
+          property.states.is_hovering
           &&
           (ekg::timing_t::second > ekg::tweaks.task_latency)
         ),
@@ -127,13 +127,13 @@ void ekg::ui::event(
         frame.widget.rect_delta.h = rect.h;
         frame.widget.rect_cache = rect;
 
-        property.widget.is_active = (
+        property.states.is_active = (
           frame.widget.target_dock_drag != ekg::dock::none
           ||
           frame.widget.target_dock_resize != ekg::dock::none
         );
 
-        property.widget.is_absolute = property.widget.is_active;
+        property.states.is_absolute = property.states.is_active;
 
         /*ekg::io::trigger(
           true,
@@ -141,7 +141,7 @@ void ekg::ui::event(
           frame.actions,
           this->properties
         );*/
-      } else if (input.has_motion && property.widget.is_active) {
+      } else if (input.has_motion && property.states.is_active) {
         ekg::rect_t<float> new_rect {rect};
         ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};        
 
@@ -218,11 +218,11 @@ void ekg::ui::event(
           ekg::gui.ui.redraw = true;
         }
       } else if (
-        property.widget.is_hovering
+        property.states.is_hovering
         &&
         frame.resize != ekg::dock::none
         &&
-        !property.widget.is_active
+        !property.states.is_active
       ) {
         ekg::vec2_t<float> margin {
           static_cast<float>(frame.color_scheme.actions_margin_pixel_thickness),
@@ -261,11 +261,11 @@ void ekg::ui::event(
       }
 
       if (input.was_released) {
-        if (property.widget.is_active) {
-          property.widget.is_absolute = false;
+        if (property.states.is_active) {
+          property.states.is_absolute = false;
 
           /*ekg::io::trigger(
-            property.widget.is_hovering,
+            property.states.is_hovering,
             ekg::action::release,
             frame.actions,
             this->properties
@@ -274,7 +274,7 @@ void ekg::ui::event(
 
         frame.widget.target_dock_resize = ekg::dock::none;
         frame.widget.target_dock_drag = ekg::dock::none;
-        property.widget.is_active = false;
+        property.states.is_active = false;
       }
 
       break;
@@ -311,18 +311,18 @@ void ekg::ui::buffering(
   ekg_draw_allocator_assert_scissor(
     property.widget.rect_scissor,
     rect,
-    ekg::query<ekg::property_t>(property.parent_at).widget.rect,
+    ekg::query<ekg::property_t>(property.parent_at).widget.rect_scissor,
     property.parent_at != ekg::at_t::not_found
   );
 
   ekg::draw::rect(
     rect,
-    property.widget.is_focused ? frame.color_scheme.focused_background : frame.color_scheme.background,
+    property.states.is_focused ? frame.color_scheme.focused_background : frame.color_scheme.background,
     ekg::draw::mode::fill,
     ekg::at_t::not_found
   );
 
-  if (property.widget.is_active) {
+  if (property.states.is_active) {
     ekg::draw::rect(
       rect,
       frame.color_scheme.highlight,
@@ -331,7 +331,7 @@ void ekg::ui::buffering(
     );
   }
 
-  if (property.widget.is_highlight) {
+  if (property.states.is_highlight) {
     ekg::draw::rect(
       rect,
       frame.color_scheme.highlight,
@@ -342,12 +342,12 @@ void ekg::ui::buffering(
 
   ekg::draw::rect(
     rect,
-    property.widget.is_focused ? frame.color_scheme.focused_outline : frame.color_scheme.outline,
+    property.states.is_focused ? frame.color_scheme.focused_outline : frame.color_scheme.outline,
     ekg::draw::mode::outline,
     ekg::at_t::not_found
   );
 
-  if (property.widget.is_warning) {
+  if (property.states.is_warning) {
     ekg::draw::rect(
       rect,
       frame.color_scheme.warning_outline,

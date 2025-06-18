@@ -48,7 +48,7 @@ void ekg::core::swap_collector(
 
   ekg::p_core->collector.push_back(property_at);
 
-  if (parent_property.widget.is_childnizate && parent_property.widget.is_children_docknizable) {
+  if (parent_property.is_childnizate && parent_property.is_children_docknizable) {
     for (ekg::at_t &at : parent_property.children) {
       ekg::property_t &property {ekg::query<ekg::property_t>(at)};
       if (property == ekg::property_t::not_found) {
@@ -121,7 +121,7 @@ void ekg::core::reload(ekg::info_t &info) {
 
   for (ekg::at_t &at : ekg::p_core->reload) {
     ekg::property_t &property {ekg::query<ekg::property_t>(at)};
-    if (property == ekg::property_t::not_found) {
+    if (property == ekg::property_t::not_found || !property.operation.should_reload) {
       continue;
     }
 
@@ -207,6 +207,27 @@ void ekg::core::scalenize(ekg::info_t &info) {
       )
     );
   }
+
+  for (ekg::at_t &at : ekg::p_core->stack) {
+    ekg::property_t &property {ekg::query<ekg::property_t>(at)};
+    if (property == ekg::property_t::not_found) {
+      continue;
+    }
+
+    ekg_core_abstract_todo(
+      property.descriptor_at.flags,
+      property.descriptor_at,
+
+      ekg::ui::reload(property, descriptor);
+
+      if (!property.is_children_docknizable) {
+        continue;
+      }
+    );
+
+    property.widget.should_refresh_size = true;
+    ekg::io::dispatch(ekg::io::operation::docknize, at);
+  }
 }
 
 void ekg::core::poll_event() {
@@ -230,7 +251,7 @@ void ekg::core::poll_event() {
   if (
       abs_widget != ekg::property_t::not_found
       &&
-      (abs_widget.widget.is_absolute || is_on_scrolling_timeout)
+      (abs_widget.states.is_absolute || is_on_scrolling_timeout)
     ) {
 
     ekg_core_abstract_todo(
@@ -288,11 +309,11 @@ void ekg::core::poll_event() {
           ekg::p_core->p_platform_base->event.type == ekg::io::event_type::text_input
         )
         &&
-        property.widget.is_hovering
+        property.states.is_hovering
         &&
-        property.widget.is_visible
+        property.states.is_visible
         &&
-        property.widget.is_enabled
+        property.states.is_enabled
       );
 
       if (hovered) {
@@ -301,19 +322,19 @@ void ekg::core::poll_event() {
         };
 
         focused_property != ekg::property_t::not_found
-          && (focused_property.widget.is_hovering = false);
+          && (focused_property.states.is_hovering = false);
 
         focused_at = at;
         first_absolute = false;
       }
 
-      if (property.widget.is_absolute && !first_absolute) {
+      if (property.states.is_absolute && !first_absolute) {
         focused_at = at;
         first_absolute = true;
       }
 
       ekg::ui::event(property, descriptor, ekg::io::stage::post);
-      if (!hovered && !property.widget.is_absolute) {
+      if (!hovered && !property.states.is_absolute) {
         ekg::ui::event(property, descriptor, ekg::io::stage::process);
       }
     );
@@ -333,7 +354,7 @@ void ekg::core::poll_event() {
       ekg::gui.ui.hovered_type = static_cast<ekg::type>(focused_at.flags);
       ekg::gui.ui.hovered_at = focused_at;
 
-      if (focused_property.widget.is_absolute) {
+      if (focused_property.states.is_absolute) {
         ekg::gui.ui.abs_widget_at = focused_at;
       }
 

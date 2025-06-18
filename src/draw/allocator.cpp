@@ -83,7 +83,7 @@ void ekg::draw::allocator::revoke() {
 
   this->last_geometry_buffer_size = this->geometry_instance;
   this->was_hash_changed = false;
-  ekg::metrics.gpu_data_count = this->data_instance;
+  ekg::metrics.gpu_data_count = this->gpu_data_buffer.size();
 }
 
 void ekg::draw::allocator::to_gpu() {

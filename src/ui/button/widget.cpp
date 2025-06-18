@@ -163,15 +163,15 @@ void ekg::ui::event(
 
         ekg_set(
           property.widget.should_buffering,
-          check.widget.is_highlight,
-          (property.widget.is_hovering && ekg::rect_collide_vec2(rect, interact))
+          check.states.is_highlight,
+          (property.states.is_hovering && ekg::rect_collide_vec2(rect, interact))
         );
 
         ekg_action(
           check.actions,
           ekg::action::hover,
           (
-            check.widget.is_highlight
+            check.states.is_highlight
           )
           &&
           (is_hovering_any = true)
@@ -182,7 +182,7 @@ void ekg::ui::event(
         if (
           input.was_pressed
           &&
-          check.widget.is_highlight
+          check.states.is_highlight
           &&
           ekg::fire("button-active")
         ) {
@@ -192,7 +192,7 @@ void ekg::ui::event(
             (
               ekg_set(
                 property.widget.should_buffering,
-                check.widget.is_active,
+                check.states.is_active,
                 true
               )
             )
@@ -208,11 +208,11 @@ void ekg::ui::event(
         if (
           input.was_released
           &&
-          check.widget.is_active
+          check.states.is_active
         ) {
           ekg_set(
             property.widget.should_buffering,
-            check.widget.is_active,
+            check.states.is_active,
             false
           );
 
@@ -326,7 +326,7 @@ void ekg::ui::buffering(
   ekg_draw_allocator_assert_scissor(
     property.widget.rect_scissor,
     rect_abs,
-    ekg::query<ekg::property_t>(property.parent_at).widget.rect,
+    ekg::query<ekg::property_t>(property.parent_at).widget.rect_scissor,
     true
   );
 
@@ -369,7 +369,7 @@ void ekg::ui::buffering(
         );
       }
 
-      if (check.widget.is_highlight) {
+      if (check.states.is_highlight) {
         ekg::draw::rect(
           rect,
           button.color_scheme.box_highlight,
@@ -410,7 +410,7 @@ void ekg::ui::buffering(
         );
       }
 
-      if (check.widget.is_highlight) {
+      if (check.states.is_highlight) {
         ekg::draw::rect(
           rect,
           button.color_scheme.highlight,

@@ -51,9 +51,11 @@ namespace ekg {
     hover,
     active,
     press,
-    release
+    release,
+    drag,
+    resize
   };
-  constexpr size_t enum_action_size {static_cast<size_t>(ekg::action::release)+1};
+  constexpr size_t enum_action_size {static_cast<size_t>(ekg::action::resize)+1};
 
   template<typename t, size_t s>
   struct at_array_t {

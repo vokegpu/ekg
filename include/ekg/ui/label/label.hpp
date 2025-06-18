@@ -50,7 +50,7 @@ namespace ekg {
     ekg::at_t property_at {};
   public:
     std::string tag {};
-    ekg::rect_t<float> rect {};
+    ekg::rect_t<float> rect {0.0f, 0.0f, 75.0f, 0.0f};
     ekg::value<std::string> text {};
     ekg::flags_t dock {};
     ekg::flags_t dock_text {};

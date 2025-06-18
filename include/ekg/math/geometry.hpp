@@ -284,7 +284,7 @@ namespace ekg {
     }
 
     template<typename s>
-    ekg::rect_t<t> operator + (ekg::vec4_t<s> vec) {
+    ekg::rect_t<t> operator + (const ekg::vec4_t<s> &vec) {
       return ekg::rect_t<t> {
         this->x + static_cast<t>(vec.x),
         this->y + static_cast<t>(vec.y),

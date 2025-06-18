@@ -142,7 +142,7 @@ void ekg::ui::buffering(
   ekg_draw_allocator_assert_scissor(
     property.widget.rect_scissor,
     rect_abs,
-    ekg::query<ekg::property_t>(property.parent_at).widget.rect,
+    ekg::query<ekg::property_t>(property.parent_at).widget.rect_scissor,
     true
   );
 

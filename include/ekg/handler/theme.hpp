@@ -27,6 +27,7 @@
 #include "ekg/ui/button/button.hpp"
 #include "ekg/ui/frame/frame.hpp"
 #include "ekg/ui/label/label.hpp"
+#include "ekg/ui/scrollbar/scrollbar.hpp"
 
 namespace ekg {
   struct theme_t {
@@ -40,10 +41,11 @@ namespace ekg {
     ekg::button_color_scheme_t button_color_scheme {};
     ekg::frame_color_scheme_t frame_color_scheme {};
     ekg::label_color_scheme_t label_color_scheme {};
+    ekg::scrollbar_color_scheme_t scrollbar_color_scheme {};
   };
 
-  ekg::theme_t &theme(std::string_view tag = "");
-  ekg::theme_t &set_current_theme(std::string_view tag);
+  ekg::theme_t &theme(std::string tag = "");
+  ekg::theme_t &set_current_theme(const std::string &tag);
 }
 
 #endif

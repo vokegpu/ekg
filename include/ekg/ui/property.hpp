@@ -31,6 +31,18 @@
 namespace ekg {
   struct property_t {
   public:
+    struct states_t {
+    public:
+      bool is_absolute {};
+      bool is_active {};
+      bool is_hovering {};
+      bool is_visible {true};
+      bool is_enabled {true};
+      bool is_highlight {};
+      bool is_focused {};
+      bool is_warning {};
+    };
+
     struct operation_t {
     public:
       bool should_reload {};
@@ -53,18 +65,8 @@ namespace ekg {
       ekg::rect_t<float> rect_scissor {};
       ekg::vec2_t<float> min_size {};
       ekg::rect_t<float> rect {};
-      bool is_childnizate {};
-      bool is_children_docknizable {};
-      bool is_targeting_absolute_parent {};
-      bool is_absolute {};
-      bool is_active {};
-      bool is_hovering {};
-      bool is_visible {true};
-      bool is_enabled {true};
-      bool is_highlight {};
-      bool is_focused {};
-      bool is_warning {};
       bool is_high_frequency {};
+      bool is_targeting_absolute_parent {};
       bool should_refresh_size {true};
       bool should_buffering {true};
     };
@@ -75,8 +77,13 @@ namespace ekg {
     ekg::at_t parent_at {ekg::at_t::not_found};
     ekg::at_t abs_parent_at {ekg::at_t::not_found};
     ekg::at_t descriptor_at {ekg::at_t::not_found};
+    ekg::at_t nearest_scrollbar_at {ekg::at_t::not_found};
+
+    bool is_childnizate {};
+    bool is_children_docknizable {};
     std::vector<ekg::at_t> children {};
   public:
+    ekg::property_t::states_t states {};
     ekg::property_t::widget_t widget {};
     ekg::property_t::scroll_t scroll {};
     ekg::property_t::operation_t operation {};

@@ -21,22 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "ekg/handler/theme.hpp"
-#include "ekg/core/runtime.hpp"
+#include "ekg/ui/scrollbar/scrollbar.hpp"
 
-ekg::theme_t &ekg::theme(
-  std::string tag
-) {
-  if (tag.empty()) {
-    return ekg::p_core->handler_theme.get_current_theme();
-  }
-
-  return ekg::p_core->handler_theme.registry(tag);
-}
-
-ekg::theme_t &ekg::set_current_theme(
-  const std::string &tag
-) {
-  ekg::p_core->handler_theme.set_current_theme(tag);
-  return ekg::theme(tag);
-}
+ekg::scrollbar_t ekg::scrollbar_t::not_found {
+  .at = ekg::at_t::not_found
+};

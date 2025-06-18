@@ -259,7 +259,7 @@ void ekg::layout::docknize_widget(
   if (
       parent_property == ekg::property_t::not_found
       ||
-      !parent_property.widget.is_children_docknizable
+      !parent_property.is_children_docknizable
   ) {
     return;
   }
@@ -304,17 +304,35 @@ void ekg::layout::docknize_widget(
     current_global_theme.layout_margin_thickness
   );
 
+  if (parent_property.nearest_scrollbar_at != ekg::at_t::not_found) {
+    ekg::scrollbar_t &scrollbar {
+      ekg::query<ekg::scrollbar_t>(parent_property.nearest_scrollbar_at)
+    };
+  
+    ekg::property_t &scrollbar_property {
+      ekg::query<ekg::property_t>(scrollbar.property_at)
+    };
+
+    if (
+      scrollbar_property != ekg::property_t::not_found
+      &&
+      scrollbar != ekg::scrollbar_t::not_found
+    ) {
+      ekg::ui::reload(scrollbar_property, scrollbar);
+    }
+  }
+
   if (
-    parent_property.scroll.is_scrolling.x
+    parent_property.scroll.is_enabled.x
     ||
-    parent_property.scroll.is_scrolling.y
+    parent_property.scroll.is_enabled.y
   ) {
     float nearest_scroll_bar_thickness {
       static_cast<float>(parent_property.scroll.nearest_scroll_bar_thickness)
     };
 
-    container_rect.w -= nearest_scroll_bar_thickness * static_cast<float>(parent_property.scroll.is_scrolling.x);
-    container_rect.h -= nearest_scroll_bar_thickness * static_cast<float>(parent_property.scroll.is_scrolling.y);
+    container_rect.w -= nearest_scroll_bar_thickness * static_cast<float>(parent_property.scroll.is_enabled.y);
+    container_rect.h -= nearest_scroll_bar_thickness * static_cast<float>(parent_property.scroll.is_enabled.x);
   }
 
   ekg::flags_t flags {};
@@ -371,7 +389,6 @@ void ekg::layout::docknize_widget(
   float imperfect_pixel_max_bounding {pixel_perfect_projection.x + ekg::one_pixel * 5.0f};
   float projected_pixel_perfect_width {pixel_perfect_projection.x + pixel_perfect_projection.w};
   float unsolved_pixel_position {};
-
   ekg::rect_t<float> rect {};
 
   for (ekg::at_t &at : parent_property.children) {
@@ -380,7 +397,7 @@ void ekg::layout::docknize_widget(
       continue;
     }
 
-    if (property.widget.should_refresh_size) {
+    if (parent_property.widget.should_refresh_size) {
       property.widget.should_refresh_size = true;
     }
 
@@ -566,7 +583,7 @@ void ekg::layout::docknize_widget(
     );
 
     h_extent_backup = ekg::layout::extent_t::h_widget;
-    if (property.widget.is_children_docknizable && !property.children.empty()) {
+    if (property.is_children_docknizable && !property.children.empty()) {
       ekg::layout::docknize_widget(property);
     }
 
@@ -575,8 +592,6 @@ void ekg::layout::docknize_widget(
   }
 
   parent_property.widget.should_refresh_size = false;
-
-  // TODO: may is necessary to re-docknize the parent widget if previous scroll is disabled but now enabled
 }
 
 float ekg::layout::get_widget_height_by_children(
@@ -585,7 +600,7 @@ float ekg::layout::get_widget_height_by_children(
   if (
       parent_property == ekg::property_t::not_found
       ||
-      !parent_property.widget.is_children_docknizable
+      !parent_property.is_children_docknizable
   ) {
     return 0.0f;
   }
@@ -613,7 +628,7 @@ float ekg::layout::get_widget_height_by_children(
     height = property.widget.rect.h;
 
     if (
-        property.widget.is_children_docknizable
+        property.is_children_docknizable
         &&
         !property.children.empty()
       ) {

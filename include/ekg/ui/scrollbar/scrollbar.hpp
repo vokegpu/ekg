@@ -21,66 +21,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_UI_BUTTON_HPP
-#define EKG_UI_BUTTON_HPP
+#ifndef EKG_UI_SCROLLBAR_HPP
+#define EKG_UI_SCROLLBAR_HPP
 
-#include "ekg/io/descriptor.hpp"
-#include "ekg/io/font.hpp"
-#include "ekg/math/geometry.hpp"
-#include "ekg/io/event.hpp"
 #include "ekg/ui/property.hpp"
+#include "ekg/io/event.hpp"
 
 namespace ekg {
-  struct button_color_scheme_t {
+  struct scrollbar_color_scheme_t {
   public:
-    ekg::rgba_t<uint8_t> text_foreground {};
-
     ekg::rgba_t<uint8_t> background {};
     ekg::rgba_t<uint8_t> outline {};
-    ekg::rgba_t<uint8_t> highlight {};
-    ekg::rgba_t<uint8_t> active {};
 
-    ekg::rgba_t<uint8_t> box_background {};
-    ekg::rgba_t<uint8_t> box_outline {};
-    ekg::rgba_t<uint8_t> box_highlight {};
-    ekg::rgba_t<uint8_t> box_active {};
+    ekg::rgba_t<uint8_t> bar_background {};
+    ekg::rgba_t<uint8_t> bar_highlight {};
+    ekg::rgba_t<uint8_t> bar_active {};
+    ekg::rgba_t<uint8_t> bar_outline {};
+
+    ekg::pixel_thickness_t bar_thickness {8};
+    ekg::pixel_t bar_size_limit {20};
   };
 
-  struct button_t {
+  struct scrollbar_t {
   public:
-    struct check_t {
+    struct widget_t {
     public:
-      struct widget_t {
-      public:
-        ekg::rect_t<float> rect_text {};
-        ekg::rect_t<float> rect_box {};
-      };
-    public:
-      ekg::value<std::string> text {};
-      ekg::value<bool> value {};
-      ekg::font font_size {ekg::font::medium};
-      ekg::flags_t box {ekg::dock::none};
-      ekg::flags_t dock {ekg::dock::left};
-      ekg::button_t::check_t::widget_t widget {};
-      ekg::property_t::states_t states {};
-      ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
-      ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
+      ekg::property_t::states_t states_horizontal_bar {};
+      ekg::property_t::states_t states_vertical_bar {};
+      ekg::rect_t<float> rect_horizontal {};
+      ekg::rect_t<float> rect_vertical {};
+      ekg::rect_t<float> rect_delta {};
     };
-
-    static ekg::button_t not_found;
-    static constexpr ekg::type type {ekg::type::button};
+  public:
+    static constexpr ekg::type type {ekg::type::scrollbar};
+    static ekg::scrollbar_t not_found;
   public:
     ekg::at_t property_at {};
   public:
     std::string tag {};
-    ekg::flags_t dock {ekg::dock::left | ekg::dock::fill};
     ekg::rect_t<float> rect {};
-    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {}; 
+    ekg::vec2_t<float> acceleration {};
+    ekg::scrollbar_color_scheme_t color_scheme {};
+    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
     ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
-    std::vector<ekg::button_t::check_t> checks {};
-    ekg::button_color_scheme_t color_scheme {};
+    ekg::scrollbar_t::widget_t widget {};
+    ekg::flags_t dock {}; // useless
   public:
-    ekg_descriptor(ekg::button_t);
+    ekg_descriptor(ekg::scrollbar_t);
   };
 }
 

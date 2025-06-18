@@ -32,15 +32,15 @@
 namespace ekg::handler {
   class theme {
   protected:
-    std::string_view current_theme_tag {"dark-theme"};
-    std::map<std::string_view, ekg::theme_t> themes {};
+    std::string current_theme_tag {"dark-theme"};
+    std::map<std::string, ekg::theme_t> themes {};
   public:
     void init();
     void quit();
 
-    ekg::theme_t &registry(const std::string_view &tag);
+    ekg::theme_t &registry(const std::string &tag);
     ekg::theme_t &get_current_theme();
-    ekg::theme_t &set_current_theme(const std::string_view &tag);
+    ekg::theme_t &set_current_theme(const std::string &tag);
   };
 }
 

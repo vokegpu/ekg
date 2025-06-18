@@ -41,6 +41,9 @@
 #include "ekg/ui/label/label.hpp"
 #include "ekg/ui/label/widget.hpp"
 
+#include "ekg/ui/scrollbar/scrollbar.hpp"
+#include "ekg/ui/scrollbar/widget.hpp"
+
 namespace ekg::core {
   void registry(ekg::property_t &property);
 }
@@ -62,6 +65,7 @@ namespace ekg::core {
     ekg_core_declare_widget_case_todo(ekg::frame_t, widget_descriptor_at, ekg_core_widget_todo); \
     ekg_core_declare_widget_case_todo(ekg::button_t, widget_descriptor_at, ekg_core_widget_todo); \
     ekg_core_declare_widget_case_todo(ekg::label_t, widget_descriptor_at, ekg_core_widget_todo); \
+    ekg_core_declare_widget_case_todo(ekg::scrollbar_t, widget_descriptor_at, ekg_core_widget_todo); \
   }
 
 #define ekg_registry_widget(widget_descriptor_t, register_widget_pool, register_property_pool, is_container, register_settings) \
@@ -123,6 +127,9 @@ namespace ekg {
 
     ekg::pool<ekg::property_t> label_property {};
     ekg::pool<ekg::label_t> label {};
+
+    ekg::pool<ekg::property_t> scrollbar_property {};
+    ekg::pool<ekg::scrollbar_t> scrollbar {};
   } pools;
 
   template<typename t>
@@ -156,6 +163,10 @@ namespace ekg {
         return ekg::io::any_static_cast<t>(
           &ekg::pools.label_property.query(at)
         );
+      case ekg::type::scrollbar:
+        return ekg::io::any_static_cast<t>(
+          &ekg::pools.scrollbar_property.query(at)
+        );
       }
     case ekg::type::button:
       return ekg::io::any_static_cast<t>(
@@ -168,6 +179,10 @@ namespace ekg {
     case ekg::type::label:
       return ekg::io::any_static_cast<t>(
         &ekg::pools.label.query(at)
+      );
+    case ekg::type::scrollbar:
+      return ekg::io::any_static_cast<t>(
+        &ekg::pools.scrollbar.query(at)
       );
     }
 
@@ -186,8 +201,8 @@ namespace ekg {
           ekg::pools.frame_property,
           true,
           {
-            property.widget.is_childnizate = true;
-            property.widget.is_children_docknizable = true;
+            property.is_childnizate = true;
+            property.is_children_docknizable = true;
             widget.color_scheme = global_theme.frame_color_scheme;
           }
         );
@@ -200,8 +215,8 @@ namespace ekg {
           ekg::pools.button_property,
           false,
           {
-            property.widget.is_childnizate = false;
-            property.widget.is_children_docknizable = false;
+            property.is_childnizate = false;
+            property.is_children_docknizable = false;
             widget.color_scheme = global_theme.button_color_scheme;
           }
         );
@@ -212,14 +227,29 @@ namespace ekg {
           ekg::label_t,
           ekg::pools.label,
           ekg::pools.label_property,
-          true,
+          false,
           {
-            property.widget.is_childnizate = false;
-            property.widget.is_children_docknizable = false;
+            property.is_childnizate = false;
+            property.is_children_docknizable = false;
             widget.color_scheme = global_theme.label_color_scheme;
           }
         );
       }
+
+      case ekg::type::scrollbar: {
+        ekg_registry_widget(
+          ekg::scrollbar_t,
+          ekg::pools.scrollbar,
+          ekg::pools.scrollbar_property,
+          false,
+          {
+            property.is_childnizate = false;
+            property.is_children_docknizable = false;
+            widget.color_scheme = global_theme.scrollbar_color_scheme;
+          }
+        );
+      }
+
     case ekg::type::stack: {
       ekg::stack_t &stack {
         ekg::pools.stack.push_back(
@@ -240,7 +270,7 @@ namespace ekg {
         )
       );
     case ekg::type::sampler:
-      return ekg::io::any_static_cast<t>( 
+      return ekg::io::any_static_cast<t>(  
         &ekg::pools.sampler.push_back(
           ekg::io::any_static_cast<ekg::sampler_t>(&descriptor)
         )
