@@ -60,7 +60,7 @@ namespace ekg {
 
   struct input_info_t {
   public:
-    float scroll_speed {0.4f};
+    float scroll_speed {1.0f};
     ekg::timing_t ui_timeout_timing {};
     ekg::timing_t ui_scrolling_timing {};
     ekg::timing_t timing_last_interact {};

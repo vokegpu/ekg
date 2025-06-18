@@ -68,8 +68,8 @@ void ekg::ui::clamp_scrollbar(
 ) {
   ekg::vec2_t<float> h_limit {0.0f, rect_parent.w - scrollbar.rect.w};
   if (scrollbar.rect.w < rect_parent.w) {
-    property.scroll.position.x = 0.0f;
-    property.scroll.position.z = 0.0f;
+    property.scroll.position.x = h_limit.x;
+    property.scroll.position.z = h_limit.x;
   } else if (property.scroll.position.x < h_limit.y) {
     property.scroll.position.x = h_limit.y;
     property.scroll.position.z = h_limit.y;
@@ -80,14 +80,14 @@ void ekg::ui::clamp_scrollbar(
 
   ekg::vec2_t<float> v_limit {0.0f, rect_parent.h - scrollbar.rect.h};
   if (scrollbar.rect.h < rect_parent.h) {
-    property.scroll.position.y = 0.0f;
-    property.scroll.position.w = 0.0f;
+    property.scroll.position.y = v_limit.x;
+    property.scroll.position.w = v_limit.x;
   } else if (property.scroll.position.y < v_limit.y) {
-    property.scroll.position.y = h_limit.y;
-    property.scroll.position.w = h_limit.y;
+    property.scroll.position.y = v_limit.y;
+    property.scroll.position.w = v_limit.y;
   } else if (property.scroll.position.y > v_limit.x) {
-    property.scroll.position.y = h_limit.x;
-    property.scroll.position.w = h_limit.x;
+    property.scroll.position.y = v_limit.x;
+    property.scroll.position.w = v_limit.x;
   }
 }
 
@@ -216,7 +216,7 @@ void ekg::ui::event(
           &&
           (property.scroll.is_enabled.x || property.scroll.is_enabled.y)
           &&
-          ekg::fire("scrollbar-scroll")
+          (ekg::fire("scrollbar-scroll") || ekg::fire("scrollbar-scroll-horizontal"))
         );
 
         ekg::rect_t<float> h_bar {scrollbar.widget.rect_horizontal};
@@ -298,7 +298,13 @@ void ekg::ui::event(
           ekg::fire("scrollbar-scroll-horizontal")
         };
     
-        if (property.states.is_hovering && property.scroll.is_enabled.x && is_scroll_horizontal_fired) {
+        if (
+          is_scroll_horizontal_fired
+          &&
+          property.states.is_hovering
+          &&
+          property.scroll.is_enabled.x
+        ) {
           property.scroll.is_scrolling.x = true;
           property.scroll.position.z = ekg::clamp<float>(
             property.scroll.position.x + (input.interact.w * scrollbar.acceleration.x),
@@ -307,7 +313,15 @@ void ekg::ui::event(
           );
         }
 
-        if (property.states.is_hovering && property.scroll.is_enabled.y && !is_scroll_horizontal_fired) {
+        if (
+          is_scroll_fired
+          &&
+          !is_scroll_horizontal_fired
+          &&
+          property.states.is_hovering
+          &&
+          property.scroll.is_enabled.y
+        ) {
           property.scroll.is_scrolling.y = true;
           property.scroll.position.w = ekg::clamp<float>(
             property.scroll.position.y + (input.interact.w * scrollbar.acceleration.y),
@@ -347,11 +361,11 @@ void ekg::ui::event(
           scrollbar.widget.states_horizontal_bar.is_active,
           scrollbar.widget.states_horizontal_bar.is_hovering
         );
-    
+
         ekg::rect_t<float> v_bar {scrollbar.widget.rect_vertical};
         v_bar.y += rect_parent.y;
         scrollbar.widget.rect_delta.y = input.interact.y - v_bar.y;
-    
+
         ekg_set(
           property.widget.should_buffering,
           scrollbar.widget.states_vertical_bar.is_active,
@@ -382,7 +396,7 @@ void ekg::ui::event(
       ) {
         ekg::rect_t<float> h_bar {scrollbar.widget.rect_horizontal};
         h_bar.x = (input.interact.x - scrollbar.widget.rect_delta.x) - rect_parent.x;
-    
+
         property.scroll.position.z = (
           -ekg::clamp<float>(
             h_bar.x / (rect_parent.w - scrollbar.widget.rect_horizontal.w),
@@ -390,9 +404,9 @@ void ekg::ui::event(
             1.0f
           )
           *
-          scrollbar.rect.w - rect_parent.w
+          (scrollbar.rect.w - rect_parent.w)
         );
-    
+
         property.scroll.is_scrolling.x = true;
         property.scroll.position.x = property.scroll.position.z;
         property.widget.should_buffering = true;
@@ -413,14 +427,15 @@ void ekg::ui::event(
         ekg::rect_t<float> v_bar {scrollbar.widget.rect_vertical};
         v_bar.y = (input.interact.y - scrollbar.widget.rect_delta.y) - rect_parent.y;
 
+
         property.scroll.position.w = (
           -ekg::clamp<float>(
-            v_bar.y / (rect_parent.h - scrollbar.widget.rect_vertical.h),
+            v_bar.y / (rect_parent.h - v_bar.h),
             0.0f,
             1.0f
           )
           *
-          scrollbar.rect.h - rect_parent.h
+          (scrollbar.rect.h - rect_parent.h)
         );
     
         property.scroll.is_scrolling.y = true;
@@ -650,7 +665,7 @@ void ekg::ui::buffering(
     scrollbar.color_scheme.bar_thickness * property.scroll.is_enabled.x
   );
 
-  scrollbar.widget.rect_horizontal.x = (
+  scrollbar.widget.rect_horizontal.y = (
     rect_parent.y
     +
     rect_parent.h

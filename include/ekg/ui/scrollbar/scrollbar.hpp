@@ -38,7 +38,7 @@ namespace ekg {
     ekg::rgba_t<uint8_t> bar_active {};
     ekg::rgba_t<uint8_t> bar_outline {};
 
-    ekg::pixel_thickness_t bar_thickness {20};
+    ekg::pixel_thickness_t bar_thickness {8};
     ekg::pixel_t bar_size_limit {20};
   };
 

@@ -61,7 +61,7 @@ void ekg::handler::theme::init() {
 
   light_pinky_theme.scrollbar_color_scheme.background = {204, 204, 204, 30};
   light_pinky_theme.scrollbar_color_scheme.outline = {204, 204, 204, 0};
-  light_pinky_theme.scrollbar_color_scheme.bar_background = {245, 169, 184, 50};
+  light_pinky_theme.scrollbar_color_scheme.bar_background = {245, 169, 184, 100};
   light_pinky_theme.scrollbar_color_scheme.bar_highlight = {245, 169, 184, 50};
   light_pinky_theme.scrollbar_color_scheme.bar_active = {245, 169, 184, 100};
 

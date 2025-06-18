@@ -111,8 +111,6 @@ void ekg::update() {
     if (
       // no not-found-check because `t::not_found` bool fields are always false
       !property.widget.is_high_frequency
-      &&
-      false
     ) {
       property.operation.should_enable_high_frequency = false; // same here
 
