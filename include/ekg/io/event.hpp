@@ -43,9 +43,12 @@ namespace ekg {
     active_bg,
     active_outline,
     text_fg,
-    text_outline
+    text_outline,
+    warning_bg,
+    warning_fg,
+    warning_outline,
   };
-  constexpr size_t enum_layer_size {static_cast<size_t>(ekg::layer::text_outline)+1};
+  constexpr size_t enum_layer_size {static_cast<size_t>(ekg::layer::warning_outline)+1};
 
   enum class action {
     hover,

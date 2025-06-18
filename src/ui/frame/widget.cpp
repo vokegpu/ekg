@@ -66,18 +66,17 @@ void ekg::ui::event(
       ekg::input_info_t &input {ekg::p_core->handler_input.input};
       ekg::flags_t resize_over_dock {};
 
-      /*ekg::io::trigger(
+      ekg_action(
+        frame.actions,
+        ekg::action::hover,
         (
           input.has_motion
           &&
           property.states.is_hovering
           &&
-          (ekg::timing_t::second > ekg::tweaks.task_latency)
-        ),
-        ekg::action::motion,
-        frame.actions,
-        this->properties
-      );*/
+          (ekg::timing_t::second && ekg::gui.ui.frequency)
+        )
+      );
 
       if (
           input.was_pressed
@@ -135,12 +134,11 @@ void ekg::ui::event(
 
         property.states.is_absolute = property.states.is_active;
 
-        /*ekg::io::trigger(
-          true,
-          ekg::action::press,
+        ekg_action(
           frame.actions,
-          this->properties
-        );*/
+          ekg::action::press,
+          true
+        );
       } else if (input.has_motion && property.states.is_active) {
         ekg::rect_t<float> new_rect {rect};
         ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};        
@@ -148,12 +146,11 @@ void ekg::ui::event(
         resize_over_dock = frame.widget.target_dock_resize;
 
         if (frame.widget.target_dock_drag != ekg::dock::none && frame.widget.target_dock_resize == ekg::dock::none) {
-          /*ekg::io::trigger(
-            ekg::timing_t::second > ekg::tweaks.task_latency,
-            ekg::action::drag,
+          ekg_action(
             frame.actions,
-            this->properties
-          );*/
+            ekg::action::drag,
+            ekg::timing_t::second > ekg::gui.ui.frequency
+          );
 
           new_rect.x = interact.x - frame.widget.rect_delta.x;
           new_rect.y = interact.y - frame.widget.rect_delta.y;
@@ -161,12 +158,11 @@ void ekg::ui::event(
         }
 
         if (frame.widget.target_dock_resize != ekg::dock::none) {
-          /*ekg::io::trigger(
-            ekg::timing_t::second > ekg::tweaks.task_latency,
-            ekg::action::resize,
+          ekg_action(
             frame.actions,
-            this->properties
-          );*/
+            ekg::action::resize,
+            ekg::timing_t::second > ekg::gui.ui.frequency
+          );
 
           if (ekg::has(frame.widget.target_dock_resize, ekg::dock::left)) {
             interact.x = ekg::clamp_min<float>(interact.x, frame.widget.rect_delta.x);
@@ -262,14 +258,11 @@ void ekg::ui::event(
 
       if (input.was_released) {
         if (property.states.is_active) {
-          property.states.is_absolute = false;
-
-          /*ekg::io::trigger(
-            property.states.is_hovering,
-            ekg::action::release,
+          ekg_action(
             frame.actions,
-            this->properties
-          );*/
+            ekg::action::release,
+            property.states.is_hovering
+          );
         }
 
         frame.widget.target_dock_resize = ekg::dock::none;
@@ -315,11 +308,22 @@ void ekg::ui::buffering(
     property.parent_at != ekg::at_t::not_found
   );
 
+  /**
+   * This allows scrolling and dragging behavior possible,
+   * every child from this frame will be spaced always
+   * ahead of margin.
+   **/
+  float margin_bound {frame.color_scheme.margin * 2.0f};
+  property.widget.rect_scissor.x += frame.color_scheme.margin;
+  property.widget.rect_scissor.y += frame.color_scheme.margin;
+  property.widget.rect_scissor.w -= margin_bound;
+  property.widget.rect_scissor.h -= margin_bound;
+
   ekg::draw::rect(
     rect,
     property.states.is_focused ? frame.color_scheme.focused_background : frame.color_scheme.background,
     ekg::draw::mode::fill,
-    ekg::at_t::not_found
+    frame.layers[ekg::layer::bg]
   );
 
   if (property.states.is_active) {
@@ -327,7 +331,7 @@ void ekg::ui::buffering(
       rect,
       frame.color_scheme.highlight,
       ekg::draw::mode::fill,
-      ekg::at_t::not_found
+      frame.layers[ekg::layer::active_bg]
     );
   }
 
@@ -336,7 +340,7 @@ void ekg::ui::buffering(
       rect,
       frame.color_scheme.highlight,
       ekg::draw::mode::fill,
-      ekg::at_t::not_found
+      frame.layers[ekg::layer::highlight_bg]
     );
   }
 
@@ -344,7 +348,7 @@ void ekg::ui::buffering(
     rect,
     property.states.is_focused ? frame.color_scheme.focused_outline : frame.color_scheme.outline,
     ekg::draw::mode::outline,
-    ekg::at_t::not_found
+    frame.layers[ekg::layer::outline]
   );
 
   if (property.states.is_warning) {
@@ -352,7 +356,7 @@ void ekg::ui::buffering(
       rect,
       frame.color_scheme.warning_outline,
       ekg::draw::mode::outline,
-      ekg::at_t::not_found
+      frame.layers[ekg::layer::warning_outline]
     );
   }
 
