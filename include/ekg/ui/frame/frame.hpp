@@ -26,11 +26,13 @@
 
 #include "ekg/io/descriptor.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/io/event.hpp"
 
 namespace ekg {
   struct frame_color_scheme_t {
   public:
     ekg::pixel_thickness_t actions_margin_pixel_thickness {5};
+    ekg::pixel_t margin {2.0f};
     ekg::rgba_t<uint8_t> background {};
     ekg::rgba_t<uint8_t> highlight {};
     ekg::rgba_t<uint8_t> outline {};
@@ -66,6 +68,8 @@ namespace ekg {
     bool set_top_level {};
     ekg::frame_color_scheme_t color_scheme {};
     ekg::frame_t::widget_t widget {};
+    ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
+    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
   public:
     ekg_descriptor(ekg::frame_t);
   };
