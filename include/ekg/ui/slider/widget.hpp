@@ -21,33 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_HANDLER_THEME_HPP
-#define EKG_HANDLER_THEME_HPP
+#ifndef EKG_UI_SLIDER_WIDGET_HPP
+#define EKG_UI_SLIDER_WIDGET_HPP
 
-#include "ekg/ui/button/button.hpp"
-#include "ekg/ui/frame/frame.hpp"
-#include "ekg/ui/label/label.hpp"
-#include "ekg/ui/scrollbar/scrollbar.hpp"
-#include "ekg/ui/slider/slider.hpp"
+#include "slider.hpp"
+#include "ekg/ui/property.hpp"
+#include "ekg/io/event.hpp"
 
-namespace ekg {
-  struct theme_t {
-  public:
-    std::string tag {};
-    std::string author {};
-    std::string description {};
-  public:
-    float layout_offset {};
-    ekg::pixel_t layout_margin_thickness {2};
-    ekg::button_color_scheme_t button_color_scheme {};
-    ekg::frame_color_scheme_t frame_color_scheme {};
-    ekg::label_color_scheme_t label_color_scheme {};
-    ekg::scrollbar_color_scheme_t scrollbar_color_scheme {};
-    ekg::slider_color_scheme_t slider_color_scheme {};
-  };
+namespace ekg::ui {
+  void reload(
+    ekg::property_t &property,
+    ekg::slider_t &slider
+  );
 
-  ekg::theme_t &theme(std::string tag = "");
-  ekg::theme_t &set_current_theme(const std::string &tag);
+  void event(
+    ekg::property_t &property,
+    ekg::slider_t &slider,
+    const ekg::io::stage &stage
+  );
+
+  void high_frequency(
+    ekg::property_t &property,
+    ekg::slider_t &slider
+  );
+
+  void pass(
+    ekg::property_t &property,
+    ekg::slider_t &slider
+  );
+
+  void buffering(
+    ekg::property_t &property,
+    ekg::slider_t &slider
+  );
+
+  void unmap(
+    ekg::slider_t &slider
+  );
 }
 
 #endif

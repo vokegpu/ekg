@@ -44,6 +44,9 @@
 #include "ekg/ui/scrollbar/scrollbar.hpp"
 #include "ekg/ui/scrollbar/widget.hpp"
 
+#include "ekg/ui/slider/slider.hpp"
+#include "ekg/ui/slider/widget.hpp"
+
 namespace ekg::core {
   void registry(ekg::property_t &property);
 }
@@ -66,6 +69,7 @@ namespace ekg::core {
     ekg_core_declare_widget_case_todo(ekg::button_t, widget_descriptor_at, ekg_core_widget_todo); \
     ekg_core_declare_widget_case_todo(ekg::label_t, widget_descriptor_at, ekg_core_widget_todo); \
     ekg_core_declare_widget_case_todo(ekg::scrollbar_t, widget_descriptor_at, ekg_core_widget_todo); \
+    ekg_core_declare_widget_case_todo(ekg::slider_t, widget_descriptor_at, ekg_core_widget_todo); \
   }
 
 #define ekg_registry_widget(widget_descriptor_t, register_widget_pool, register_property_pool, is_container, register_settings) \
@@ -130,6 +134,9 @@ namespace ekg {
 
     ekg::pool<ekg::property_t> scrollbar_property {};
     ekg::pool<ekg::scrollbar_t> scrollbar {};
+
+    ekg::pool<ekg::property_t> slider_property {};
+    ekg::pool<ekg::slider_t> slider {};
   } pools;
 
   template<typename t>
@@ -167,6 +174,10 @@ namespace ekg {
         return ekg::io::any_static_cast<t>(
           &ekg::pools.scrollbar_property.query(at)
         );
+      case ekg::type::slider:
+        return ekg::io::any_static_cast<t>(
+          &ekg::pools.slider_property.query(at)
+        );
       }
     case ekg::type::button:
       return ekg::io::any_static_cast<t>(
@@ -183,6 +194,10 @@ namespace ekg {
     case ekg::type::scrollbar:
       return ekg::io::any_static_cast<t>(
         &ekg::pools.scrollbar.query(at)
+      );
+    case ekg::type::slider:
+      return ekg::io::any_static_cast<t>(
+        &ekg::pools.slider.query(at)
       );
     }
 
@@ -246,6 +261,20 @@ namespace ekg {
             property.is_childnizate = false;
             property.is_children_docknizable = false;
             widget.color_scheme = global_theme.scrollbar_color_scheme;
+          }
+        );
+      }
+
+      case ekg::type::slider: {
+        ekg_registry_widget(
+          ekg::slider_t,
+          ekg::pools.slider,
+          ekg::pools.slider_property,
+          false,
+          {
+            property.is_childnizate = false;
+            property.is_children_docknizable = false;
+            widget.color_scheme = global_theme.slider_color_scheme;
           }
         );
       }

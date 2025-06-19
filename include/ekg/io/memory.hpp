@@ -158,6 +158,21 @@ namespace ekg {
   };
 }
 
+namespace ekg::io {
+  /**
+   * @TODO: add a complete docs here please.
+   **/
+  template<typename t>
+  constexpr t &any_static_cast(void *p_any) {
+    return *static_cast<t*>(p_any);
+  }
+
+  template<typename t>
+  constexpr t *any_static_cast_as_ptr(void *p_any) {
+    return static_cast<t*>(p_any);
+  }
+}
+
 /**
  * Value system.
  **/
@@ -199,6 +214,11 @@ namespace ekg {
       return this->p ? *this->p : this->val;
     }
   
+    template<typename s>
+    void ownership(s *p_address) {
+      ownership(ekg::io::any_static_cast_as_ptr<t>(p_address));
+    }
+
     void ownership(t *p_address) {
       if (p_address == nullptr) {
         return;
@@ -244,16 +264,6 @@ namespace ekg {
 
   void map(void *pv_address);
   void unmap(void *pv_address);
-}
-
-namespace ekg::io {
-  /**
-   * @TODO: add a complete docs here please.
-   **/
-  template<typename t>
-  constexpr t &any_static_cast(void *p_any) {
-    return *static_cast<t*>(p_any);
-  }
 }
 
 #endif
