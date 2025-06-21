@@ -88,12 +88,14 @@ void ekg::core::swap(ekg::info_t &info) {
     ekg::p_core->collector.clear();
     ekg::core::swap_collector(was_found, at);
 
-    if (was_found) {
+    if (ekg::p_core->top_level_stack.empty() && was_found) {
       ekg::p_core->top_level_stack.insert(
         ekg::p_core->top_level_stack.begin(),
         ekg::p_core->collector.begin(),
         ekg::p_core->collector.end()
       );
+
+      ekg::io::dispatch(ekg::io::operation::docknize, property.at);
     } else {
       ekg::p_core->stack.insert(
         ekg::p_core->stack.begin(),

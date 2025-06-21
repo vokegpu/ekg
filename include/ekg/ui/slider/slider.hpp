@@ -45,7 +45,7 @@ namespace ekg {
   public:
     struct range {
     protected:
-      ekg::value<char[1]> memory_tape_value {};
+      ekg::value<char[8]> memory_tape_value {};
       ekg::value<char[8]> memory_tape_minimum_value {};
       ekg::value<char[8]> memory_tape_maximum_value {};
     public:

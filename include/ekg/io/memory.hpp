@@ -221,6 +221,7 @@ namespace ekg {
 
     void ownership(t *p_address) {
       if (p_address == nullptr) {
+        this->p = &val;
         return;
       }
   
