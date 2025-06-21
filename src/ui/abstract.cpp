@@ -41,7 +41,6 @@ ekg::rect_t<float> &ekg::ui::get_abs_rect(
   );
 }
 
-
 void ekg::ui::pre_event(
   ekg::property_t &property,
   ekg::rect_t<float> &descriptor_rect,

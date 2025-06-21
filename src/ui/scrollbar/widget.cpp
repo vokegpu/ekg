@@ -141,7 +141,7 @@ void ekg::ui::reload(
 
   float place {};
   for (ekg::at_t &at : children) {
-    ekg_core_abstract_todo(
+    ekg_core_widget_call(
       at.flags,
       at,
 

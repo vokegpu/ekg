@@ -71,6 +71,12 @@ namespace ekg {
   constexpr ekg::flags_t &put(ekg::flags_t &bits, t bit) {
     return (bits |= bit);
   }
+
+  constexpr void assert(bool state, const char *p_msg = "") {
+    if (state) return;
+    if (p_msg) std::cout << "[EKG] assert failed: " << p_msg;
+    std::abort();
+  }
 }
 
 /**
@@ -184,6 +190,7 @@ namespace ekg {
     t *p {nullptr};
     t previous {};
     bool changed {};
+    size_t type_info_hash {};
   public:
     value() {
       this->ownership(nullptr);
@@ -193,20 +200,30 @@ namespace ekg {
       this->ownership(p_address);
       this->changed = true;
     }
+
+    template<typename s>
+    value(s val) {
+      this->as<s>() = ekg::io::any_static_cast<s>(&val);
+      this->changed = true;
+      this->type_info_hash = typeid(s).hash_code();
+    }
   
     value(t val) {
       this->get() = val;
       this->changed = true;
+      this->type_info_hash = typeid(t).hash_code();
     }
   
     value(const char *p_char) {
       this->get() = p_char;
       this->changed = true;
+      this->type_info_hash = typeid(t).hash_code();
     }
   
     bool set(const t &val) {
       this->get() = val;
       this->changed = true;
+      this->type_info_hash = typeid(t).hash_code();
       return true;
     }
   
@@ -217,6 +234,7 @@ namespace ekg {
     template<typename s>
     void ownership(s *p_address) {
       ownership(ekg::io::any_static_cast_as_ptr<t>(p_address));
+      this->type_info_hash = typeid(s).hash_code();
     }
 
     void ownership(t *p_address) {
@@ -242,10 +260,21 @@ namespace ekg {
   
       return false;
     }
+
+    template<typename s>
+    s &as() {
+      this->type_info_hash = typeid(s).hash_code();
+      return ekg::io::any_static_cast<s>(this->get());
+    }
+
+    size_t &get_type_info_hash() {
+      return this->type_info_hash;
+    }
   public:
     template<typename s>
-    ekg::value<t> &operator = (const s &val) {
-      this->get() = val;
+    ekg::value<t> &operator = (s val) {
+      this->type_info_hash = typeid(s).hash_code();
+      this->get() = ekg::io::any_static_cast<t>(&val);
       this->changed = true;
       return *this;
     }

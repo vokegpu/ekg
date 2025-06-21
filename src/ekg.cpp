@@ -102,7 +102,7 @@ void ekg::update() {
       ekg::query<ekg::property_t>(ekg::p_core->high_frequency.at(it))
     };
 
-    ekg_core_abstract_todo(
+    ekg_core_widget_call(
       property.descriptor_at.flags,
       property.descriptor_at,
       ekg::ui::high_frequency(property, descriptor);
@@ -147,7 +147,7 @@ void ekg::render() {
         continue;
       }
 
-      ekg_core_abstract_todo(
+      ekg_core_widget_call(
         property.descriptor_at.flags,
         property.descriptor_at,
 

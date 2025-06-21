@@ -43,50 +43,13 @@ namespace ekg {
 
   struct slider_t {
   public:
-    struct range {
-    protected:
-      ekg::value<char[8]> memory_tape_value {};
-      ekg::value<char[8]> memory_tape_minimum_value {};
-      ekg::value<char[8]> memory_tape_maximum_value {};
+    struct range_t {
     public:
-      template<typename t>
-      t &value() {
-        return ekg::io::any_static_cast<t>(
-          this->memory_tape_value.get()
-        );
-      }
-
-      template<typename t>
-      t &value(t *p_ownership_address) {
-        this->memory_tape_value.ownership<t>(p_ownership_address);
-        return this->value<t>();
-      }
-
-      template<typename t>
-      t &min() {
-        return ekg::io::any_static_cast<t>(
-          this->memory_tape_minimum_value.get()
-        );
-      }
-
-      template<typename t>
-      t &min(t *p_ownership_address) {
-        this->memory_tape_minimum_value.ownership<t>(p_ownership_address);
-        return this->min<t>();
-      }
-
-      template<typename t>
-      t &max() {
-        return ekg::io::any_static_cast<t>(
-          this->memory_tape_maximum_value.get()
-        );
-      }
-
-      template<typename t>
-      t &max(t *p_ownership_address) {
-        this->memory_tape_maximum_value.ownership<t>(p_ownership_address);
-        return this->max<t>();
-      }
+      ekg::value<char[8]> value {};
+      ekg::value<char[8]> min {};
+      ekg::value<char[8]> max {};
+      ekg::flags_t dock {ekg::dock::left};
+      ekg::flags_t dock_text {ekg::dock::center};
     };
   public:
     static constexpr ekg::type type {ekg::type::slider};
@@ -97,7 +60,7 @@ namespace ekg {
     std::string tag {};
     ekg::rect_t<float> rect {};
     ekg::flags_t dock {};
-    std::vector<ekg::slider_t::range> ranges {};
+    std::vector<ekg::slider_t::range_t> ranges {};
     ekg::slider_color_scheme_t color_scheme {};
   public:
     ekg_descriptor(ekg::slider_t);

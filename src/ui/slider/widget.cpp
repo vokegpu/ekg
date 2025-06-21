@@ -27,7 +27,14 @@ void ekg::ui::reload(
   ekg::property_t &property,
   ekg::slider_t &slider
 ) {
-
+  for (ekg::slider_t::range_t &range : slider.ranges) {
+    ekg_ui_slider_range_task(
+      range,
+      {
+        ekg_log_low_level("meow: " << value);
+      }
+    );
+  }
 }
 
 void ekg::ui::event(

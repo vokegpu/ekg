@@ -51,7 +51,7 @@ namespace ekg::core {
   void registry(ekg::property_t &property);
 }
 
-#define ekg_core_declare_widget_case_todo(descriptor_t, widget_descriptor_at, ekg_core_widget_todo) \
+#define ekg_core_widget_call_impl(descriptor_t, widget_descriptor_at, todo) \
     case descriptor_t::type: { \
       descriptor_t &descriptor { \
         ekg::query<descriptor_t>(widget_descriptor_at) \
@@ -59,17 +59,17 @@ namespace ekg::core {
       if (descriptor == descriptor_t::not_found) { \
         break; \
       } \
-      ekg_core_widget_todo \
+      todo \
       break; \
     }
 
-#define ekg_core_abstract_todo(widget_descriptor_type, widget_descriptor_at, ekg_core_widget_todo) \
+#define ekg_core_widget_call(widget_descriptor_type, widget_descriptor_at, todo) \
   switch (widget_descriptor_type) { \
-    ekg_core_declare_widget_case_todo(ekg::frame_t, widget_descriptor_at, ekg_core_widget_todo); \
-    ekg_core_declare_widget_case_todo(ekg::button_t, widget_descriptor_at, ekg_core_widget_todo); \
-    ekg_core_declare_widget_case_todo(ekg::label_t, widget_descriptor_at, ekg_core_widget_todo); \
-    ekg_core_declare_widget_case_todo(ekg::scrollbar_t, widget_descriptor_at, ekg_core_widget_todo); \
-    ekg_core_declare_widget_case_todo(ekg::slider_t, widget_descriptor_at, ekg_core_widget_todo); \
+    ekg_core_widget_call_impl(ekg::frame_t, widget_descriptor_at, todo); \
+    ekg_core_widget_call_impl(ekg::button_t, widget_descriptor_at, todo); \
+    ekg_core_widget_call_impl(ekg::label_t, widget_descriptor_at, todo); \
+    ekg_core_widget_call_impl(ekg::scrollbar_t, widget_descriptor_at, todo); \
+    ekg_core_widget_call_impl(ekg::slider_t, widget_descriptor_at, todo); \
   }
 
 #define ekg_registry_widget(widget_descriptor_t, register_widget_pool, register_property_pool, is_container, register_settings) \
