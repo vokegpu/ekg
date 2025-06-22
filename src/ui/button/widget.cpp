@@ -327,7 +327,7 @@ void ekg::ui::buffering(
     property.widget.rect_scissor,
     rect_abs,
     ekg::query<ekg::property_t>(property.parent_at).widget.rect_scissor,
-    true
+    ekg::always_parented
   );
 
   ekg::draw::rect(

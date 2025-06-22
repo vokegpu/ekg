@@ -26,6 +26,7 @@
 
 #include "ekg/io/descriptor.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/io/font.hpp"
 
 namespace ekg {
   struct slider_color_scheme_t {
@@ -43,13 +44,24 @@ namespace ekg {
 
   struct slider_t {
   public:
+    struct widget_t {
+    public:
+      ekg::rect_t<float> rect_bar {};
+      ekg::rect_t<float> rect_text {};
+      ekg::rect_t<float> rect_target {};
+      std::string text {};
+    };
+
     struct range_t {
     public:
       ekg::value<char[8]> value {};
+      size_t precision {2};
       ekg::value<char[8]> min {};
       ekg::value<char[8]> max {};
       ekg::flags_t dock {ekg::dock::left};
       ekg::flags_t dock_text {ekg::dock::center};
+      ekg::font font_size {ekg::font::medium};
+      ekg::slider_t::widget_t widget {};
     };
   public:
     static constexpr ekg::type type {ekg::type::slider};

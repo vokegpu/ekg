@@ -53,6 +53,10 @@
     ekg_draw_allocator_pass(); \
   };
 
+namespace ekg {
+  constexpr bool always_parented {true};
+}
+
 namespace ekg::draw {
   class allocator {
   public:

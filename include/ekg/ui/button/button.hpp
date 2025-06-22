@@ -48,20 +48,20 @@ namespace ekg {
 
   struct button_t {
   public:
-    struct check_t {
+    struct widget_t {
     public:
-      struct widget_t {
-      public:
-        ekg::rect_t<float> rect_text {};
-        ekg::rect_t<float> rect_box {};
-      };
+      ekg::rect_t<float> rect_text {};
+      ekg::rect_t<float> rect_box {};
+    };
+
+    struct check_t {
     public:
       ekg::value<std::string> text {};
       ekg::value<bool> value {};
       ekg::font font_size {ekg::font::medium};
       ekg::flags_t box {ekg::dock::none};
       ekg::flags_t dock {ekg::dock::left};
-      ekg::button_t::check_t::widget_t widget {};
+      ekg::button_t::widget_t widget {};
       ekg::property_t::states_t states {};
       ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
       ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};

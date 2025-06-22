@@ -640,7 +640,7 @@ void ekg::ui::buffering(
     property.widget.rect_scissor,
     rect_parent,
     rect_parent,
-    true
+    ekg::always_parented
   );
 
   scrollbar.widget.rect_horizontal.w = 0.0f;
