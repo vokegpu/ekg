@@ -30,6 +30,7 @@
 #include "ekg/layout/scalenize.hpp"
 #include "ekg/ui/abstract.hpp"
 #include "ekg/core/pools.hpp"
+#include "ekg/draw/shape/shape.hpp"
 
 void ekg::ui::reload(
   ekg::property_t &property,
@@ -108,6 +109,23 @@ void ekg::ui::reload(
     range.widget.rect_bar.w = ekg::max(range.widget.rect_bar.w, min_bar_width);
   }
 
+  if (slider.ranges.empty()) {
+    ekg::rect_t<float> empty {};
+    empty.w = ekg::draw::get_font_renderer(ekg::font::medium).get_text_height();
+    empty.h = empty.w;
+
+    aligned_dimension = {};
+    ekg::align_rect_dimension(
+      pick_axis,
+      empty,
+      ekg::dpi.min_sizes,
+      aligned_dimension
+    );
+
+    aligned_dimension.h *= slider.rect.scaled_height;
+    slider.rect.h = ekg::max(slider.rect.h, aligned_dimension.h);
+  }
+
   ekg::layout::mask mask {};
   mask.preset(
     {
@@ -124,21 +142,21 @@ void ekg::ui::reload(
      * @TODO: a specialized issue for mask-reordering may with a new dock value.
      * I will explicit set the order here, a temp solution while no dock-priority is done.
      **/
-    if (ekg::has(range.dock_text, ekg::dock::left)) {
-      mask.insert(
-        {.p_rect = &range.widget.rect_text, .dock = range.dock_text}
-      );
-
-      mask.insert(
-        {.p_rect = &range.widget.rect_bar, .dock = range.dock}
-      );
-    } else if (ekg::has(range.dock_text, ekg::dock::right)) {
+    if (ekg::has(range.dock_text, ekg::dock::right)) {
       mask.insert(
         {.p_rect = &range.widget.rect_bar, .dock = range.dock}
       );
 
       mask.insert(
         {.p_rect = &range.widget.rect_text, .dock = range.dock_text}
+      );
+    } else if (ekg::has(range.dock_text, ekg::dock::left) || range.dock_text != ekg::dock::none) {
+      mask.insert(
+        {.p_rect = &range.widget.rect_text, .dock = range.dock_text}
+      );
+
+      mask.insert(
+        {.p_rect = &range.widget.rect_bar, .dock = range.dock}
       );
     } else {
       mask.insert(
@@ -192,7 +210,7 @@ void ekg::ui::buffering(
   ekg::property_t &property,
   ekg::slider_t &slider
 ) {
-  ekg::rect_t<float> &rect {
+  ekg::rect_t<float> &rect_abs {
     ekg::ui::get_abs_rect(
       property, slider.rect
     )
@@ -200,9 +218,63 @@ void ekg::ui::buffering(
 
   ekg_draw_allocator_assert_scissor(
     property.widget.rect_scissor,
-    rect,
+    rect_abs,
     ekg::query<ekg::property_t>(property.parent_at).widget.rect_scissor,
     ekg::always_parented
+  );
+
+  ekg::draw::rect(
+    rect_abs,
+    slider.color_scheme.background,
+    ekg::draw::mode::fill,
+    slider.layers[ekg::layer::bg]
+  );
+
+  ekg::rect_t<float> bar {};
+  for (ekg::slider_t::range_t &range : slider.ranges) {
+    bar = range.widget.rect_bar + rect_abs;
+
+    ekg::draw::rect(
+      bar,
+      slider.color_scheme.bar_background,
+      ekg::draw::mode::fill,
+      range.layers[ekg::layer::bg]
+    );
+
+    if (range.widget.states.is_highlight) {
+      ekg::draw::rect(
+        bar,
+        slider.color_scheme.bar_highlight,
+        ekg::draw::mode::fill,
+        range.layers[ekg::layer::highlight_bg]
+      );
+    }
+
+    if (range.widget.states.is_active) {
+      ekg::draw::rect(
+        bar,
+        slider.color_scheme.bar_active,
+        ekg::draw::mode::fill,
+        range.layers[ekg::layer::active_bg]
+      );
+    }
+
+    if (range.dock_text != ekg::dock::none) {
+      ekg::draw::get_font_renderer(range.font_size)
+        .blit(
+          range.widget.text,
+          range.widget.rect_text.x + rect_abs.x,
+          range.widget.rect_text.y + rect_abs.y,
+          slider.color_scheme.text_foreground
+        );
+    }
+  }
+
+  ekg::draw::rect(
+    rect_abs,
+    slider.color_scheme.background,
+    ekg::draw::mode::outline,
+    slider.layers[ekg::layer::outline]
   );
 
   ekg_draw_allocator_pass();

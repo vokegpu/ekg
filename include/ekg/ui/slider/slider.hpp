@@ -27,6 +27,8 @@
 #include "ekg/io/descriptor.hpp"
 #include "ekg/math/geometry.hpp"
 #include "ekg/io/font.hpp"
+#include "ekg/io/event.hpp"
+#include "ekg/ui/property.hpp"
 
 namespace ekg {
   struct slider_color_scheme_t {
@@ -47,9 +49,11 @@ namespace ekg {
     struct widget_t {
     public:
       ekg::rect_t<float> rect_bar {};
-      ekg::rect_t<float> rect_text {};
+      ekg::rect_t<float> rect_bar_progress {};
       ekg::rect_t<float> rect_target {};
+      ekg::rect_t<float> rect_text {};
       std::string text {};
+      ekg::property_t::states_t states {};
     };
 
     struct range_t {
@@ -61,6 +65,8 @@ namespace ekg {
       ekg::flags_t dock {ekg::dock::left};
       ekg::flags_t dock_text {ekg::dock::center};
       ekg::font font_size {ekg::font::medium};
+      ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
+      ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
       ekg::slider_t::widget_t widget {};
     };
   public:
@@ -70,9 +76,11 @@ namespace ekg {
     ekg::at_t property_at {};
   public:
     std::string tag {};
-    ekg::rect_t<float> rect {};
+    ekg::rect_t<float> rect {0.0f, 0.0f, 89.0f, 0.0f};
     ekg::flags_t dock {};
     std::vector<ekg::slider_t::range_t> ranges {};
+    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
+    ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
     ekg::slider_color_scheme_t color_scheme {};
   public:
     ekg_descriptor(ekg::slider_t);
