@@ -63,7 +63,7 @@ namespace ekg {
       ekg::value<char[8]> min {};
       ekg::value<char[8]> max {};
       ekg::flags_t dock {ekg::dock::left};
-      ekg::flags_t dock_text {ekg::dock::center};
+      ekg::flags_t dock_text {ekg::dock::right};
       ekg::font font_size {ekg::font::medium};
       ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
       ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};

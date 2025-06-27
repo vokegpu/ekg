@@ -37,7 +37,7 @@ void ekg::ui::reload(
   ekg::slider_t &slider
 ) {
   constexpr ekg::pixel_t min_bar_width_factor {ekg::one_pixel * 4};
-  ekg::pixel_t min_bar_width {slider.rect.w / min_bar_width};
+  ekg::pixel_t min_bar_width {slider.rect.w / min_bar_width_factor};
 
   ekg::theme_t &global_theme {ekg::p_core->handler_theme.get_current_theme()};
   ekg::aligned_t aligned_dimension {};
@@ -180,7 +180,75 @@ void ekg::ui::event(
   ekg::slider_t &slider,
   const ekg::io::stage &stage
 ) {
+  switch (stage) {
+    case ekg::io::stage::process: {
+      ekg::input_info_t &input {ekg::p_core->handler_input.input};
+      if (!input.was_pressed && !input.was_released && !input.has_motion) {
+        break;
+      }
 
+      ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
+      ekg::rect_t<float> &rect_abs {ekg::ui::get_abs_rect(property, slider.rect)};
+
+      if (property.states.is_hovering || property.states.is_active) {
+        property.states.is_active = false;
+        ekg::rect_t<float> bar {};
+
+        for (ekg::slider_t::range_t &range : slider.ranges) {
+          bar = range.widget.rect_bar + rect_abs;
+          range.widget.states.is_hovering = ekg::rect_collide_vec2<float>(bar, interact);
+
+          if (input.was_pressed && range.widget.states.is_hovering) {
+            ekg_action(
+              range.actions,
+              ekg::action::press,
+              (range.widget.states.is_active = true)
+            );
+          }
+
+          if (input.was_released && range.widget.states.is_active) {
+            ekg_action(
+              range.actions,
+              ekg::action::release,
+              (range.widget.states.is_active = false)
+            );
+          }
+
+          if (range.widget.states.is_active) {
+            ekg::vec2_t<float> factor {
+              ekg::max<float>(interact.x - bar.x, 0.0f),
+              ekg::max<float>(interact.y - bar.y, 0.0f)
+            };
+
+            ekg_ui_slider_range_task(
+              range,
+              {
+                ekg::ui::calculate_value_by_factor(
+                  range,
+                  factor,
+                  ekg::axis::horizontal,
+                  min, max, value
+                );
+              }
+            );
+
+            property.widget.should_buffering = true;
+            ekg::gui.ui.redraw = true;
+            property.states.is_active = true;
+          }
+        }
+      }
+
+      break;
+    }
+  
+  case ekg::io::stage::pre:
+    ekg::ui::pre_event(property, slider.rect, false);
+    break;
+  case ekg::io::stage::post:
+    ekg::ui::post_event(property);
+    break;
+  }
 }
 
 void ekg::ui::high_frequency(
@@ -231,8 +299,30 @@ void ekg::ui::buffering(
   );
 
   ekg::rect_t<float> bar {};
+  ekg::rect_t<float> bar_progress {};
+
   for (ekg::slider_t::range_t &range : slider.ranges) {
+    range.widget.rect_bar_progress = range.widget.rect_bar;
+
+    ekg_ui_slider_range_task(
+      range,
+      {
+        ekg::ui::calculate_bar_progress_by_value(
+          range,
+          ekg::axis::horizontal,
+          min, max, value
+        );
+
+        ekg::utf8_number_precision(
+          range.widget.text,
+          value,
+          range.precision
+        );
+      }
+    );
+
     bar = range.widget.rect_bar + rect_abs;
+    bar_progress = range.widget.rect_bar_progress + rect_abs;
 
     ekg::draw::rect(
       bar,
@@ -250,14 +340,12 @@ void ekg::ui::buffering(
       );
     }
 
-    if (range.widget.states.is_active) {
-      ekg::draw::rect(
-        bar,
-        slider.color_scheme.bar_active,
-        ekg::draw::mode::fill,
-        range.layers[ekg::layer::active_bg]
-      );
-    }
+    ekg::draw::rect(
+      bar_progress,
+      slider.color_scheme.bar_active,
+      ekg::draw::mode::fill,
+      range.layers[ekg::layer::active_bg]
+    );
 
     if (range.dock_text != ekg::dock::none) {
       ekg::draw::get_font_renderer(range.font_size)

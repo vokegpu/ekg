@@ -69,6 +69,53 @@ namespace ekg::ui {
   ekg_ui_slider_range_task_impl(ekg_ui_slider_range, ekg::ui::u8, uint8_t, todo);
 
 namespace ekg::ui {
+  template<typename t>
+  void calculate_value_by_factor(
+    ekg::slider_t::range_t &range,
+    ekg::vec2_t<float> &factor,
+    const ekg::axis &axis,
+    t &min, t &max, t &value
+  ) {
+    value = ekg::clamp<t>(value, min, max);
+    switch (axis) {
+    case ekg::axis::horizontal:
+      if (static_cast<ekg::pixel_t>(factor.x) == 0) {
+        value = min;
+        break;
+      }
+
+      value = (factor.x / range.widget.rect_bar.w) * (max - min) + min;
+      break;
+    case ekg::axis::vertical:
+      if (static_cast<ekg::pixel_t>(factor.y) == 0) {
+        value = min;
+        break;
+      }
+
+      value = (factor.y / range.widget.rect_bar.h) * (max - min) + min;
+      break;
+    }
+  }
+
+  template<typename t>
+  void calculate_bar_progress_by_value(
+    ekg::slider_t::range_t &range,
+    const ekg::axis &axis,
+    t &min, t &max, t &value
+  ) {
+    value = ekg::clamp<t>(value, min, max);
+    switch (axis) {
+    case ekg::axis::horizontal:
+      range.widget.rect_bar_progress.w = range.widget.rect_bar.w * (value - min) / (max - min);
+      range.widget.rect_target.x = range.widget.rect_bar_progress.w - (range.widget.rect_target.w * 0.5f);
+      break;
+    case ekg::axis::vertical:
+      range.widget.rect_bar_progress.h = range.widget.rect_bar.h * (value - min) / (max - min);
+      range.widget.rect_target.y = range.widget.rect_bar_progress.h - (range.widget.rect_target.h * 0.5f);
+      break;
+    }
+  }
+
   void reload(
     ekg::property_t &property,
     ekg::slider_t &slider
