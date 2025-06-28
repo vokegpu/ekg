@@ -54,6 +54,7 @@ namespace ekg {
       ekg::rect_t<float> rect_text {};
       std::string text {};
       ekg::property_t::states_t states {};
+      char bytes[8] {};
     };
 
     struct range_t {

@@ -267,6 +267,22 @@ void ekg::ui::pass(
     &property.widget.gpu_data_buffer
   );
 
+  for (ekg::slider_t::range_t &range : slider.ranges) {
+    ekg_ui_slider_range_task(
+      range,
+      {
+        if (range.value.was_changed_as<number_t>()) {
+          property.widget.should_buffering = true;
+          break;
+        }
+      }
+    );
+
+    if (property.widget.should_buffering) {
+      return;
+    }
+  }
+
   if (property.widget.should_buffering) {
     return;
   }
@@ -300,8 +316,11 @@ void ekg::ui::buffering(
 
   ekg::rect_t<float> bar {};
   ekg::rect_t<float> bar_progress {};
+  ekg::vec2_t<float> text {};
+  float text_geometry_size {};
 
   for (ekg::slider_t::range_t &range : slider.ranges) {
+    ekg::draw::font &draw_font {ekg::draw::get_font_renderer(range.font_size)};
     range.widget.rect_bar_progress = range.widget.rect_bar;
 
     ekg_ui_slider_range_task(
@@ -318,6 +337,8 @@ void ekg::ui::buffering(
           value,
           range.precision
         );
+
+        text_geometry_size = draw_font.get_text_width(range.widget.text);
       }
     );
 
@@ -348,11 +369,19 @@ void ekg::ui::buffering(
     );
 
     if (range.dock_text != ekg::dock::none) {
-      ekg::draw::get_font_renderer(range.font_size)
+      text.x = (
+        range.widget.rect_text.x + rect_abs.x
+        +
+        (range.widget.rect_text.w * 0.5f) - (text_geometry_size * 0.5f)
+      );
+
+      text.y = range.widget.rect_text.y + rect_abs.y;
+
+      draw_font
         .blit(
           range.widget.text,
-          range.widget.rect_text.x + rect_abs.x,
-          range.widget.rect_text.y + rect_abs.y,
+          text.x,
+          text.y,
           slider.color_scheme.text_foreground
         );
     }

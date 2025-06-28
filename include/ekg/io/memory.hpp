@@ -262,6 +262,24 @@ namespace ekg {
     }
 
     template<typename s>
+    bool was_changed_as() {
+      if (this->changed) {
+        this->changed = false;
+        return true;
+      }
+  
+      s &get {ekg::io::any_static_cast<s>(this->get())};
+      s &previous {ekg::io::any_static_cast<s>(this->previous)};
+
+      if (previous != get) {
+        previous = get;
+        return true;
+      }
+  
+      return false;
+    }
+
+    template<typename s>
     s &as() {
       this->type_info_hash = typeid(s).hash_code();
       return ekg::io::any_static_cast<s>(this->get());

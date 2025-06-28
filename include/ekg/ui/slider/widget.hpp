@@ -44,11 +44,12 @@ namespace ekg::ui {
 /**
  * This make easily the part of adding tasks like: drag, draw, etc.
  **/
-#define ekg_ui_slider_range_task_impl(ekg_ui_slider_range, number_t_hash, number_t, todo) \
-  if (hash == number_t_hash) { \
-    number_t &value {ekg_ui_slider_range.value.as<number_t>()}; \
-    number_t &min {ekg_ui_slider_range.min.as<number_t>()}; \
-    number_t &max {ekg_ui_slider_range.max.as<number_t>()}; \
+#define ekg_ui_slider_range_task_impl(ekg_ui_slider_range, format_t_hash, format_t, todo) \
+  if (hash == format_t_hash) { \
+    format_t &value {ekg_ui_slider_range.value.as<format_t>()}; \
+    format_t &min {ekg_ui_slider_range.min.as<format_t>()}; \
+    format_t &max {ekg_ui_slider_range.max.as<format_t>()}; \
+    using number_t = format_t; \
     todo; \
   }
 
