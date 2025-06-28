@@ -4,7 +4,9 @@ EKG is a descriptor-based low-latency memory-safety modular UI-toolkit for deskt
 
 The purpose of EKG is to be an alternative way to create fancy and low-latency C++ memory-safety GUI-context. EKG is under an experimental-buildable-unstable version, which means no ready-prod release was made before.
 
-The complete article of EKG memory-safety model can be read [here](https://github.com/vokegpu/ekg-docs/blob/master/model/architecture-model.md#architecture-model). Ultimately, EKG does not use raw-ptr(s) or even smart-ptr(s), except for hardware interfaces (platform-base and rendering-api), the entire EKG use of a virtual memory with virtual address which is called `ekg::at_t`, `ekg::at_t` is a virtual-address reference pointer to EKG descriptors, you can read more about [here](https://github.com/vokegpu/ekg-docs/blob/master/model/ui-descriptor-based-model.md#ui-descriptor-based-model).
+The complete article of EKG memory-safety model can be read [here](https://github.com/vokegpu/ekg-docs/blob/master/model/memory.md). Ultimately, EKG does not use raw-ptr(s) or even smart-ptr(s), except for hardware interfaces (platform-base and rendering-api), the entire EKG use of a virtual memory with virtual address which is called `ekg::at_t`, `ekg::at_t` is a virtual-address reference pointer to EKG descriptors, you can read more about [here](https://github.com/vokegpu/ekg-docs/blob/master/model/memory.md#descriptor).
+
+For a complete technical details about EKG read [here](https://github.com/vokegpu/ekg-docs/tree/master?tab=readme-ov-file#ekg-technical-details).
 
 ## GUIs with EKG
 
