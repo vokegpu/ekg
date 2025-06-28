@@ -402,7 +402,7 @@ void ekg::draw::font::reload() {
   }
 
   this->text_height = static_cast<float>(this->font_size);
-  this->offset_text_height = static_cast<int32_t>(this->text_height / 6) / 2;
+  this->offset_text_height = this->text_height / 6;
 
   ekg::p_core->p_gpu_api->gen_font_atlas_and_map_glyph(
     ekg::query<ekg::sampler_t>(this->atlas_texture_sampler_at),

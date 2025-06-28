@@ -65,6 +65,13 @@ void ekg::handler::theme::init() {
   light_pinky_theme.scrollbar_color_scheme.bar_highlight = {245, 169, 184, 50};
   light_pinky_theme.scrollbar_color_scheme.bar_active = {245, 169, 184, 100};
 
+  light_pinky_theme.slider_color_scheme.outline = {204, 204, 204, 0};
+  light_pinky_theme.slider_color_scheme.background = {204, 204, 204, 30};
+  light_pinky_theme.slider_color_scheme.bar_background = {204, 204, 204, 50};
+  light_pinky_theme.slider_color_scheme.bar_highlight = {245, 169, 184, 50};
+  light_pinky_theme.slider_color_scheme.bar_active = {245, 169, 184, 100};
+  light_pinky_theme.slider_color_scheme.text_foreground = {141, 141, 141, 255};
+
   this->registry(light_pinky_theme.tag) = light_pinky_theme;
   this->set_current_theme(light_pinky_theme.tag);
 
@@ -105,6 +112,13 @@ void ekg::handler::theme::init() {
   black_light_pinky_theme.scrollbar_color_scheme.bar_background = {245, 169, 184, 100};
   black_light_pinky_theme.scrollbar_color_scheme.bar_highlight = {245, 169, 184, 50};
   black_light_pinky_theme.scrollbar_color_scheme.bar_active = {245, 169, 184, 100};
+
+  black_light_pinky_theme.slider_color_scheme.background = {204, 204, 204, 50};
+  black_light_pinky_theme.slider_color_scheme.outline = {204, 204, 204, 0};
+  black_light_pinky_theme.slider_color_scheme.bar_background = {204, 204, 204, 50};
+  black_light_pinky_theme.slider_color_scheme.bar_highlight = {245, 169, 184, 50};
+  black_light_pinky_theme.slider_color_scheme.bar_active = {245, 169, 184, 100};
+  black_light_pinky_theme.slider_color_scheme.text_foreground = {141, 141, 141, 255};
 
   this->registry(black_light_pinky_theme.tag) = black_light_pinky_theme;
   //this->set_current_theme(black_light_pinky_theme.tag);

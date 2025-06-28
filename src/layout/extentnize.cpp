@@ -184,7 +184,7 @@ void ekg::layout::extentnize_widget(
         is_scrollbar = property.descriptor_at.flags == ekg::type::scrollbar;
         is_last_index = it == latest_index;
 
-        ekg_core_abstract_todo(
+        ekg_core_widget_call(
           property.descriptor_at.flags,
           property.descriptor_at,
           dock = descriptor.dock;

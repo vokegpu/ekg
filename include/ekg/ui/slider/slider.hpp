@@ -21,66 +21,70 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_UI_BUTTON_HPP
-#define EKG_UI_BUTTON_HPP
+#ifndef EKG_UI_SLIDER_HPP
+#define EKG_UI_SLIDER_HPP
 
 #include "ekg/io/descriptor.hpp"
-#include "ekg/io/font.hpp"
 #include "ekg/math/geometry.hpp"
+#include "ekg/io/font.hpp"
 #include "ekg/io/event.hpp"
 #include "ekg/ui/property.hpp"
 
 namespace ekg {
-  struct button_color_scheme_t {
+  struct slider_color_scheme_t {
   public:
-    ekg::rgba_t<uint8_t> text_foreground {};
-
     ekg::rgba_t<uint8_t> background {};
     ekg::rgba_t<uint8_t> outline {};
-    ekg::rgba_t<uint8_t> highlight {};
-    ekg::rgba_t<uint8_t> active {};
-
-    ekg::rgba_t<uint8_t> box_background {};
-    ekg::rgba_t<uint8_t> box_outline {};
-    ekg::rgba_t<uint8_t> box_highlight {};
-    ekg::rgba_t<uint8_t> box_active {};
+    ekg::rgba_t<uint8_t> bar_background {};
+    ekg::rgba_t<uint8_t> bar_highlight {};
+    ekg::rgba_t<uint8_t> bar_active {};
+    ekg::rgba_t<uint8_t> bar_outline {};
+    ekg::rgba_t<uint8_t> text_foreground {};
+    ekg::pixel_thickness_t bar_thickness {25};
+    ekg::pixel_thickness_t bar_target_thickness {25};
   };
 
-  struct button_t {
+  struct slider_t {
   public:
     struct widget_t {
     public:
+      ekg::rect_t<float> rect_bar {};
+      ekg::rect_t<float> rect_bar_progress {};
+      ekg::rect_t<float> rect_target {};
       ekg::rect_t<float> rect_text {};
-      ekg::rect_t<float> rect_box {};
+      std::string text {};
+      ekg::property_t::states_t states {};
+      char bytes[8] {};
     };
 
-    struct check_t {
+    struct range_t {
     public:
-      ekg::value<std::string> text {};
-      ekg::value<bool> value {};
-      ekg::font font_size {ekg::font::medium};
-      ekg::flags_t box {ekg::dock::none};
+      ekg::value<char[8]> value {};
+      size_t precision {2};
+      ekg::value<char[8]> min {};
+      ekg::value<char[8]> max {};
       ekg::flags_t dock {ekg::dock::left};
-      ekg::button_t::widget_t widget {};
-      ekg::property_t::states_t states {};
+      ekg::flags_t dock_text {ekg::dock::right};
+      ekg::font font_size {ekg::font::medium};
       ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
       ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
+      ekg::slider_t::widget_t widget {};
     };
-
-    static ekg::button_t not_found;
-    static constexpr ekg::type type {ekg::type::button};
+  public:
+    static constexpr ekg::type type {ekg::type::slider};
+    static ekg::slider_t not_found;
   public:
     ekg::at_t property_at {};
   public:
     std::string tag {};
-    ekg::flags_t dock {ekg::dock::left | ekg::dock::fill};
-    ekg::rect_t<float> rect {};
-    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {}; 
+    ekg::rect_t<float> rect {0.0f, 0.0f, 89.0f, 0.0f};
+    ekg::flags_t dock {};
+    std::vector<ekg::slider_t::range_t> ranges {};
+    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
     ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
-    std::vector<ekg::button_t::check_t> checks {};
-    ekg::button_color_scheme_t color_scheme {};
+    ekg::slider_color_scheme_t color_scheme {};
   public:
-    ekg_descriptor(ekg::button_t);
+    ekg_descriptor(ekg::slider_t);
   };
 }
 

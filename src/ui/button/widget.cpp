@@ -75,7 +75,7 @@ void ekg::ui::reload(
 
     if (check.box == ekg::dock::none) {
       check.widget.rect_text.x = (check.widget.rect_text.w / 2) - (check.widget.rect_box.w / 2);
-      check.widget.rect_box.h = aligned_dimension.h;
+      //check.widget.rect_box.h = aligned_dimension.h;
     }
   }
 
@@ -327,7 +327,7 @@ void ekg::ui::buffering(
     property.widget.rect_scissor,
     rect_abs,
     ekg::query<ekg::property_t>(property.parent_at).widget.rect_scissor,
-    true
+    ekg::always_parented
   );
 
   ekg::draw::rect(

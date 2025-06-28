@@ -141,7 +141,7 @@ void ekg::ui::reload(
 
   float place {};
   for (ekg::at_t &at : children) {
-    ekg_core_abstract_todo(
+    ekg_core_widget_call(
       at.flags,
       at,
 
@@ -640,7 +640,7 @@ void ekg::ui::buffering(
     property.widget.rect_scissor,
     rect_parent,
     rect_parent,
-    true
+    ekg::always_parented
   );
 
   scrollbar.widget.rect_horizontal.w = 0.0f;

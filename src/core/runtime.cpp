@@ -88,12 +88,14 @@ void ekg::core::swap(ekg::info_t &info) {
     ekg::p_core->collector.clear();
     ekg::core::swap_collector(was_found, at);
 
-    if (was_found) {
+    if (ekg::p_core->top_level_stack.empty() && was_found) {
       ekg::p_core->top_level_stack.insert(
         ekg::p_core->top_level_stack.begin(),
         ekg::p_core->collector.begin(),
         ekg::p_core->collector.end()
       );
+
+      ekg::io::dispatch(ekg::io::operation::docknize, property.at);
     } else {
       ekg::p_core->stack.insert(
         ekg::p_core->stack.begin(),
@@ -125,7 +127,7 @@ void ekg::core::reload(ekg::info_t &info) {
       continue;
     }
 
-    ekg_core_abstract_todo(
+    ekg_core_widget_call(
       property.descriptor_at.flags,
       property.descriptor_at,
       ekg::ui::reload(property, descriptor);
@@ -214,7 +216,7 @@ void ekg::core::scalenize(ekg::info_t &info) {
       continue;
     }
 
-    ekg_core_abstract_todo(
+    ekg_core_widget_call(
       property.descriptor_at.flags,
       property.descriptor_at,
 
@@ -254,7 +256,7 @@ void ekg::core::poll_event() {
       (abs_widget.states.is_absolute || is_on_scrolling_timeout)
     ) {
 
-    ekg_core_abstract_todo(
+    ekg_core_widget_call(
       abs_widget.descriptor_at.flags,
       abs_widget.descriptor_at,
 
@@ -294,7 +296,7 @@ void ekg::core::poll_event() {
       continue;
     }
 
-    ekg_core_abstract_todo(
+    ekg_core_widget_call(
       property.descriptor_at.flags,
       property.descriptor_at,
 
@@ -347,7 +349,7 @@ void ekg::core::poll_event() {
   };
 
   if (focused_property != ekg::property_t::not_found) {
-    ekg_core_abstract_todo(
+    ekg_core_widget_call(
       focused_at.flags,
       focused_at,
 
