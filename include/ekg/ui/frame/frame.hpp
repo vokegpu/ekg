@@ -62,8 +62,8 @@ namespace ekg {
   public:
     std::string tag {};
     ekg::dock dock {ekg::dock::none};
-    ekg::rect_t<float> rect {};
-    ekg::flags_t drag {};
+    ekg::rect_t<float> rect {20.0f, 20.0f, 200.0f, 200.0f};
+    ekg::flags_t drag {ekg::dock::top};
     ekg::flags_t resize {};
     bool set_top_level {};
     ekg::frame_color_scheme_t color_scheme {};

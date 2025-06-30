@@ -47,6 +47,9 @@
 #include "ekg/ui/slider/slider.hpp"
 #include "ekg/ui/slider/widget.hpp"
 
+#include "ekg/ui/popup/popup.hpp"
+#include "ekg/ui/popup/widget.hpp"
+
 namespace ekg::core {
   void registry(ekg::property_t &property);
 }
@@ -70,6 +73,7 @@ namespace ekg::core {
     ekg_core_widget_call_impl(ekg::label_t, widget_descriptor_at, todo); \
     ekg_core_widget_call_impl(ekg::scrollbar_t, widget_descriptor_at, todo); \
     ekg_core_widget_call_impl(ekg::slider_t, widget_descriptor_at, todo); \
+    ekg_core_widget_call_impl(ekg::popup_t, widget_descriptor_at, todo); \
   }
 
 #define ekg_registry_widget(widget_descriptor_t, register_widget_pool, register_property_pool, is_container, register_settings) \
@@ -137,6 +141,9 @@ namespace ekg {
 
     ekg::pool<ekg::property_t> slider_property {};
     ekg::pool<ekg::slider_t> slider {};
+
+    ekg::pool<ekg::property_t> popup_property {};
+    ekg::pool<ekg::popup_t> popup {};
   } pools;
 
   template<typename t>
@@ -178,6 +185,10 @@ namespace ekg {
         return ekg::io::any_static_cast<t>(
           &ekg::pools.slider_property.query(at)
         );
+      case ekg::type::popup:
+        return ekg::io::any_static_cast<t>(
+          &ekg::pools.popup_property.query(at)
+        );
       }
     case ekg::type::button:
       return ekg::io::any_static_cast<t>(
@@ -198,6 +209,10 @@ namespace ekg {
     case ekg::type::slider:
       return ekg::io::any_static_cast<t>(
         &ekg::pools.slider.query(at)
+      );
+    case ekg::type::popup:
+      return ekg::io::any_static_cast<t>(
+        &ekg::pools.popup.query(at)
       );
     }
 
@@ -279,6 +294,20 @@ namespace ekg {
         );
       }
 
+      case ekg::type::popup: {
+        ekg_registry_widget(
+          ekg::popup_t,
+          ekg::pools.popup,
+          ekg::pools.popup_property,
+          true,
+          {
+            property.is_childnizate = true;
+            property.is_children_docknizable = true;
+            widget.color_scheme = global_theme.popup_color_scheme;
+          }
+        );
+      }
+
     case ekg::type::stack: {
       ekg::stack_t &stack {
         ekg::pools.stack.push_back(
@@ -307,6 +336,24 @@ namespace ekg {
     }
 
     return t::not_found;
+  }
+
+  template<typename t>
+  void pop() {
+    switch (t::type) {
+    case ekg::type::stack:
+      ekg::gui.bind.stack_at = ekg::at_t::not_found;
+      break;
+    case ekg::type::property:
+      ekg::gui.bind.parent_at = ekg::at_t::not_found;
+      break;
+    case ekg::type::frame:
+      ekg::gui.bind.parent_at = ekg::at_t::not_found;
+      break;
+    case ekg::type::popup:
+      ekg::gui.bind.parent_at = ekg::at_t::not_found;
+      break;
+    }
   }
 }
 

@@ -21,50 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_IO_DESCRIPTOR_HPP
-#define EKG_IO_DESCRIPTOR_HPP
+#include "ekg/ui/popup/popup.hpp"
+#include "ekg/ui/property.hpp"
 
-#include "ekg/io/memory.hpp"
+namespace ekg::ui {
+  void reload(
+    ekg::property_t &property,
+    ekg::popup_t &popup
+  );
 
-namespace ekg {
-  enum type : ekg::flags_t {
-    unknown = 0,
-    callback = 1,
-    property = 2,
-    sampler = 3,
-    stack = 4,
-    button = 5,
-    scrollbar = 6,
-    frame = 7,
-    slider = 8,
-    label = 9,
-    popup = 10,
-  };
+  void event(
+    ekg::property_t &property,
+    ekg::popup_t &popup,
+    const ekg::io::stage &stage
+  );
+
+  void high_frequency(
+    ekg::property_t &property,
+    ekg::popup_t &popup
+  );
+
+  void pass(
+    ekg::property_t &property,
+    ekg::popup_t &popup
+  );
+
+  void buffering(
+    ekg::property_t &property,
+    ekg::popup_t &popup
+  );
+
+  void unmap(
+    ekg::popup_t &popup
+  );
 }
-
-#define ekg_descriptor(descriptor_t) \
-  public: \
-    ekg::at_t at { \
-      .unique_id = ekg::not_found, \
-      .index = ekg::not_found, \
-      .flags = ekg::not_found \
-    }; \
-    bool is_dead {}; \
-  public: \
-    bool operator == (descriptor_t &descriptor) { \
-      return ( \
-        (this->is_dead && descriptor.at == descriptor_t::not_found.at) \
-        || \
-        (!this->is_dead && this->at == descriptor.at) \
-      ); \
-    } \
-\
-    bool operator != (descriptor_t &descriptor) { \
-      return !(*this == descriptor); \
-    } \
-\
-    operator ekg::at_t() { \
-      return this->at; \
-    }
-
-#endif

@@ -168,6 +168,7 @@ void ekg::render() {
         /* */
 
         ekg::ui::pass(property, descriptor);
+
         if (!property.widget.should_buffering) {
           continue;
         }

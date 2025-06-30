@@ -94,6 +94,9 @@ void ekg::ui::reload(
   );
 
   for (ekg::button_t::check_t &check : button.checks) {
+    ekg_log_low_level("bo " << &check.value);
+    check.value.debug();
+
     ekg::draw::font &draw_font {
       ekg::draw::get_font_renderer(check.font_size)
     };
