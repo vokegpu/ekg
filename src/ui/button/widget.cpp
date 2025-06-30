@@ -219,10 +219,16 @@ void ekg::ui::event(
           ekg_action(
             check.actions,
             ekg::action::active,
-            (is_checkbox ? (check.value.set(!check.value.get())) : (check.value.set(false)))
+            check.states.is_highlight
+            &&
+            (is_checkbox ? (check.value.set(!check.value.get())) : (check.value.set(true)))
             &&
             (is_active_any = true)
           );
+
+          if (!is_checkbox) {
+            check.value.set(false);
+          }
 
           ekg_action(
             check.actions,

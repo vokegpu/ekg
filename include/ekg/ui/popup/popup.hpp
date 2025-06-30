@@ -36,6 +36,12 @@ namespace ekg {
       ekg::frame_t frame {};
       ekg::rect_t<float> rect_lerp {};
     };
+
+    struct link_t {
+    public:
+      std::string tag {};
+      ekg::at_t descriptor_at {};
+    };
   public:
     static ekg::popup_t not_found;
     static constexpr ekg::type type {ekg::type::popup};
@@ -43,6 +49,7 @@ namespace ekg {
     ekg::at_t property_at {};
   public:
     std::string tag {};
+    std::vector<ekg::popup_t::link_t> links {};
     ekg::rect_t<float> rect {.w = 200.0f};
     ekg::flags_t dock {};
     ekg::popup_color_scheme_t color_scheme {};
