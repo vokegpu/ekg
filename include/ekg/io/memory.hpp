@@ -199,6 +199,9 @@ namespace ekg::io {
   ekg::value<type_t> &operator = (cast_type_t val) { \
     ekg_io_memory_set_impl(cast_type_t, val); \
     return *this; \
+  } \
+  operator cast_type_t () { \
+    return this->get(); \
   }
 
 /**
@@ -216,13 +219,13 @@ namespace ekg {
   public:
     value() {};
 
-    void ownership(t *p) { \
-      ekg_io_memory_ownership_impl(t, p); \
+    void ownership(t *p) {
+      ekg_io_memory_ownership_impl(t, p);
     }
 
     template<typename s>
-    void ownership(s *p) { \
-      ekg_io_memory_ownership_impl(s, p); \
+    void ownership(s *p) {
+      ekg_io_memory_ownership_impl(s, p);
     }
 
     ekg_io_memory_format_impl(t, std::string);
