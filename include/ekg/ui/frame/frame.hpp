@@ -32,6 +32,7 @@ namespace ekg {
   struct frame_color_scheme_t {
   public:
     ekg::pixel_thickness_t actions_margin_pixel_thickness {5};
+    ekg::pixel_t popup_offset {2.0f};
     ekg::pixel_t margin {2.0f};
     ekg::rgba_t<uint8_t> background {};
     ekg::rgba_t<uint8_t> highlight {};

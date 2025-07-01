@@ -40,12 +40,14 @@ namespace ekg {
     struct link_t {
     public:
       std::string tag {};
-      ekg::at_t descriptor_at {};
+      ekg::at_t popup_at {};
+      ekg::at_t widget_at {};
     };
   public:
     static ekg::popup_t not_found;
     static constexpr ekg::type type {ekg::type::popup};
   public:
+    ekg::at_t parent_popup_at {};
     ekg::at_t property_at {};
   public:
     std::string tag {};

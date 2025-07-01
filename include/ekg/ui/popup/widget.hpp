@@ -25,6 +25,13 @@
 #include "ekg/ui/property.hpp"
 
 namespace ekg::ui {
+  void splash_popup_but_bounding(
+    float &popup_offset,
+    ekg::rect_t<float> &rect_widget,
+    ekg::rect_t<float> &rect_parent,
+    ekg::rect_t<float> &rect_child 
+  );
+
   void reload(
     ekg::property_t &property,
     ekg::popup_t &popup

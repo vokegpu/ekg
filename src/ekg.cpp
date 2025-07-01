@@ -151,6 +151,11 @@ void ekg::render() {
         property.descriptor_at.flags,
         property.descriptor_at,
 
+        ekg::ui::get_abs_rect(property, descriptor.rect);        
+        if (!property.states.is_visible) {
+          break;
+        }
+
         /**
          * @TODO: Fix this stupid glitch where scrolling is jittering because of something
          * 

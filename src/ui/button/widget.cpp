@@ -274,6 +274,9 @@ void ekg::ui::event(
         )
       );
 
+      property.states.is_highlight = is_hovering_any;
+      property.states.is_active = is_active_any;
+
       break;
     }
   case ekg::io::stage::pre:

@@ -76,6 +76,11 @@ namespace ekg::core {
     ekg_core_widget_call_impl(ekg::popup_t, widget_descriptor_at, todo); \
   }
 
+#define ekg_core_unique_widget_call(descriptor_t, widget_descriptor_type, widget_descriptor_at, todo) \
+  switch (widget_descriptor_type) { \
+    ekg_core_widget_call_impl(descriptor_t, widget_descriptor_at, todo); \
+  }
+
 #define ekg_registry_widget(widget_descriptor_t, register_widget_pool, register_property_pool, is_container, register_settings) \
   widget_descriptor_t &widget { \
     register_widget_pool.push_back( \
