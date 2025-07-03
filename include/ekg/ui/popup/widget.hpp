@@ -30,6 +30,11 @@ namespace ekg::ui {
     bool visible
   );
 
+  void recursive_children_set_visible(
+    ekg::popup_t &popup,
+    bool visible
+  );
+
   void splash_popup_but_bounding(
     float &popup_offset,
     ekg::rect_t<float> &rect_widget,

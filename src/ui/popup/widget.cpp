@@ -36,6 +36,25 @@ void ekg::ui::set_visible(
   ekg::gui.ui.redraw = true;
 }
 
+void ekg::ui::recursive_children_set_visible(
+  ekg::popup_t &popup,
+  bool visible
+) {
+  if (popup == ekg::popup_t::not_found) {
+    return;
+  }
+
+  ekg::property_t &property {ekg::query<ekg::property_t>(popup.property_at)};
+  ekg::ui::set_visible(property, visible);
+
+  for (ekg::popup_t::link_t &link : popup.links) {
+    ekg::ui::recursive_children_set_visible(
+      ekg::query<ekg::popup_t>(link.popup_at),
+      visible
+    );
+  }
+}
+
 void ekg::ui::splash_popup_but_bounding(
   float &popup_offset,
   ekg::rect_t<float> &rect_widget,
@@ -202,8 +221,10 @@ void ekg::ui::event(
             open_popup_at = ekg::at_t::not_found;
 
             if (should_unset_visibility) {
-              wproperty.states.is_visible = false;
-              // recursive
+              ekg::ui::recursive_children_set_visible(
+                descriptor,
+                false
+              );
               should_unset_visibility = false;
             }
 
