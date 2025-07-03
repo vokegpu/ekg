@@ -241,6 +241,8 @@ void ekg::ui::event(
           );
         }
       }
+  
+      property.states.is_highlight = is_hovering_any;
 
       ekg_action(
         button.actions,
@@ -273,9 +275,6 @@ void ekg::ui::event(
           was_released_any
         )
       );
-
-      property.states.is_highlight = is_hovering_any;
-      property.states.is_active = is_active_any;
 
       break;
     }

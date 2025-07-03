@@ -165,39 +165,64 @@ namespace ekg {
 }
 
 namespace ekg::io {
+
+  constexpr bool strictly {true};
+  constexpr bool non_strictly {false};
+
   /**
    * @TODO: add a complete docs here please.
    **/
-  template<typename t>
-  constexpr t &any_static_cast(void *p_any) {
-    return *static_cast<t*>(p_any);
-  }
 
   template<typename t>
   constexpr t *any_static_cast_as_ptr(void *p_any) {
     return static_cast<t*>(p_any);
   }
-}
 
-#define ekg_io_memory_set_impl(cast_type_t, val) \
-  this->get() = ekg::io::any_static_cast<cast_type_t>(&val); \
-  this->changed = true; \
-  this->type_info_hash = typeid(cast_type_t).hash_code();
+  template<typename t>
+  constexpr t &any_static_cast(void *p_any) {
+    return *ekg::io::any_static_cast_as_ptr<t>(p_any);
+  }
+}
 
 #define ekg_io_memory_ownership_impl(cast_type_t, p) \
   this->p = p; \
   this->changed = true; \
   this->type_info_hash = typeid(cast_type_t).hash_code();
 
-#define ekg_io_memory_format_impl(type_t, cast_type_t) \
+#define ekg_io_memory_strictly_set_impl(cast_type_t, val) \
+  this->get() = val; \
+  this->changed = true; \
+  this->type_info_hash = typeid(cast_type_t).hash_code();
+
+#define ekg_io_memory_strictly_format_impl(type_t, cast_type_t) \
   value(cast_type_t val) { \
-    ekg_io_memory_set_impl(cast_type_t, val); \
+    ekg_io_memory_strictly_set_impl(cast_type_t, val); \
   } \
   cast_type_t &set(cast_type_t val) { \
     return (this->get() = val); \
   } \
   ekg::value<type_t> &operator = (cast_type_t val) { \
-    ekg_io_memory_set_impl(cast_type_t, val); \
+    ekg_io_memory_strictly_set_impl(cast_type_t, val); \
+    return *this; \
+  } \
+  operator cast_type_t () { \
+    return this->get(); \
+  }
+
+#define ekg_io_memory_unstrictly_set_impl(cast_type_t, val) \
+  ekg::io::any_static_cast<cast_type_t>(&this->get()) = val; \
+  this->changed = true; \
+  this->type_info_hash = typeid(cast_type_t).hash_code();
+
+#define ekg_io_memory_unstrictly_format_impl(type_t, cast_type_t) \
+  value(cast_type_t val) { \
+    ekg_io_memory_unstrictly_set_impl(cast_type_t, val); \
+  } \
+  cast_type_t &set(cast_type_t val) { \
+    return (this->get() = val); \
+  } \
+  ekg::value<type_t> &operator = (cast_type_t val) { \
+    ekg_io_memory_unstrictly_set_impl(cast_type_t, val); \
     return *this; \
   } \
   operator cast_type_t () { \
@@ -228,19 +253,19 @@ namespace ekg {
       ekg_io_memory_ownership_impl(s, p);
     }
 
-    ekg_io_memory_format_impl(t, std::string);
-    ekg_io_memory_format_impl(t, const char*);
-    ekg_io_memory_format_impl(t, double);
-    ekg_io_memory_format_impl(t, float);
-    ekg_io_memory_format_impl(t, uint64_t);
-    ekg_io_memory_format_impl(t, int64_t);
-    ekg_io_memory_format_impl(t, uint32_t);
-    ekg_io_memory_format_impl(t, int32_t);
-    ekg_io_memory_format_impl(t, uint16_t);
-    ekg_io_memory_format_impl(t, int16_t);
-    ekg_io_memory_format_impl(t, uint8_t);
-    ekg_io_memory_format_impl(t, int8_t);
-    ekg_io_memory_format_impl(t, bool);
+    ekg_io_memory_strictly_format_impl(t, std::string);
+    ekg_io_memory_strictly_format_impl(t, const char*);
+    ekg_io_memory_strictly_format_impl(t, bool);
+    ekg_io_memory_unstrictly_format_impl(t, double);
+    ekg_io_memory_unstrictly_format_impl(t, float);
+    ekg_io_memory_unstrictly_format_impl(t, uint64_t);
+    ekg_io_memory_unstrictly_format_impl(t, int64_t);
+    ekg_io_memory_unstrictly_format_impl(t, uint32_t);
+    ekg_io_memory_unstrictly_format_impl(t, int32_t);
+    ekg_io_memory_unstrictly_format_impl(t, uint16_t);
+    ekg_io_memory_unstrictly_format_impl(t, int16_t);
+    ekg_io_memory_unstrictly_format_impl(t, uint8_t);
+    ekg_io_memory_unstrictly_format_impl(t, int8_t);
   public:  
     t &get() {
       return this->p ? *this->p : this->val;
@@ -267,7 +292,7 @@ namespace ekg {
         this->changed = false;
         return true;
       }
-  
+
       s &get {ekg::io::any_static_cast<s>(this->get())};
       s &previous {ekg::io::any_static_cast<s>(this->previous)};
 

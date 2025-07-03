@@ -35,6 +35,8 @@ namespace ekg {
     public:
       ekg::frame_t frame {};
       ekg::rect_t<float> rect_lerp {};
+      ekg::at_t popup_opened_at {ekg::at_t::not_found};
+      bool was_visible {};
     };
 
     struct link_t {

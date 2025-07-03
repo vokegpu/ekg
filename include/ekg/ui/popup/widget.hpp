@@ -25,6 +25,11 @@
 #include "ekg/ui/property.hpp"
 
 namespace ekg::ui {
+  void set_visible(
+    ekg::property_t &property,
+    bool visible
+  );
+
   void splash_popup_but_bounding(
     float &popup_offset,
     ekg::rect_t<float> &rect_widget,
