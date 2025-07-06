@@ -38,10 +38,24 @@ void ekg::ui::reload(
 ) {
   ekg::ui::get_abs_rect(property, frame.rect);
 
-  if (property.widget.should_refresh_size && static_cast<ekg::pixel_t>(frame.rect.h) == 0) {
+  if (
+    (
+      property.widget.should_refresh_size
+      &&
+      static_cast<ekg::pixel_t>(frame.rect.h) == 0
+    )
+    ||
+    frame.color_scheme.popup_mode
+  ) {
     frame.rect.h = ekg::layout::get_widget_height_by_children(
       property
     );
+
+    property.widget.should_buffering = true;
+  }
+
+  if (frame.color_scheme.popup_mode) {
+    frame.rect.h = ekg::min<float>(frame.rect.h, frame.color_scheme.max_popup_height);
   }
 
   property.widget.should_refresh_size = false;

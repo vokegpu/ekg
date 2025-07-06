@@ -37,6 +37,9 @@ namespace ekg {
       ekg::rect_t<float> rect_lerp {};
       ekg::at_t popup_opened_at {ekg::at_t::not_found};
       bool was_visible {};
+      bool should_open_from_left {};
+      bool should_open_from_right {};
+      bool just_opened {};
     };
 
     struct link_t {
@@ -48,11 +51,13 @@ namespace ekg {
   public:
     static ekg::popup_t not_found;
     static constexpr ekg::type type {ekg::type::popup};
+    static constexpr ekg::flags_t auto_kill {2 << 2};
   public:
     ekg::at_t parent_popup_at {};
     ekg::at_t property_at {};
   public:
     std::string tag {};
+    ekg::flags_t mode {};
     std::vector<ekg::popup_t::link_t> links {};
     ekg::rect_t<float> rect {.w = 200.0f};
     ekg::flags_t dock {};
@@ -61,6 +66,12 @@ namespace ekg {
   public:
     ekg_descriptor(ekg::popup_t);
   };
+
+  void show(
+    ekg::at_t &popup_at,
+    const ekg::vec2_t<float> &pos,
+    bool should_if = true
+  );
 }
 
 #endif

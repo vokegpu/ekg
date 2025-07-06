@@ -25,6 +25,16 @@
 #include "ekg/ui/property.hpp"
 
 namespace ekg::ui {
+  void recursive_self_destroy_abs_popup(
+    ekg::popup_t &popup
+  );
+
+  void recursive_assert_set_current_open(
+    ekg::property_t &property,
+    ekg::at_t &opened,
+    ekg::at_t &to_open
+  );
+
   void set_visible(
     ekg::property_t &property,
     bool visible
@@ -33,6 +43,11 @@ namespace ekg::ui {
   void recursive_children_set_visible(
     ekg::popup_t &popup,
     bool visible
+  );
+
+  void splash_popup_just_opened(
+    ekg::popup_t &popup,
+    const ekg::vec2_t<float> &pos 
   );
 
   void splash_popup_but_bounding(

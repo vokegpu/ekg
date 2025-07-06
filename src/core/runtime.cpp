@@ -96,13 +96,14 @@ void ekg::core::swap(ekg::info_t &info) {
       );
 
       ekg::io::dispatch(ekg::io::operation::docknize, property.at);
-    } else {
-      ekg::p_core->stack.insert(
-        ekg::p_core->stack.begin(),
-        ekg::p_core->collector.begin(),
-        ekg::p_core->collector.end()
-      );
+      continue;
     }
+
+    ekg::p_core->stack.insert(
+      ekg::p_core->stack.begin(),
+      ekg::p_core->collector.begin(),
+      ekg::p_core->collector.end()
+    );
   }
 
   ekg::p_core->stack.insert(

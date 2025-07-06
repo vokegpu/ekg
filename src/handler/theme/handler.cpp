@@ -73,6 +73,8 @@ void ekg::handler::theme::init() {
   light_pinky_theme.slider_color_scheme.text_foreground = {141, 141, 141, 255};
 
   light_pinky_theme.popup_color_scheme = light_pinky_theme.frame_color_scheme;
+  light_pinky_theme.popup_color_scheme.outline = {50, 50, 50, 100};
+  light_pinky_theme.popup_color_scheme.popup_mode = true;
 
   this->registry(light_pinky_theme.tag) = light_pinky_theme;
   this->set_current_theme(light_pinky_theme.tag);

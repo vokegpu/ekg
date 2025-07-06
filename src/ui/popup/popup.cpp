@@ -22,7 +22,33 @@
  * SOFTWARE.
  */
 #include "ekg/ui/popup/popup.hpp"
+#include "ekg/ui/popup/widget.hpp"
+#include "ekg/core/pools.hpp"
 
 ekg::popup_t ekg::popup_t::not_found {
   .at = ekg::at_t::not_found
 };
+
+void ekg::show(
+  ekg::at_t &popup_at,
+  const ekg::vec2_t<float> &pos,
+  bool should_if
+) {
+  ekg::popup_t &popup {
+    ekg::query<ekg::popup_t>(popup_at)
+  };
+
+  if (!should_if || popup == ekg::popup_t::not_found) {
+    return;
+  }
+
+  ekg::ui::splash_popup_just_opened(
+    popup,
+    pos
+  );
+
+  ekg::io::dispatch(
+    ekg::io::operation::high_frequency,
+    popup.property_at
+  );
+}

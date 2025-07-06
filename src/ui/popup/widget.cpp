@@ -27,6 +27,45 @@
 #include "ekg/core/pools.hpp"
 #include "ekg/core/context.hpp"
 
+void ekg::ui::recursive_self_destroy_abs_popup(
+  ekg::popup_t &popup
+) {
+  if (popup.parent_popup_at == ekg::at_t::not_found) {
+    ekg::ui::recursive_children_set_visible(
+      popup,
+      false
+    );
+    return;
+  }
+
+  ekg::ui::recursive_self_destroy_abs_popup(
+    ekg::query<ekg::popup_t>(popup.parent_popup_at)
+  );
+}
+
+void ekg::ui::recursive_assert_set_current_open(
+  ekg::property_t &property,
+  ekg::at_t &opened,
+  ekg::at_t &to_open
+) {
+  if (
+    opened != ekg::at_t::not_found
+    &&
+    opened != to_open
+  ) {
+    ekg::ui::recursive_children_set_visible(
+      ekg::query<ekg::popup_t>(opened),
+      false
+    );
+  }
+
+  opened = to_open;
+  ekg::ui::set_visible(
+    property,
+    true
+  );
+}
+
 void ekg::ui::set_visible(
   ekg::property_t &property,
   bool visible
@@ -52,6 +91,36 @@ void ekg::ui::recursive_children_set_visible(
       ekg::query<ekg::popup_t>(link.popup_at),
       visible
     );
+  }
+}
+
+void ekg::ui::splash_popup_just_opened(
+  ekg::popup_t &popup,
+  const ekg::vec2_t<float> &pos
+) {
+  if (popup == ekg::popup_t::not_found) {
+    return;
+  }
+
+  popup.widget.should_open_from_left = true;
+
+  ekg::vec2_t<float> preview {};
+  ekg::rect_t<float> &rect {popup.widget.frame.rect};
+
+  preview.x = pos.x + rect.w;
+  rect.x = pos.x;
+
+  if (preview.x > ekg::dpi.viewport.w) {
+    popup.widget.should_open_from_left = false;
+    popup.widget.should_open_from_right = true;
+    rect.x = pos.x - rect.w;
+  }
+
+  preview.y = pos.y + rect.h;
+  rect.y = pos.y;
+
+  if (preview.y > ekg::dpi.viewport.h) {
+    rect.y = ekg::dpi.viewport.h - rect.h;
   }
 }
 
@@ -83,6 +152,7 @@ void ekg::ui::reload(
   ekg::property_t &property,
   ekg::popup_t &popup
 ) {
+  popup.widget.frame.color_scheme = popup.color_scheme;
   ekg::ui::reload(property, popup.widget.frame);
 }
 
@@ -100,79 +170,85 @@ void ekg::ui::event(
       ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
       if (
-        !input.has_motion
+        popup.widget.just_opened
         &&
-        !input.was_pressed
-        &&
-        !input.was_released
+        input.was_released
+      ) {
+        // popup.widget.just_opened = false;
+      }
+
+      if (
+        (
+          !input.has_motion
+          &&
+          !input.was_pressed
+          &&
+          !input.was_released
+        )
+        ||
+        !property.states.is_visible
+        ||
+        popup.widget.just_opened
       ) {
         break;
       }
 
       bool exists {};
-      bool is_popup {};
+      bool is_hovering_a_popup {};
       bool should_set_visibility {};
       bool should_unset_visibility {};
+      bool is_linked_hovering {};
+      bool is_this_popup_being_hovered {};
+      bool should_self_recursive_destroy {};
+      bool is_hovering_any_linked_widget {};
 
       ekg::rect_t<float> rect_position {};
-      ekg::at_t open_popup_at {};
+      ekg::at_t hovering_popup {};
+
+      ekg_core_widget_call(
+        ekg::gui.ui.hovered_type,
+        ekg::gui.ui.hovered_at,
+        {
+          is_hovering_a_popup = false;
+          hovering_popup = ekg::at_t::not_found;
+
+          /**
+           * Check if the hovered property is a popup.
+           **/
+          ekg::property_t &wproperty {ekg::query<ekg::property_t>(descriptor.property_at)};
+          if (
+            wproperty != ekg::property_t::not_found
+            &&
+            wproperty.parent_at == ekg::at_t::not_found
+            &&
+            wproperty.at.flags == ekg::type::popup
+          ) {
+            is_hovering_a_popup = true;
+            hovering_popup = wproperty.descriptor_at;
+          }
+
+          /**
+           * If not, then, check if the abs parent from hovered is a popup.
+           **/
+          ekg::property_t &wproperty_abs {ekg::query<ekg::property_t>(wproperty.abs_parent_at)};
+          if (
+            !is_hovering_a_popup
+            &&
+            wproperty_abs != ekg::property_t::not_found
+            &&
+            wproperty_abs.at.flags == ekg::type::popup
+          ) {
+            is_hovering_a_popup = true;
+            hovering_popup = wproperty_abs.descriptor_at;
+          }
+        }
+      );
+
+      is_this_popup_being_hovered = hovering_popup == popup.at;
 
       for (ekg::popup_t::link_t &link : popup.links) {
         exists = false;
-
-        ekg_core_widget_call(
-          ekg::gui.ui.hovered_at.flags,
-          ekg::gui.ui.hovered_at,
-          {
-            is_popup = false;
-            open_popup_at = ekg::at_t::not_found;
-
-            /**
-             * Check if the hovered property is a popup.
-             **/
-            ekg::property_t &wproperty {ekg::query<ekg::property_t>(descriptor.property_at)};
-            if (
-              wproperty != ekg::property_t::not_found
-              &&
-              wproperty.parent_at == ekg::at_t::not_found
-              &&
-              wproperty.at.flags == ekg::type::popup
-            ) {
-              is_popup = true;
-              open_popup_at = wproperty.descriptor_at;
-            }
-
-            /**
-             * If not, then, check if the abs parent from hovered is a popup.
-             **/
-            ekg::property_t &wproperty_abs {ekg::query<ekg::property_t>(wproperty.abs_parent_at)};
-            if (
-              !is_popup
-              &&
-              wproperty_abs != ekg::property_t::not_found
-              &&
-              wproperty_abs.at.flags == ekg::type::popup
-            ) {
-              is_popup = true;
-              open_popup_at = wproperty_abs.descriptor_at;
-            }
-
-            /**
-             * First unset visibility pass!211
-             **/
-
-            ekg::popup_t &opened_popup {ekg::query<ekg::popup_t>(open_popup_at)};
-            if (
-              opened_popup != ekg::popup_t::not_found
-              &&
-              opened_popup.at == popup.at
-              &&
-              ekg::gui.ui.hovered_type != ekg::type::popup
-            ) {
-              should_unset_visibility = true;
-            }
-          }
-        );
+        is_linked_hovering = false;
 
         ekg_core_widget_call(
           link.widget_at.flags,
@@ -181,13 +257,14 @@ void ekg::ui::event(
             ekg::property_t &wproperty {ekg::query<ekg::property_t>(descriptor.property_at)};
             if (wproperty.states.is_highlight) {
               should_set_visibility = true;
-              rect_position = wproperty.widget.rect;
+              is_linked_hovering = true;
+              is_hovering_any_linked_widget = true;
             }
 
+            rect_position = wproperty.widget.rect;
             exists = true;
           }
         );
-
 
         // @TODO: ref this thanks
         if (!exists) {
@@ -211,6 +288,23 @@ void ekg::ui::event(
           continue;
         }
 
+        if (
+          /**
+           * If the actual popup is being hovered
+           * and linked widget is not being hovered
+           * visibility can be unset!
+           **/
+          (
+            is_this_popup_being_hovered
+            &&
+            !is_linked_hovering
+            &&
+            ekg::gui.ui.hovered_type != ekg::type::popup
+          )
+        ){
+          should_unset_visibility = true;
+        }
+
         ekg_core_unique_widget_call(
           ekg::popup_t,
           link.popup_at.flags,
@@ -218,25 +312,29 @@ void ekg::ui::event(
           {
             ekg::property_t &wproperty {ekg::query<ekg::property_t>(descriptor.property_at)};
             descriptor.parent_popup_at = popup.at;
-            open_popup_at = ekg::at_t::not_found;
+
+            if (should_set_visibility) {
+              ekg::ui::recursive_assert_set_current_open(
+                property,
+                popup.widget.popup_opened_at,
+                descriptor.at
+              );
+
+              wproperty.states.is_visible = true;
+              should_set_visibility = false;
+            }
 
             if (should_unset_visibility) {
               ekg::ui::recursive_children_set_visible(
                 descriptor,
                 false
               );
+
+              popup.widget.popup_opened_at = ekg::at_t::not_found;
               should_unset_visibility = false;
             }
 
-            if (should_set_visibility) {
-              wproperty.states.is_visible = true;
-              should_set_visibility = false;
-            }
-
-            if (popup.widget.was_visible != wproperty.states.is_visible) {
-              open_popup_at = descriptor.property_at;
-              ekg::ui::set_visible(wproperty, wproperty.states.is_visible);
-
+            if (descriptor.widget.was_visible != wproperty.states.is_visible) {
               ekg::ui::splash_popup_but_bounding(
                 popup.color_scheme.popup_offset,
                 rect_position,
@@ -244,22 +342,40 @@ void ekg::ui::event(
                 descriptor.widget.frame.rect
               );
 
-              popup.widget.was_visible = wproperty.states.is_visible;
+              descriptor.widget.was_visible = wproperty.states.is_visible;
+              ekg::io::dispatch(ekg::io::operation::swap, wproperty.at);
             }
-
-            if (
-              open_popup_at != popup.widget.popup_opened_at
-              &&
-              open_popup_at != ekg::at_t::not_found
-              &&
-              popup.widget.popup_opened_at != ekg::at_t::not_found
-            ) {
-              ekg::property_t &wproperty_opened {ekg::query<ekg::property_t>(popup.widget.popup_opened_at)};
-              ekg::ui::set_visible(wproperty_opened, false);
-            }
-
-            popup.widget.popup_opened_at = open_popup_at;
           }
+        );
+      }
+
+      should_self_recursive_destroy = (
+        (
+          input.was_released
+          &&
+          is_this_popup_being_hovered
+          &&
+          popup.links.empty()
+        )
+        ||
+        (
+          input.was_released
+          &&
+          is_this_popup_being_hovered
+          &&
+          !is_hovering_any_linked_widget
+        )
+        ||
+        (
+          input.was_pressed
+          &&
+          !is_hovering_a_popup
+        )
+      );
+
+      if (should_self_recursive_destroy) {
+        ekg::ui::recursive_self_destroy_abs_popup(
+          popup
         );
       }
 
@@ -275,6 +391,24 @@ void ekg::ui::high_frequency(
   ekg::property_t &property,
   ekg::popup_t &popup
 ) {
+  if (popup.widget.should_open_from_left) {
+    popup.widget.just_opened = true;
+    popup.widget.should_open_from_left = false;
+  }
+
+  if (popup.widget.should_open_from_right) {
+    popup.widget.just_opened = true;
+    popup.widget.should_open_from_right = false;
+  }
+
+  property.states.is_visible = true;
+  popup.widget.was_visible = true;
+  ekg::gui.ui.redraw = true;
+  property.widget.should_buffering = true;
+
+  if (!popup.widget.just_opened) {
+    property.widget.is_high_frequency = false;
+  }
 }
 
 void ekg::ui::pass(

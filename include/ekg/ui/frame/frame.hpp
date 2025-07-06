@@ -33,6 +33,8 @@ namespace ekg {
   public:
     ekg::pixel_thickness_t actions_margin_pixel_thickness {5};
     ekg::pixel_t popup_offset {2.0f};
+    ekg::pixel_t max_popup_height {400.0f};
+    bool popup_mode {};
     ekg::pixel_t margin {2.0f};
     ekg::rgba_t<uint8_t> background {};
     ekg::rgba_t<uint8_t> highlight {};
@@ -63,7 +65,7 @@ namespace ekg {
   public:
     std::string tag {};
     ekg::dock dock {ekg::dock::none};
-    ekg::rect_t<float> rect {20.0f, 20.0f, 200.0f, 200.0f};
+    ekg::rect_t<float> rect {20.0f, 20.0f, 150.0f, 200.0f};
     ekg::flags_t drag {ekg::dock::top};
     ekg::flags_t resize {};
     bool set_top_level {};

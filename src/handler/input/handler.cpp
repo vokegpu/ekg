@@ -194,6 +194,51 @@ void ekg::handler::input::quit() {
 }
 
 void ekg::handler::input::poll_event() {
+  if (this->input.was_wheel) {
+    this->set_input_state("mouse-wheel", false);
+    this->set_input_state("mouse-wheel-up", false);
+    this->set_input_state("mouse-wheel-down", false);
+    this->input.was_wheel = false;
+  }
+
+  if (this->finger_swipe_event) {
+    this->set_input_state("finger-swipe", false);
+    this->set_input_state("finger-swipe-up", false);
+    this->set_input_state("finger-swipe-down", false);
+    this->finger_swipe_event = false;
+  }
+
+  this->finger_hold_event = false;
+
+  if (this->is_special_keys_released) {
+    for (std::string &units : this->special_keys_unit_pressed) {
+      this->set_input_state(units, false);
+    }
+
+    this->special_keys_unit_pressed.clear();
+    this->is_special_keys_released = false;
+  }
+
+  if (!this->input_released_list.empty()) {
+    for (std::string &inputs: this->input_released_list) {
+      this->set_input_state(inputs, false);
+    }
+
+    this->input_released_list.clear();
+  }
+
+  if (!this->just_fired_input_bind.empty()) {
+    for (bool *p_input_bind_state_address : this->just_fired_input_bind) {
+      if (!p_input_bind_state_address) {
+        continue;
+      }
+
+      *p_input_bind_state_address = false;
+    }
+
+    this->just_fired_input_bind.clear();
+  }
+
   this->input.was_pressed = false;
   this->input.was_released = false;
   this->input.has_motion = false;
@@ -477,51 +522,6 @@ void ekg::handler::input::update() {
 
   ekg::reset_if_reach(this->input.ui_timing, 1000);
   ekg::timing_t::second = this->input.ui_timing.elapsed_ticks;
-
-  if (this->input.was_wheel) {
-    this->set_input_state("mouse-wheel", false);
-    this->set_input_state("mouse-wheel-up", false);
-    this->set_input_state("mouse-wheel-down", false);
-    this->input.was_wheel = false;
-  }
-
-  if (this->finger_swipe_event) {
-    this->set_input_state("finger-swipe", false);
-    this->set_input_state("finger-swipe-up", false);
-    this->set_input_state("finger-swipe-down", false);
-    this->finger_swipe_event = false;
-  }
-
-  this->finger_hold_event = false;
-
-  if (this->is_special_keys_released) {
-    for (std::string &units : this->special_keys_unit_pressed) {
-      this->set_input_state(units, false);
-    }
-
-    this->special_keys_unit_pressed.clear();
-    this->is_special_keys_released = false;
-  }
-
-  if (!this->input_released_list.empty()) {
-    for (std::string &inputs: this->input_released_list) {
-      this->set_input_state(inputs, false);
-    }
-
-    this->input_released_list.clear();
-  }
-
-  if (!this->just_fired_input_bind.empty()) {
-    for (bool *p_input_bind_state_address : this->just_fired_input_bind) {
-      if (!p_input_bind_state_address) {
-        continue;
-      }
-
-      *p_input_bind_state_address = false;
-    }
-
-    this->just_fired_input_bind.clear();
-  }
 }
 
 void ekg::handler::input::insert_input_bind(
