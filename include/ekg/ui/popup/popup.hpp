@@ -34,11 +34,8 @@ namespace ekg {
     struct widget_t {
     public:
       ekg::frame_t frame {};
-      ekg::rect_t<float> rect_lerp {};
       ekg::at_t popup_opened_at {ekg::at_t::not_found};
       bool was_visible {};
-      bool should_open_from_left {};
-      bool should_open_from_right {};
       bool just_opened {};
     };
 

@@ -60,7 +60,7 @@ namespace ekg {
 namespace ekg::draw {
   class allocator {
   public:
-    static bool enable_high_priority;
+    static bool is_scissor_sync_allowed;
     static bool is_simple_shape;
   protected:
     size_t global_data_instance {};

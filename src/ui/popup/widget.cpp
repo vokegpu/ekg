@@ -98,11 +98,16 @@ void ekg::ui::splash_popup_just_opened(
   ekg::popup_t &popup,
   const ekg::vec2_t<float> &pos
 ) {
-  if (popup == ekg::popup_t::not_found) {
+  ekg::property_t &property {ekg::query<ekg::property_t>(popup.property_at)};
+  if (popup == ekg::popup_t::not_found || property == ekg::property_t::not_found) {
     return;
   }
 
-  popup.widget.should_open_from_left = true;
+  property.states.is_visible = true;
+  popup.widget.was_visible = true;
+  ekg::gui.ui.redraw = true;
+  property.widget.should_buffering = true;
+  popup.widget.just_opened = true;
 
   ekg::vec2_t<float> preview {};
   ekg::rect_t<float> &rect {popup.widget.frame.rect};
@@ -111,8 +116,6 @@ void ekg::ui::splash_popup_just_opened(
   rect.x = pos.x;
 
   if (preview.x > ekg::dpi.viewport.w) {
-    popup.widget.should_open_from_left = false;
-    popup.widget.should_open_from_right = true;
     rect.x = pos.x - rect.w;
   }
 
@@ -163,6 +166,8 @@ void ekg::ui::event(
 ) {
   ekg::ui::event(property, popup.widget.frame, stage);
   popup.rect = popup.widget.frame.rect;
+  popup.widget.frame.drag = ekg::dock::none;
+  popup.widget.frame.resize = ekg::dock::none;
 
   switch (stage) {
     case ekg::io::stage::pre: {
@@ -174,7 +179,7 @@ void ekg::ui::event(
         &&
         input.was_released
       ) {
-        // popup.widget.just_opened = false;
+        popup.widget.just_opened = false;
       }
 
       if (
@@ -391,30 +396,13 @@ void ekg::ui::high_frequency(
   ekg::property_t &property,
   ekg::popup_t &popup
 ) {
-  if (popup.widget.should_open_from_left) {
-    popup.widget.just_opened = true;
-    popup.widget.should_open_from_left = false;
-  }
 
-  if (popup.widget.should_open_from_right) {
-    popup.widget.just_opened = true;
-    popup.widget.should_open_from_right = false;
-  }
-
-  property.states.is_visible = true;
-  popup.widget.was_visible = true;
-  ekg::gui.ui.redraw = true;
-  property.widget.should_buffering = true;
-
-  if (!popup.widget.just_opened) {
-    property.widget.is_high_frequency = false;
-  }
 }
 
 void ekg::ui::pass(
   ekg::property_t &property,
   ekg::popup_t &popup
-) {
+)  {
   ekg::ui::pass(property, popup.widget.frame);
 }
 
@@ -422,8 +410,10 @@ void ekg::ui::buffering(
   ekg::property_t &property,
   ekg::popup_t &popup
 ) {
+  // ekg::draw::allocator::is_scissor_sync_allowed = false;
   popup.widget.frame.color_scheme = popup.color_scheme;
   ekg::ui::buffering(property, popup.widget.frame);
+  // ekg::draw::allocator::is_scissor_sync_allowed = true;
 }
 
 void ekg::ui::unmap(
