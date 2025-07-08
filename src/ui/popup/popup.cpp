@@ -48,7 +48,7 @@ void ekg::show(
   );
 
   ekg::io::dispatch(
-    ekg::io::operation::high_frequency,
+    ekg::io::operation::swap,
     popup.property_at
   );
 }

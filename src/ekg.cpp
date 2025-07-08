@@ -136,6 +136,8 @@ void ekg::render() {
   }
 
   if (ekg::gui.ui.redraw) {
+    ekg::gui.ui.redraw = false;
+    
     ekg::p_core->draw_allocator.invoke();
 
     for (ekg::at_t &at : ekg::p_core->stack) {
@@ -185,6 +187,5 @@ void ekg::render() {
     ekg::p_core->draw_allocator.revoke();
   }
 
-  ekg::gui.ui.redraw = false;
   ekg::p_core->draw_allocator.to_gpu();
 }

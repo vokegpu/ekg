@@ -30,13 +30,17 @@
 void ekg::ui::recursive_self_destroy_abs_popup(
   ekg::popup_t &popup
 ) {
-  if (popup.parent_popup_at == ekg::at_t::not_found) {
-    ekg::ui::recursive_children_set_visible(
-      popup,
-      false
-    );
+  if (popup == ekg::popup_t::not_found) {
     return;
   }
+
+  ekg::property_t &property {ekg::query<ekg::property_t>(popup.property_at)};
+  ekg::ui::set_visible(
+    property,
+    false
+  );
+
+  property.widget.should_buffering = false;
 
   ekg::ui::recursive_self_destroy_abs_popup(
     ekg::query<ekg::popup_t>(popup.parent_popup_at)
@@ -99,9 +103,18 @@ void ekg::ui::splash_popup_just_opened(
   const ekg::vec2_t<float> &pos
 ) {
   ekg::property_t &property {ekg::query<ekg::property_t>(popup.property_at)};
-  if (popup == ekg::popup_t::not_found || property == ekg::property_t::not_found) {
+  if (
+    popup == ekg::popup_t::not_found
+    ||
+    property == ekg::property_t::not_found
+  ) {
     return;
   }
+
+  ekg::ui::recursive_children_set_visible(
+    popup,
+    false
+  );
 
   property.states.is_visible = true;
   popup.widget.was_visible = true;
@@ -174,11 +187,13 @@ void ekg::ui::event(
       ekg::input_info_t &input {ekg::p_core->handler_input.input};
       ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
+      bool skip_this_tick_self_destruction {};
       if (
         popup.widget.just_opened
         &&
         input.was_released
       ) {
+        skip_this_tick_self_destruction = true;
         popup.widget.just_opened = false;
       }
 
@@ -204,7 +219,6 @@ void ekg::ui::event(
       bool should_unset_visibility {};
       bool is_linked_hovering {};
       bool is_this_popup_being_hovered {};
-      bool should_self_recursive_destroy {};
       bool is_hovering_any_linked_widget {};
 
       ekg::rect_t<float> rect_position {};
@@ -354,34 +368,26 @@ void ekg::ui::event(
         );
       }
 
-      should_self_recursive_destroy = (
+      if (
         (
-          input.was_released
-          &&
-          is_this_popup_being_hovered
-          &&
-          popup.links.empty()
+          (
+            input.was_released
+            &&
+            is_this_popup_being_hovered
+            &&
+            !is_hovering_any_linked_widget
+          )
+          ||
+          (
+            input.was_released
+            &&
+            !is_hovering_a_popup
+          )
         )
-        ||
-        (
-          input.was_released
-          &&
-          is_this_popup_being_hovered
-          &&
-          !is_hovering_any_linked_widget
-        )
-        ||
-        (
-          input.was_pressed
-          &&
-          !is_hovering_a_popup
-        )
-      );
-
-      if (should_self_recursive_destroy) {
-        ekg::ui::recursive_self_destroy_abs_popup(
-          popup
-        );
+        &&
+        !skip_this_tick_self_destruction
+      ) {
+        popup.widget.should_self_recursive_destroy = true;
       }
 
       break;
@@ -403,6 +409,14 @@ void ekg::ui::pass(
   ekg::property_t &property,
   ekg::popup_t &popup
 )  {
+  if (popup.widget.should_self_recursive_destroy) {
+    ekg::ui::recursive_self_destroy_abs_popup(
+      popup
+    );
+
+    popup.widget.should_self_recursive_destroy = false;
+  }
+
   ekg::ui::pass(property, popup.widget.frame);
 }
 

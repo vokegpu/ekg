@@ -37,6 +37,7 @@ namespace ekg {
       ekg::at_t popup_opened_at {ekg::at_t::not_found};
       bool was_visible {};
       bool just_opened {};
+      bool should_self_recursive_destroy {};
     };
 
     struct link_t {

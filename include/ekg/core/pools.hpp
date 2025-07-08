@@ -307,8 +307,10 @@ namespace ekg {
           true,
           {
             property.is_childnizate = true;
+            property.is_stack_top_level = true;
             property.is_children_docknizable = true;
             property.states.is_visible = false;
+
             widget.color_scheme = global_theme.popup_color_scheme;
           }
         );

@@ -42,6 +42,8 @@ void ekg::core::swap_collector(
 
   if (
     parent_property.at == ekg::gui.bind.swap_at
+    ||
+    parent_property.is_stack_top_level
   ) {
     was_found = true;
   }
@@ -88,7 +90,7 @@ void ekg::core::swap(ekg::info_t &info) {
     ekg::p_core->collector.clear();
     ekg::core::swap_collector(was_found, at);
 
-    if (ekg::p_core->top_level_stack.empty() && was_found) {
+    if (was_found) {
       ekg::p_core->top_level_stack.insert(
         ekg::p_core->top_level_stack.begin(),
         ekg::p_core->collector.begin(),
