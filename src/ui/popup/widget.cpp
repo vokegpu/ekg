@@ -388,6 +388,7 @@ void ekg::ui::event(
         !skip_this_tick_self_destruction
       ) {
         popup.widget.should_self_recursive_destroy = true;
+        ekg::io::dispatch(ekg::io::operation::high_frequency, property.at);
       }
 
       break;
@@ -402,13 +403,6 @@ void ekg::ui::high_frequency(
   ekg::property_t &property,
   ekg::popup_t &popup
 ) {
-
-}
-
-void ekg::ui::pass(
-  ekg::property_t &property,
-  ekg::popup_t &popup
-)  {
   if (popup.widget.should_self_recursive_destroy) {
     ekg::ui::recursive_self_destroy_abs_popup(
       popup
@@ -417,6 +411,13 @@ void ekg::ui::pass(
     popup.widget.should_self_recursive_destroy = false;
   }
 
+  property.widget.is_high_frequency = false;
+}
+
+void ekg::ui::pass(
+  ekg::property_t &property,
+  ekg::popup_t &popup
+)  {
   ekg::ui::pass(property, popup.widget.frame);
 }
 

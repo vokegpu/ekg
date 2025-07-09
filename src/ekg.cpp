@@ -153,7 +153,10 @@ void ekg::render() {
         property.descriptor_at.flags,
         property.descriptor_at,
 
-        ekg::ui::get_abs_rect(property, descriptor.rect);        
+        /**
+         * Sync the widget states and position by getting the abs.
+         **/
+        ekg::ui::get_abs_rect(property, descriptor.rect);
         if (!property.states.is_visible) {
           break;
         }
@@ -177,7 +180,7 @@ void ekg::render() {
         ekg::ui::pass(property, descriptor);
 
         if (!property.widget.should_buffering) {
-          continue;
+          break;
         }
 
         ekg::ui::buffering(property, descriptor);
