@@ -81,7 +81,6 @@ ekg::flags_t ekg::init(
   ekg::core::scalenize(info);
 
   ekg::log() << "Successfully initialized";
-
   return ekg::result::success;
 }
 

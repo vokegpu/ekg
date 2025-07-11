@@ -24,6 +24,7 @@
 #include "ekg/ui/popup/popup.hpp"
 #include "ekg/ui/popup/widget.hpp"
 #include "ekg/core/pools.hpp"
+#include "ekg/core/context.hpp"
 
 ekg::popup_t ekg::popup_t::not_found {
   .at = ekg::at_t::not_found
@@ -38,7 +39,42 @@ void ekg::show(
     ekg::query<ekg::popup_t>(popup_at)
   };
 
-  if (!should_if || popup == ekg::popup_t::not_found) {
+  bool is_hovering_a_popup {false};
+  ekg_core_widget_call(
+    ekg::gui.ui.hovered_type,
+    ekg::gui.ui.hovered_at,
+    {
+      /**
+       * Check if the hovered property is a popup.
+       **/
+      ekg::property_t &wproperty {ekg::query<ekg::property_t>(descriptor.property_at)};
+      if (
+        wproperty != ekg::property_t::not_found
+        &&
+        wproperty.parent_at == ekg::at_t::not_found
+        &&
+        wproperty.at.flags == ekg::type::popup
+      ) {
+        is_hovering_a_popup = true;
+      }
+
+      /**
+       * If not, then, check if the abs parent from hovered is a popup.
+       **/
+      ekg::property_t &wproperty_abs {ekg::query<ekg::property_t>(wproperty.abs_parent_at)};
+      if (
+        !is_hovering_a_popup
+        &&
+        wproperty_abs != ekg::property_t::not_found
+        &&
+        wproperty_abs.at.flags == ekg::type::popup
+      ) {
+        is_hovering_a_popup = true;
+      }
+    }
+  );
+
+  if (!should_if || popup == ekg::popup_t::not_found || is_hovering_a_popup) {
     return;
   }
 

@@ -44,7 +44,8 @@ namespace ekg {
     public:
       std::string tag {};
       ekg::at_t popup_at {};
-      ekg::at_t widget_at {};
+      ekg::at_t focused_widget_at {};
+      std::vector<ekg::at_t> widget_ats {};
     };
   public:
     static ekg::popup_t not_found;

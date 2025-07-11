@@ -62,11 +62,17 @@ namespace ekg::core {
       if (descriptor == descriptor_t::not_found) { \
         break; \
       } \
+      ekg::core::widget_call_result = true; \
       todo \
       break; \
     }
 
+namespace ekg::core {
+  extern bool widget_call_result;
+}
+
 #define ekg_core_widget_call(widget_descriptor_type, widget_descriptor_at, todo) \
+  ekg::core::widget_call_result = false; \
   switch (widget_descriptor_type) { \
     ekg_core_widget_call_impl(ekg::frame_t, widget_descriptor_at, todo); \
     ekg_core_widget_call_impl(ekg::button_t, widget_descriptor_at, todo); \

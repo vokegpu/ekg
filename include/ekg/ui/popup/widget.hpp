@@ -57,6 +57,12 @@ namespace ekg::ui {
     ekg::rect_t<float> &rect_child 
   );
 
+  void recursive_sync_ats_by_finding_tag(
+    ekg::property_t &property,
+    std::vector<ekg::at_t> &ats_to_sync,
+    std::string &tag
+  );
+
   void reload(
     ekg::property_t &property,
     ekg::popup_t &popup
