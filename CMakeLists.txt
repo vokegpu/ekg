@@ -48,6 +48,13 @@ add_library(
   ${SOURCE_FILES}
 )
 
+foreach(prefix IN LISTS CMAKE_PREFIX_PATH)
+    target_include_directories(
+        ekg PUBLIC
+        $<BUILD_INTERFACE:${prefix}/include>
+    )
+endforeach()
+
 target_include_directories(
   ekg PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
