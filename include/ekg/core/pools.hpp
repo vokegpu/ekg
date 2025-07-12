@@ -87,7 +87,7 @@ namespace ekg::core {
     ekg_core_widget_call_impl(descriptor_t, widget_descriptor_at, todo); \
   }
 
-#define ekg_registry_widget(widget_descriptor_t, register_widget_pool, register_property_pool, is_container, register_settings) \
+#define ekg_registry_widget_impl(widget_descriptor_t, register_widget_pool, register_property_pool, is_container, register_settings) \
   widget_descriptor_t &widget { \
     register_widget_pool.push_back( \
       ekg::io::any_static_cast<widget_descriptor_t>(&descriptor) \
@@ -115,13 +115,13 @@ namespace ekg::core {
   ekg::property_t &parent {ekg::query<ekg::property_t>(ekg::gui.bind.parent_at)}; \
   if (is_container) { \
     if (parent != ekg::property_t::not_found && widget.dock != ekg::dock::none) { \
+      property.parent_at = parent.at; \
       parent.children.push_back(widget.at); \
-      property.parent_at = ekg::gui.bind.parent_at; \
       property.abs_parent_at = parent.abs_parent_at; \
-    } else { \
-      ekg::gui.bind.parent_at = property.at; \
+    } else if (parent == ekg::property_t::not_found) { \
       property.abs_parent_at = property.at; \
     } \
+    ekg::gui.bind.parent_at = property.at; \
   } else if (parent != ekg::property_t::not_found) { \
     property.parent_at = ekg::gui.bind.parent_at; \
     property.abs_parent_at = parent.abs_parent_at; \
@@ -236,7 +236,7 @@ namespace ekg {
   ) {
     switch (t::type) {
       case ekg::type::frame: {
-        ekg_registry_widget(
+        ekg_registry_widget_impl(
           ekg::frame_t,
           ekg::pools.frame,
           ekg::pools.frame_property,
@@ -250,7 +250,7 @@ namespace ekg {
       }
 
       case ekg::type::button: {
-        ekg_registry_widget(
+        ekg_registry_widget_impl(
           ekg::button_t,
           ekg::pools.button,
           ekg::pools.button_property,
@@ -264,7 +264,7 @@ namespace ekg {
       }
 
       case ekg::type::label: {
-        ekg_registry_widget(
+        ekg_registry_widget_impl(
           ekg::label_t,
           ekg::pools.label,
           ekg::pools.label_property,
@@ -278,7 +278,7 @@ namespace ekg {
       }
 
       case ekg::type::scrollbar: {
-        ekg_registry_widget(
+        ekg_registry_widget_impl(
           ekg::scrollbar_t,
           ekg::pools.scrollbar,
           ekg::pools.scrollbar_property,
@@ -292,7 +292,7 @@ namespace ekg {
       }
 
       case ekg::type::slider: {
-        ekg_registry_widget(
+        ekg_registry_widget_impl(
           ekg::slider_t,
           ekg::pools.slider,
           ekg::pools.slider_property,
@@ -306,7 +306,7 @@ namespace ekg {
       }
 
       case ekg::type::popup: {
-        ekg_registry_widget(
+        ekg_registry_widget_impl(
           ekg::popup_t,
           ekg::pools.popup,
           ekg::pools.popup_property,
@@ -359,13 +359,13 @@ namespace ekg {
       ekg::gui.bind.stack_at = ekg::at_t::not_found;
       break;
     case ekg::type::property:
-      ekg::gui.bind.parent_at = ekg::at_t::not_found;
+      ekg::gui.bind.parent_at = ekg::query<ekg::property_t>(ekg::gui.bind.parent_at).parent_at;
       break;
     case ekg::type::frame:
-      ekg::gui.bind.parent_at = ekg::at_t::not_found;
+      ekg::gui.bind.parent_at = ekg::query<ekg::property_t>(ekg::gui.bind.parent_at).parent_at;
       break;
     case ekg::type::popup:
-      ekg::gui.bind.parent_at = ekg::at_t::not_found;
+      ekg::gui.bind.parent_at = ekg::query<ekg::property_t>(ekg::gui.bind.parent_at).parent_at;
       break;
     }
   }

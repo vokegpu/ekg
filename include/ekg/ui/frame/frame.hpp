@@ -64,7 +64,7 @@ namespace ekg {
     ekg::at_t property_at {};
   public:
     std::string tag {};
-    ekg::dock dock {ekg::dock::none};
+    ekg::flags_t dock {ekg::dock::none};
     ekg::rect_t<float> rect {20.0f, 20.0f, 150.0f, 200.0f};
     ekg::flags_t drag {ekg::dock::top};
     ekg::flags_t resize {};

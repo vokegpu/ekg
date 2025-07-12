@@ -41,6 +41,7 @@ namespace ekg {
       bool is_highlight {};
       bool is_focused {};
       bool is_warning {};
+      bool is_sensitive {};
     };
 
     struct operation_t {

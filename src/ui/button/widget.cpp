@@ -201,6 +201,7 @@ void ekg::ui::event(
           );
 
           if (!is_checkbox) {
+            property.states.is_sensitive = true;
             check.value.set(true);
           }
         }
@@ -227,6 +228,7 @@ void ekg::ui::event(
           );
 
           if (!is_checkbox) {
+            property.states.is_sensitive = false;
             check.value.set(false);
           }
 

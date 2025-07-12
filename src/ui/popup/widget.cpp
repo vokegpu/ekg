@@ -187,7 +187,7 @@ void ekg::ui::recursive_sync_ats_by_finding_tag(
 
     if (property.is_childnizate && property.is_children_docknizable) {
       ekg::ui::recursive_sync_ats_by_finding_tag(
-        ekg::query<ekg::property_t>(property.parent_at),
+        ekg::query<ekg::property_t>(at),
         ats_to_sync,
         tag
       );
@@ -250,6 +250,7 @@ void ekg::ui::event(
       bool is_linked_hovering {};
       bool is_this_popup_being_hovered {};
       bool is_hovering_any_linked_widget {};
+      bool is_hovering_a_popup_sensitive_widget {};
       bool should_force_update_popup_position {};
 
       ekg::rect_t<float> rect_position {};
@@ -267,6 +268,8 @@ void ekg::ui::event(
            * Check if the hovered property is a popup.
            **/
           ekg::property_t &wproperty {ekg::query<ekg::property_t>(descriptor.property_at)};
+          is_hovering_a_popup_sensitive_widget = wproperty.states.is_sensitive;
+
           if (
             wproperty != ekg::property_t::not_found
             &&
@@ -408,6 +411,8 @@ void ekg::ui::event(
             input.was_released
             &&
             ekg::gui.ui.hovered_type != ekg::type::popup
+            &&
+            is_hovering_a_popup_sensitive_widget
             &&
             is_this_popup_being_hovered
             &&

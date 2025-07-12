@@ -282,6 +282,7 @@ void ekg::ui::event(
         frame.widget.target_dock_resize = ekg::dock::none;
         frame.widget.target_dock_drag = ekg::dock::none;
         property.states.is_active = false;
+        property.states.is_absolute = false;
       }
 
       break;
