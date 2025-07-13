@@ -89,7 +89,7 @@ void ekg::handler::theme::init() {
   black_light_pinky_theme.layout_margin_thickness = 2;
   black_light_pinky_theme.frame_color_scheme.background = {40, 40, 40, 255};
   black_light_pinky_theme.frame_color_scheme.highlight = {242, 242, 242, 0};
-  black_light_pinky_theme.frame_color_scheme.outline = {190, 190, 190, 0};
+  black_light_pinky_theme.frame_color_scheme.outline = {190, 190, 190, 255};
   black_light_pinky_theme.frame_color_scheme.active = {242, 242, 242, 0};
   black_light_pinky_theme.frame_color_scheme.focused_background = {242, 242, 242, 0};
   black_light_pinky_theme.frame_color_scheme.focused_outline = {242, 242, 242, 0};
@@ -127,7 +127,7 @@ void ekg::handler::theme::init() {
   black_light_pinky_theme.popup_color_scheme = black_light_pinky_theme.frame_color_scheme;
 
   this->registry(black_light_pinky_theme.tag) = black_light_pinky_theme;
-  //this->set_current_theme(black_light_pinky_theme.tag);
+  this->set_current_theme(black_light_pinky_theme.tag);
 }
 
 void ekg::handler::theme::quit() {

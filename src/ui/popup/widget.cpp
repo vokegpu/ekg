@@ -352,6 +352,10 @@ void ekg::ui::event(
             !is_linked_hovering
             &&
             ekg::gui.ui.hovered_type != ekg::type::popup
+            &&
+            ekg::gui.ui.hovered_type != ekg::type::frame
+            &&
+            ekg::gui.ui.hovered_type != ekg::type::scrollbar
           )
         ){
           should_unset_visibility = true;
@@ -420,7 +424,7 @@ void ekg::ui::event(
           )
           ||
           (
-            input.was_released
+            (input.was_pressed || input.was_released)
             &&
             !is_hovering_a_popup
           )

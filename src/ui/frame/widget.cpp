@@ -55,6 +55,7 @@ void ekg::ui::reload(
   }
 
   if (frame.color_scheme.popup_mode) {
+    ekg_log_low_level(frame.rect.h)
     frame.rect.h = ekg::min<float>(frame.rect.h, frame.color_scheme.max_popup_height);
   }
 
@@ -155,7 +156,7 @@ void ekg::ui::event(
         );
       } else if (input.has_motion && property.states.is_active) {
         ekg::rect_t<float> new_rect {rect};
-        ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};        
+        ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
         resize_over_dock = frame.widget.target_dock_resize;
 
@@ -228,8 +229,6 @@ void ekg::ui::event(
           ekg::gui.ui.redraw = true;
         }
       } else if (
-        property.states.is_hovering
-        &&
         frame.resize != ekg::dock::none
         &&
         !property.states.is_active

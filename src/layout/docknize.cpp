@@ -444,12 +444,11 @@ void ekg::layout::docknize_widget(
         property.widget.min_size.x
       );
 
+      align = ((dimensional_extent + current_global_theme.layout_offset) * count) + (extent);
       if (is_bottom) {
-        align = ((dimensional_extent + current_global_theme.layout_offset) * count) + (extent);
         align = (align - pixel_perfect_projection.w) * (align > pixel_perfect_projection.w) * (extent > 0.0f);
         align > 0.0f && (align = (align / count));
       } else {
-        align = ((dimensional_extent + current_global_theme.layout_offset) * count) + (extent);
         align = (pixel_perfect_projection.w - align) * (align < pixel_perfect_projection.w) * (extent > 0.0f);
         align > 0.0f && (align = -(align / count));
       }

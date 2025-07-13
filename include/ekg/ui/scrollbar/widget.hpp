@@ -104,7 +104,8 @@ namespace ekg::ui {
   void buffering(
     ekg::property_t &property,
     ekg::scrollbar_t &scrollbar,
-    ekg::rect_t<float> &rect_parent
+    ekg::rect_t<float> &rect_parent,
+    ekg::rect_t<float> &rect_parent_scissor
   );
 
   void buffering(

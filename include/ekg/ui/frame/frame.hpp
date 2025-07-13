@@ -27,6 +27,7 @@
 #include "ekg/io/descriptor.hpp"
 #include "ekg/math/geometry.hpp"
 #include "ekg/io/event.hpp"
+#include "ekg/core/context.hpp"
 
 namespace ekg {
   struct frame_color_scheme_t {
@@ -65,7 +66,7 @@ namespace ekg {
   public:
     std::string tag {};
     ekg::flags_t dock {ekg::dock::none};
-    ekg::rect_t<float> rect {20.0f, 20.0f, 150.0f, 200.0f};
+    ekg::rect_t<float> rect {20.0f, 20.0f, 200.0f, 200.0f};
     ekg::flags_t drag {ekg::dock::top};
     ekg::flags_t resize {};
     bool set_top_level {};
