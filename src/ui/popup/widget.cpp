@@ -395,6 +395,8 @@ void ekg::ui::event(
               ||
               should_force_update_popup_position
             ) {
+              ekg::ui::reload(wproperty, descriptor.widget.frame);
+
               ekg::ui::splash_popup_but_bounding(
                 popup.color_scheme.popup_offset,
                 rect_position,

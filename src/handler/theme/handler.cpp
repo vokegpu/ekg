@@ -30,7 +30,7 @@ void ekg::handler::theme::init() {
   ekg::theme_t light_pinky_theme {
     .tag = "light-pinky",
     .author = "Rina Wilk",
-    .description = "dim again, dim again, not even a light can undim my life, wasted love, wasted love...",
+    .description = "wasted love of my life, no love no more love no more"
   };
 
   light_pinky_theme.layout_offset = 2.0f;
@@ -82,7 +82,7 @@ void ekg::handler::theme::init() {
   ekg::theme_t black_light_pinky_theme {
     .tag = "black-light-pinky",
     .author = "Rina Wilk",
-    .description = "yea i loved you alot, but you broken my heart, I can not do nothing, this is obscure, I miss you 2666, but I do not know how to live anymore",
+    .description = "loved a shitty person God save me"
   };
 
   black_light_pinky_theme.layout_offset = 2.0f;
@@ -125,9 +125,10 @@ void ekg::handler::theme::init() {
   black_light_pinky_theme.slider_color_scheme.text_foreground = {141, 141, 141, 255};
 
   black_light_pinky_theme.popup_color_scheme = black_light_pinky_theme.frame_color_scheme;
+  black_light_pinky_theme.popup_color_scheme.popup_mode = true;
 
   this->registry(black_light_pinky_theme.tag) = black_light_pinky_theme;
-  this->set_current_theme(black_light_pinky_theme.tag);
+  //this->set_current_theme(black_light_pinky_theme.tag);
 }
 
 void ekg::handler::theme::quit() {

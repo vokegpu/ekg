@@ -232,7 +232,7 @@ namespace ekg {
 
   template<typename t>
   t &make(
-    t descriptor
+    t descriptor = {}
   ) {
     switch (t::type) {
       case ekg::type::frame: {

@@ -35,6 +35,7 @@ namespace ekg {
     ekg::rgba_t<uint8_t> background {};
     ekg::rgba_t<uint8_t> outline {};
     ekg::rgba_t<uint8_t> text_foreground {};
+    ekg::pixel_thickness_t separator_thickness {1};
   };
 
   struct label_t {
@@ -42,6 +43,11 @@ namespace ekg {
     struct widget_t {
     public:
       ekg::rect_t<float> rect_text {};
+    };
+
+    enum class mode {
+      text,
+      separator
     };
   public:
     static constexpr ekg::type type {ekg::type::label};
@@ -55,6 +61,7 @@ namespace ekg {
     ekg::flags_t dock {};
     ekg::flags_t dock_text {};
     ekg::font font_size {ekg::font::medium};
+    ekg::label_t::mode mode {ekg::label_t::mode::text};
     ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
     ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
     ekg::label_t::widget_t widget {};

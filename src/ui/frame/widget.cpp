@@ -55,7 +55,6 @@ void ekg::ui::reload(
   }
 
   if (frame.color_scheme.popup_mode) {
-    ekg_log_low_level(frame.rect.h)
     frame.rect.h = ekg::min<float>(frame.rect.h, frame.color_scheme.max_popup_height);
   }
 

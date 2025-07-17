@@ -25,6 +25,7 @@
 #define EKG_UI_POPUP_HPP
 
 #include "ekg/ui/frame/frame.hpp"
+#include "ekg/ui/label/label.hpp"
 
 namespace ekg {
   typedef ekg::frame_color_scheme_t popup_color_scheme_t;
@@ -51,6 +52,7 @@ namespace ekg {
     static ekg::popup_t not_found;
     static constexpr ekg::type type {ekg::type::popup};
     static constexpr ekg::flags_t auto_kill {2 << 2};
+    static ekg::label_t separator;
   public:
     ekg::at_t parent_popup_at {};
     ekg::at_t property_at {};

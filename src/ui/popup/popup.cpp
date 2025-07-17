@@ -30,6 +30,11 @@ ekg::popup_t ekg::popup_t::not_found {
   .at = ekg::at_t::not_found
 };
 
+ekg::label_t ekg::popup_t::separator {
+  .dock = ekg::dock::fill | ekg::dock::next,
+  .mode = ekg::label_t::mode::separator
+};
+
 void ekg::show(
   ekg::at_t &popup_at,
   const ekg::vec2_t<float> &pos,
