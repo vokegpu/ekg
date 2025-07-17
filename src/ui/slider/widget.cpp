@@ -187,6 +187,8 @@ void ekg::ui::event(
         break;
       }
 
+      property.states.is_highlight = property.states.is_hovering;
+
       ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
       ekg::rect_t<float> &rect_abs {ekg::ui::get_abs_rect(property, slider.rect)};
 

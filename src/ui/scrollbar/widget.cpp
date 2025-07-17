@@ -157,6 +157,7 @@ void ekg::ui::reload(
     );
   }
 
+  scrollbar.rect.h += ekg::p_core->handler_theme.get_current_theme().layout_offset;
   scrollbar.acceleration.y += scrollbar.acceleration.x + (scrollbar.acceleration.x * 0.5f);
   ekg::ui::check_scrollbar(property, scrollbar, rect_parent);
   ekg::ui::clamp_scrollbar(property, scrollbar, rect_parent);
@@ -634,12 +635,13 @@ void ekg::ui::pass(
 void ekg::ui::buffering(
   ekg::property_t &property,
   ekg::scrollbar_t &scrollbar,
-  ekg::rect_t<float> &rect_parent
+  ekg::rect_t<float> &rect_parent,
+  ekg::rect_t<float> &rect_parent_scissor
 ) {
   ekg_draw_allocator_assert_scissor(
     property.widget.rect_scissor,
     rect_parent,
-    rect_parent,
+    rect_parent_scissor,
     ekg::always_parented
   );
 
@@ -841,10 +843,15 @@ void ekg::ui::buffering(
   ekg::property_t &property,
   ekg::scrollbar_t &scrollbar
 ) {
+  ekg::property_t &property_parent {
+    ekg::query<ekg::property_t>(property.parent_at)
+  };
+
   ekg::ui::buffering(
     property,
     scrollbar,
-    ekg::query<ekg::property_t>(property.parent_at).widget.rect_scissor
+    property_parent.widget.rect,
+    property_parent.widget.rect_scissor
   );
 }
 

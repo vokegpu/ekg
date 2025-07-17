@@ -201,6 +201,7 @@ void ekg::ui::event(
           );
 
           if (!is_checkbox) {
+            property.states.is_sensitive = true;
             check.value.set(true);
           }
         }
@@ -219,10 +220,17 @@ void ekg::ui::event(
           ekg_action(
             check.actions,
             ekg::action::active,
-            (is_checkbox ? (check.value.set(!check.value.get())) : (check.value.set(false)))
+            check.states.is_highlight
+            &&
+            (is_checkbox ? (check.value.set(!check.value.get())) : (check.value.set(true)))
             &&
             (is_active_any = true)
           );
+
+          if (!is_checkbox) {
+            property.states.is_sensitive = false;
+            check.value.set(false);
+          }
 
           ekg_action(
             check.actions,
@@ -235,6 +243,8 @@ void ekg::ui::event(
           );
         }
       }
+  
+      property.states.is_highlight = is_hovering_any;
 
       ekg_action(
         button.actions,

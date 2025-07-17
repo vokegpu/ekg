@@ -21,101 +21,75 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_UI_SCROLLBAR_WIDGET_HPP
-#define EKG_UI_SCROLLBAR_WIDGET_HPP
-
-#include "scrollbar.hpp"
+#include "ekg/ui/popup/popup.hpp"
 #include "ekg/ui/property.hpp"
 
 namespace ekg::ui {
-  float get_horizontal_scrollbar_normalized(
-    ekg::property_t &property,
-    ekg::rect_t<float> &rect_parent
+  void recursive_self_destroy_abs_popup(
+    ekg::popup_t &popup
   );
 
-  float get_vertical_scrollbar_normalized(
+  void recursive_assert_set_current_open(
     ekg::property_t &property,
-    ekg::rect_t<float> &rect_parent
+    ekg::at_t &opened,
+    ekg::at_t &to_open
   );
 
-  void check_scrollbar(
+  void set_visible(
     ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar,
-    ekg::rect_t<float> &rect_parent
+    bool visible
   );
 
-  void reset_scrollbar(
-    ekg::property_t &property
+  void recursive_children_set_visible(
+    ekg::popup_t &popup,
+    bool visible
   );
 
-  void clamp_scrollbar(
-    ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar,
-    ekg::rect_t<float> &rect_parent
+  void splash_popup_just_opened(
+    ekg::popup_t &popup,
+    const ekg::vec2_t<float> &pos 
   );
 
-  bool is_scrollbar_scrolling(
-    ekg::property_t &property,
-    bool state
-  );
-
-  void reload(
-    ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar,
+  void splash_popup_but_bounding(
+    float &popup_offset,
+    ekg::rect_t<float> &rect_widget,
     ekg::rect_t<float> &rect_parent,
-    std::vector<ekg::at_t> &children,
-    bool should_childnizate_metrics
+    ekg::rect_t<float> &rect_child 
+  );
+
+  void recursive_sync_ats_by_finding_tag(
+    ekg::property_t &property,
+    std::vector<ekg::at_t> &ats_to_sync,
+    std::string &tag
   );
 
   void reload(
     ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar
+    ekg::popup_t &popup
   );
 
   void event(
     ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar,
-    const ekg::io::stage &stage,
-    ekg::rect_t<float> &rect_parent
-  );
-
-  void event(
-    ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar,
+    ekg::popup_t &popup,
     const ekg::io::stage &stage
   );
 
   void high_frequency(
     ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar,
-    ekg::rect_t<float> &rect_parent
-  );
-
-  void high_frequency(
-    ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar
+    ekg::popup_t &popup
   );
 
   void pass(
     ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar
+    ekg::popup_t &popup
   );
 
   void buffering(
     ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar,
-    ekg::rect_t<float> &rect_parent,
-    ekg::rect_t<float> &rect_parent_scissor
-  );
-
-  void buffering(
-    ekg::property_t &property,
-    ekg::scrollbar_t &scrollbar
+    ekg::popup_t &popup
   );
 
   void unmap(
-    ekg::scrollbar_t &scrollbar
+    ekg::popup_t &popup
   );
 }
-
-#endif

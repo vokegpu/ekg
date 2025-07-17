@@ -41,6 +41,7 @@ namespace ekg {
       bool is_highlight {};
       bool is_focused {};
       bool is_warning {};
+      bool is_sensitive {};
     };
 
     struct operation_t {
@@ -81,6 +82,8 @@ namespace ekg {
 
     bool is_childnizate {};
     bool is_children_docknizable {};
+    bool is_stack_top_level {};
+
     std::vector<ekg::at_t> children {};
   public:
     ekg::property_t::states_t states {};

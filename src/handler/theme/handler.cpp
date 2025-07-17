@@ -30,7 +30,7 @@ void ekg::handler::theme::init() {
   ekg::theme_t light_pinky_theme {
     .tag = "light-pinky",
     .author = "Rina Wilk",
-    .description = "dim again, dim again, not even a light can undim my life, wasted love, wasted love...",
+    .description = "wasted love of my life, no love no more love no more"
   };
 
   light_pinky_theme.layout_offset = 2.0f;
@@ -72,20 +72,24 @@ void ekg::handler::theme::init() {
   light_pinky_theme.slider_color_scheme.bar_active = {245, 169, 184, 100};
   light_pinky_theme.slider_color_scheme.text_foreground = {141, 141, 141, 255};
 
+  light_pinky_theme.popup_color_scheme = light_pinky_theme.frame_color_scheme;
+  light_pinky_theme.popup_color_scheme.outline = {50, 50, 50, 100};
+  light_pinky_theme.popup_color_scheme.popup_mode = true;
+
   this->registry(light_pinky_theme.tag) = light_pinky_theme;
   this->set_current_theme(light_pinky_theme.tag);
 
   ekg::theme_t black_light_pinky_theme {
     .tag = "black-light-pinky",
     .author = "Rina Wilk",
-    .description = "yea i loved you alot, but you broken my heart, I can not do nothing, this is obscure, I miss you 2666, but I do not know how to live anymore",
+    .description = "loved a shitty person God save me"
   };
 
   black_light_pinky_theme.layout_offset = 2.0f;
   black_light_pinky_theme.layout_margin_thickness = 2;
   black_light_pinky_theme.frame_color_scheme.background = {40, 40, 40, 255};
   black_light_pinky_theme.frame_color_scheme.highlight = {242, 242, 242, 0};
-  black_light_pinky_theme.frame_color_scheme.outline = {190, 190, 190, 0};
+  black_light_pinky_theme.frame_color_scheme.outline = {190, 190, 190, 255};
   black_light_pinky_theme.frame_color_scheme.active = {242, 242, 242, 0};
   black_light_pinky_theme.frame_color_scheme.focused_background = {242, 242, 242, 0};
   black_light_pinky_theme.frame_color_scheme.focused_outline = {242, 242, 242, 0};
@@ -119,6 +123,9 @@ void ekg::handler::theme::init() {
   black_light_pinky_theme.slider_color_scheme.bar_highlight = {245, 169, 184, 50};
   black_light_pinky_theme.slider_color_scheme.bar_active = {245, 169, 184, 100};
   black_light_pinky_theme.slider_color_scheme.text_foreground = {141, 141, 141, 255};
+
+  black_light_pinky_theme.popup_color_scheme = black_light_pinky_theme.frame_color_scheme;
+  black_light_pinky_theme.popup_color_scheme.popup_mode = true;
 
   this->registry(black_light_pinky_theme.tag) = black_light_pinky_theme;
   //this->set_current_theme(black_light_pinky_theme.tag);

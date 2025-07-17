@@ -42,6 +42,8 @@ void ekg::core::swap_collector(
 
   if (
     parent_property.at == ekg::gui.bind.swap_at
+    ||
+    parent_property.is_stack_top_level
   ) {
     was_found = true;
   }
@@ -88,7 +90,7 @@ void ekg::core::swap(ekg::info_t &info) {
     ekg::p_core->collector.clear();
     ekg::core::swap_collector(was_found, at);
 
-    if (ekg::p_core->top_level_stack.empty() && was_found) {
+    if (was_found) {
       ekg::p_core->top_level_stack.insert(
         ekg::p_core->top_level_stack.begin(),
         ekg::p_core->collector.begin(),
@@ -96,13 +98,14 @@ void ekg::core::swap(ekg::info_t &info) {
       );
 
       ekg::io::dispatch(ekg::io::operation::docknize, property.at);
-    } else {
-      ekg::p_core->stack.insert(
-        ekg::p_core->stack.begin(),
-        ekg::p_core->collector.begin(),
-        ekg::p_core->collector.end()
-      );
+      continue;
     }
+
+    ekg::p_core->stack.insert(
+      ekg::p_core->stack.begin(),
+      ekg::p_core->collector.begin(),
+      ekg::p_core->collector.end()
+    );
   }
 
   ekg::p_core->stack.insert(
@@ -244,11 +247,6 @@ void ekg::core::poll_event() {
   };
 
   bool is_on_scrolling_timeout {!ekg::reach(input.ui_scrolling_timing, 100)};
-  ekg::gui.ui.hovered_at = (
-    (input.was_pressed || input.was_released || input.has_motion)
-      ? ekg::at_t::not_found : ekg::gui.ui.hovered_at
-  );
-
   ekg::property_t &abs_widget {ekg::query<ekg::property_t>(ekg::gui.ui.abs_widget_at)};
   if (
       abs_widget != ekg::property_t::not_found
@@ -343,6 +341,7 @@ void ekg::core::poll_event() {
   }
 
   ekg::gui.ui.hovered_type = ekg::type::unknown;
+  ekg::gui.ui.hovered_at = ekg::at_t::not_found;
 
   ekg::property_t &focused_property {
     ekg::query<ekg::property_t>(focused_at)

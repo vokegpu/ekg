@@ -34,6 +34,10 @@ ekg::rect_t<float> &ekg::ui::get_abs_rect(
     ekg::query<ekg::property_t>(property.parent_at)
   };
 
+  if (parent != ekg::property_t::not_found) {
+    property.states.is_visible = parent.states.is_visible;
+  }
+
   return (
     property.widget.rect = (
       descriptor_rect + parent.widget.rect + parent.scroll.position

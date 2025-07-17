@@ -29,6 +29,7 @@
 #include "ekg/ui/label/label.hpp"
 #include "ekg/ui/scrollbar/scrollbar.hpp"
 #include "ekg/ui/slider/slider.hpp"
+#include "ekg/ui/popup/popup.hpp"
 
 namespace ekg {
   struct theme_t {
@@ -44,6 +45,7 @@ namespace ekg {
     ekg::label_color_scheme_t label_color_scheme {};
     ekg::scrollbar_color_scheme_t scrollbar_color_scheme {};
     ekg::slider_color_scheme_t slider_color_scheme {};
+    ekg::popup_color_scheme_t popup_color_scheme {};
   };
 
   ekg::theme_t &theme(std::string tag = "");

@@ -40,51 +40,62 @@ void ekg::ui::reload(
     label.rect
   );
 
-  ekg::axis pick_axis {
-    ekg::axis::horizontal
-  };
+  switch (label.mode) {
+    case ekg::label_t::mode::text: {
+      ekg::axis pick_axis {
+        ekg::axis::horizontal
+      };
 
-  ekg::draw::font &draw_font {
-    ekg::draw::get_font_renderer(label.font_size)
-  };
+      ekg::draw::font &draw_font {
+        ekg::draw::get_font_renderer(label.font_size)
+      };
 
-  label.widget.rect_text.w = draw_font.get_text_width(label.text.get());
-  label.widget.rect_text.h = draw_font.get_text_height();
+      label.widget.rect_text.w = draw_font.get_text_width(label.text.get());
+      label.widget.rect_text.h = draw_font.get_text_height();
 
-  ekg::aligned_t aligned_dimension {};
-  ekg::align_rect_dimension(
-    pick_axis,
-    label.widget.rect_text,
-    ekg::dpi.min_sizes,
-    aligned_dimension
-  );
+      ekg::aligned_t aligned_dimension {};
+      ekg::align_rect_dimension(
+        pick_axis,
+        label.widget.rect_text,
+        ekg::dpi.min_sizes,
+        aligned_dimension
+      );
 
-  label.rect.scaled_height = ekg::max<ekg::pixel_thickness_t>(1, label.rect.scaled_height);
-  label.rect.h = aligned_dimension.h * label.rect.scaled_height;
+      label.rect.scaled_height = ekg::max<ekg::pixel_thickness_t>(1, label.rect.scaled_height);
+      label.rect.h = aligned_dimension.h * label.rect.scaled_height;
 
-  ekg::layout::mask mask {};
-  mask.preset(
-    {
-      aligned_dimension.offset,
-      aligned_dimension.offset,
-      label.rect.h
-    },
-    pick_axis,
-    label.rect.w
-  );
+      ekg::layout::mask mask {};
+      mask.preset(
+        {
+          aligned_dimension.offset,
+          aligned_dimension.offset,
+          label.rect.h
+        },
+        pick_axis,
+        label.rect.w
+      );
 
-  mask.insert(
-    {
-      .p_rect = &label.widget.rect_text,
-      .dock = label.dock_text
+      mask.insert(
+        {
+          .p_rect = &label.widget.rect_text,
+          .dock = label.dock_text
+        }
+      );
+
+      mask.docknize();
+
+      if (property.widget.should_refresh_size) {
+        label.rect.w = ekg::max(ekg::dpi.min_sizes, mask.get_rect().w);
+        property.widget.should_refresh_size = false;
+      }
+
+      break;
     }
-  );
 
-  mask.docknize();
-
-  if (property.widget.should_refresh_size) {
-    label.rect.w = ekg::max(ekg::dpi.min_sizes, mask.get_rect().w);
-    property.widget.should_refresh_size = false;
+    case ekg::label_t::mode::separator: {
+      label.rect.h = static_cast<ekg::pixel_t>(label.color_scheme.separator_thickness);
+      break;
+    }
   }
 }
 
@@ -146,26 +157,38 @@ void ekg::ui::buffering(
     ekg::always_parented
   );
 
-  ekg::draw::rect(
-    rect_abs,
-    label.color_scheme.background,
-    ekg::draw::mode::fill,
-    label.layers[ekg::layer::bg]
-  );
-
-  ekg::draw::get_font_renderer(label.font_size)
-    .blit(
-      label.text.get(),
-      rect_abs.x + label.widget.rect_text.x, rect_abs.y + label.widget.rect_text.y,
-      label.color_scheme.text_foreground
+  switch (label.mode) {
+  case ekg::label_t::mode::text:
+    ekg::draw::rect(
+      rect_abs,
+      label.color_scheme.background,
+      ekg::draw::mode::fill,
+      label.layers[ekg::layer::bg]
     );
 
-  ekg::draw::rect(
-    rect_abs,
-    label.color_scheme.outline,
-    ekg::draw::mode::outline,
-    label.layers[ekg::layer::outline]
-  );
+    ekg::draw::get_font_renderer(label.font_size)
+      .blit(
+        label.text.get(),
+        rect_abs.x + label.widget.rect_text.x, rect_abs.y + label.widget.rect_text.y,
+        label.color_scheme.text_foreground
+      );
+
+    ekg::draw::rect(
+      rect_abs,
+      label.color_scheme.outline,
+      ekg::draw::mode::outline,
+      label.layers[ekg::layer::outline]
+    );
+    break;
+  case ekg::label_t::mode::separator:
+    ekg::draw::rect(
+      rect_abs,
+      label.color_scheme.text_foreground,
+      ekg::draw::mode::fill,
+      ekg::at_t::not_found
+    );
+    break;
+  }
 
   ekg_draw_allocator_pass();
 }

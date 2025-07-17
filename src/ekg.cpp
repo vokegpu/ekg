@@ -81,7 +81,6 @@ ekg::flags_t ekg::init(
   ekg::core::scalenize(info);
 
   ekg::log() << "Successfully initialized";
-
   return ekg::result::success;
 }
 
@@ -136,6 +135,8 @@ void ekg::render() {
   }
 
   if (ekg::gui.ui.redraw) {
+    ekg::gui.ui.redraw = false;
+    
     ekg::p_core->draw_allocator.invoke();
 
     for (ekg::at_t &at : ekg::p_core->stack) {
@@ -150,6 +151,14 @@ void ekg::render() {
       ekg_core_widget_call(
         property.descriptor_at.flags,
         property.descriptor_at,
+
+        /**
+         * Sync the widget states and position by getting the abs.
+         **/
+        ekg::ui::get_abs_rect(property, descriptor.rect);
+        if (!property.states.is_visible) {
+          break;
+        }
 
         /**
          * @TODO: Fix this stupid glitch where scrolling is jittering because of something
@@ -168,8 +177,9 @@ void ekg::render() {
         /* */
 
         ekg::ui::pass(property, descriptor);
+
         if (!property.widget.should_buffering) {
-          continue;
+          break;
         }
 
         ekg::ui::buffering(property, descriptor);
@@ -179,6 +189,5 @@ void ekg::render() {
     ekg::p_core->draw_allocator.revoke();
   }
 
-  ekg::gui.ui.redraw = false;
   ekg::p_core->draw_allocator.to_gpu();
 }

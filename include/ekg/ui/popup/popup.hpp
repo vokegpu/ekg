@@ -21,54 +21,58 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_UI_LABEL_HPP
-#define EKG_UI_LABEL_HPP
+#ifndef EKG_UI_POPUP_HPP
+#define EKG_UI_POPUP_HPP
 
-#include "ekg/io/descriptor.hpp"
-#include "ekg/math/geometry.hpp"
-#include "ekg/io/event.hpp"
-#include "ekg/io/font.hpp"
+#include "ekg/ui/frame/frame.hpp"
+#include "ekg/ui/label/label.hpp"
 
 namespace ekg {
-  struct label_color_scheme_t {
-  public:
-    ekg::rgba_t<uint8_t> background {};
-    ekg::rgba_t<uint8_t> outline {};
-    ekg::rgba_t<uint8_t> text_foreground {};
-    ekg::pixel_thickness_t separator_thickness {1};
-  };
+  typedef ekg::frame_color_scheme_t popup_color_scheme_t;
 
-  struct label_t {
+  struct popup_t {
   public:
     struct widget_t {
     public:
-      ekg::rect_t<float> rect_text {};
+      ekg::frame_t frame {};
+      ekg::at_t popup_opened_at {ekg::at_t::not_found};
+      bool was_visible {};
+      bool just_opened {};
+      bool should_self_recursive_destroy {};
     };
 
-    enum class mode {
-      text,
-      separator
+    struct link_t {
+    public:
+      std::string tag {};
+      ekg::at_t popup_at {};
+      ekg::at_t focused_widget_at {};
+      std::vector<ekg::at_t> widget_ats {};
     };
   public:
-    static constexpr ekg::type type {ekg::type::label};
-    static ekg::label_t not_found;
+    static ekg::popup_t not_found;
+    static constexpr ekg::type type {ekg::type::popup};
+    static constexpr ekg::flags_t auto_kill {2 << 2};
+    static ekg::label_t separator;
   public:
+    ekg::at_t parent_popup_at {};
     ekg::at_t property_at {};
   public:
     std::string tag {};
-    ekg::rect_t<float> rect {0.0f, 0.0f, 75.0f, 0.0f};
-    ekg::value<std::string> text {};
+    ekg::flags_t mode {};
+    std::vector<ekg::popup_t::link_t> links {};
+    ekg::rect_t<float> rect {.w = 200.0f};
     ekg::flags_t dock {};
-    ekg::flags_t dock_text {};
-    ekg::font font_size {ekg::font::medium};
-    ekg::label_t::mode mode {ekg::label_t::mode::text};
-    ekg::at_array_t<ekg::action, ekg::enum_action_size> actions {};
-    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
-    ekg::label_t::widget_t widget {};
-    ekg::label_color_scheme_t color_scheme {};
+    ekg::popup_color_scheme_t color_scheme {};
+    ekg::popup_t::widget_t widget {};
   public:
-    ekg_descriptor(ekg::label_t);
+    ekg_descriptor(ekg::popup_t);
   };
+
+  void show(
+    ekg::at_t &popup_at,
+    const ekg::vec2_t<float> &pos,
+    bool should_if = true
+  );
 }
 
 #endif

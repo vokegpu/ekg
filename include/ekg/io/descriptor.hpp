@@ -38,6 +38,7 @@ namespace ekg {
     frame = 7,
     slider = 8,
     label = 9,
+    popup = 10,
   };
 }
 

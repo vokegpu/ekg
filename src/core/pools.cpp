@@ -24,6 +24,8 @@
 #include "ekg/core/pools.hpp"
 #include "ekg/core/runtime.hpp"
 
+bool ekg::core::widget_call_result {};
+
 void ekg::core::registry(ekg::property_t &property) {
   ekg::p_core->registry.push_back(property.at);
 

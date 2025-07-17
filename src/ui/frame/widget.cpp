@@ -38,10 +38,24 @@ void ekg::ui::reload(
 ) {
   ekg::ui::get_abs_rect(property, frame.rect);
 
-  if (property.widget.should_refresh_size && static_cast<ekg::pixel_t>(frame.rect.h) == 0) {
+  if (
+    (
+      property.widget.should_refresh_size
+      &&
+      static_cast<ekg::pixel_t>(frame.rect.h) == 0
+    )
+    ||
+    frame.color_scheme.popup_mode
+  ) {
     frame.rect.h = ekg::layout::get_widget_height_by_children(
       property
     );
+
+    property.widget.should_buffering = true;
+  }
+
+  if (frame.color_scheme.popup_mode) {
+    frame.rect.h = ekg::min<float>(frame.rect.h, frame.color_scheme.max_popup_height);
   }
 
   property.widget.should_refresh_size = false;
@@ -141,7 +155,7 @@ void ekg::ui::event(
         );
       } else if (input.has_motion && property.states.is_active) {
         ekg::rect_t<float> new_rect {rect};
-        ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};        
+        ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
         resize_over_dock = frame.widget.target_dock_resize;
 
@@ -214,8 +228,6 @@ void ekg::ui::event(
           ekg::gui.ui.redraw = true;
         }
       } else if (
-        property.states.is_hovering
-        &&
         frame.resize != ekg::dock::none
         &&
         !property.states.is_active
@@ -268,6 +280,7 @@ void ekg::ui::event(
         frame.widget.target_dock_resize = ekg::dock::none;
         frame.widget.target_dock_drag = ekg::dock::none;
         property.states.is_active = false;
+        property.states.is_absolute = false;
       }
 
       break;

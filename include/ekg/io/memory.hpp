@@ -165,19 +165,69 @@ namespace ekg {
 }
 
 namespace ekg::io {
+
+  constexpr bool strictly {true};
+  constexpr bool non_strictly {false};
+
   /**
    * @TODO: add a complete docs here please.
    **/
-  template<typename t>
-  constexpr t &any_static_cast(void *p_any) {
-    return *static_cast<t*>(p_any);
-  }
 
   template<typename t>
   constexpr t *any_static_cast_as_ptr(void *p_any) {
     return static_cast<t*>(p_any);
   }
+
+  template<typename t>
+  constexpr t &any_static_cast(void *p_any) {
+    return *ekg::io::any_static_cast_as_ptr<t>(p_any);
+  }
 }
+
+#define ekg_io_memory_ownership_impl(cast_type_t, p) \
+  this->p = p; \
+  this->changed = true; \
+  this->type_info_hash = typeid(cast_type_t).hash_code();
+
+#define ekg_io_memory_strictly_set_impl(cast_type_t, val) \
+  this->get() = val; \
+  this->changed = true; \
+  this->type_info_hash = typeid(cast_type_t).hash_code();
+
+#define ekg_io_memory_strictly_format_impl(type_t, cast_type_t) \
+  value(cast_type_t val) { \
+    ekg_io_memory_strictly_set_impl(cast_type_t, val); \
+  } \
+  cast_type_t &set(cast_type_t val) { \
+    return (this->get() = val); \
+  } \
+  ekg::value<type_t> &operator = (cast_type_t val) { \
+    ekg_io_memory_strictly_set_impl(cast_type_t, val); \
+    return *this; \
+  } \
+  operator cast_type_t () { \
+    return this->get(); \
+  }
+
+#define ekg_io_memory_unstrictly_set_impl(cast_type_t, val) \
+  ekg::io::any_static_cast<cast_type_t>(&this->get()) = val; \
+  this->changed = true; \
+  this->type_info_hash = typeid(cast_type_t).hash_code();
+
+#define ekg_io_memory_unstrictly_format_impl(type_t, cast_type_t) \
+  value(cast_type_t val) { \
+    ekg_io_memory_unstrictly_set_impl(cast_type_t, val); \
+  } \
+  cast_type_t &set(cast_type_t val) { \
+    return (this->get() = val); \
+  } \
+  ekg::value<type_t> &operator = (cast_type_t val) { \
+    ekg_io_memory_unstrictly_set_impl(cast_type_t, val); \
+    return *this; \
+  } \
+  operator cast_type_t () { \
+    return this->get(); \
+  }
 
 /**
  * Value system.
@@ -192,58 +242,33 @@ namespace ekg {
     bool changed {};
     size_t type_info_hash {};
   public:
-    value() {
-      this->ownership(nullptr);
-    };
+    value() {};
 
-    value(t *p_address) {
-      this->ownership(p_address);
-      this->changed = true;
+    void ownership(t *p) {
+      ekg_io_memory_ownership_impl(t, p);
     }
 
     template<typename s>
-    value(s val) {
-      this->as<s>() = ekg::io::any_static_cast<s>(&val);
-      this->changed = true;
-      this->type_info_hash = typeid(s).hash_code();
+    void ownership(s *p) {
+      ekg_io_memory_ownership_impl(s, p);
     }
-  
-    value(t val) {
-      this->get() = val;
-      this->changed = true;
-      this->type_info_hash = typeid(t).hash_code();
-    }
-  
-    value(const char *p_char) {
-      this->get() = p_char;
-      this->changed = true;
-      this->type_info_hash = typeid(t).hash_code();
-    }
-  
-    bool set(const t &val) {
-      this->get() = val;
-      this->changed = true;
-      this->type_info_hash = typeid(t).hash_code();
-      return true;
-    }
-  
+
+    ekg_io_memory_strictly_format_impl(t, std::string);
+    ekg_io_memory_strictly_format_impl(t, const char*);
+    ekg_io_memory_strictly_format_impl(t, bool);
+    ekg_io_memory_unstrictly_format_impl(t, double);
+    ekg_io_memory_unstrictly_format_impl(t, float);
+    ekg_io_memory_unstrictly_format_impl(t, uint64_t);
+    ekg_io_memory_unstrictly_format_impl(t, int64_t);
+    ekg_io_memory_unstrictly_format_impl(t, uint32_t);
+    ekg_io_memory_unstrictly_format_impl(t, int32_t);
+    ekg_io_memory_unstrictly_format_impl(t, uint16_t);
+    ekg_io_memory_unstrictly_format_impl(t, int16_t);
+    ekg_io_memory_unstrictly_format_impl(t, uint8_t);
+    ekg_io_memory_unstrictly_format_impl(t, int8_t);
+  public:  
     t &get() {
       return this->p ? *this->p : this->val;
-    }
-  
-    template<typename s>
-    void ownership(s *p_address) {
-      ownership(ekg::io::any_static_cast_as_ptr<t>(p_address));
-      this->type_info_hash = typeid(s).hash_code();
-    }
-
-    void ownership(t *p_address) {
-      if (p_address == nullptr) {
-        this->p = &val;
-        return;
-      }
-  
-      this->p = p_address;
     }
   
     bool was_changed() {
@@ -267,7 +292,7 @@ namespace ekg {
         this->changed = false;
         return true;
       }
-  
+
       s &get {ekg::io::any_static_cast<s>(this->get())};
       s &previous {ekg::io::any_static_cast<s>(this->previous)};
 
@@ -288,13 +313,10 @@ namespace ekg {
     size_t &get_type_info_hash() {
       return this->type_info_hash;
     }
-  public:
-    template<typename s>
-    ekg::value<t> &operator = (s val) {
-      this->type_info_hash = typeid(s).hash_code();
-      this->get() = ekg::io::any_static_cast<t>(&val);
-      this->changed = true;
-      return *this;
+
+    void debug() {
+      ekg_log_low_level(this->p);
+      ekg_log_low_level(&this->val);
     }
   };
 

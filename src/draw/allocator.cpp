@@ -27,7 +27,7 @@
 #include "ekg/io/log.hpp"
 #include "ekg/core/context.hpp"
 
-bool ekg::draw::allocator::enable_high_priority {};
+bool ekg::draw::allocator::is_scissor_sync_allowed {true};
 bool ekg::draw::allocator::is_simple_shape {};
 
 void ekg::draw::allocator::init() {
@@ -193,6 +193,10 @@ bool ekg::draw::allocator::sync_scissor(
   ekg::rect_t<float> &rect_parent_scissor,
   bool is_parented
 ) {
+  if (!ekg::draw::allocator::is_scissor_sync_allowed) {
+    return true;
+  }
+
   rect_scissor.x = rect_child.x;
   rect_scissor.y = rect_child.y;
   rect_scissor.w = rect_child.w;
