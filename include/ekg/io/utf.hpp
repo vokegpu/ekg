@@ -117,4 +117,86 @@ namespace ekg {
   }
 }
 
+namespace ekg::io {
+  typedef std::vector<std::string> chunk_t;
+}
+
+namespace ekg {
+  class text {
+  protected:
+    std::vector<ekg::io::chunk_t> chunks {};
+    size_t chunk_limit {10};
+  protected:
+    std::string &at_by_index(size_t index, bool swizzle = false) {
+      size_t total_lines {};
+      size_t chunks_size {this->chunks.size()};
+      for (size_t it {}; it < chunks_size; it++) {
+        chunk_t &chunk {this->chunks.at(it)};
+        total_lines += chunk.size();
+
+        if (swizzle && total_lines == index) {
+          this
+          break;
+        }
+      }
+    }
+
+    ekg::io::chunk_t &chunk_at(size_t chunk_index) {
+      return this-
+    }
+  public:
+    static std::string not_found;
+  public:
+    std::string &at(size_t index) {
+      size_t chunks_size {this->chunks.size()};
+      size_t total_lines {};
+      size_t previous_total_lines {};
+      size_t index_of {};
+      size_t chunk_size {};
+
+      for (size_t it {}; it < chunks_size; it++) {
+        ekg::io::chunk_t &chunk {this->chunks.at(it)};
+
+        previous_total_lines = total_lines;
+        total_lines += (chunk_size = chunk.size());
+        index_of = index - previous_total_lines;
+
+        if (total_lines < index && index_of < chunk_size) {
+          return chunk.at(index - previous_total_lines);
+        }
+      }
+    }
+
+    void push_back(const std::string &line) {
+      if (this->chunks.empty()) {
+        this->chunks.emplace_back().push_back(line);
+        return;
+      }
+
+      size_t chunks_size {this->chunks.size()};
+      ekg::io::chunk_t &chunk {this->chunks.at(chunks_size - (chunks_size != 0))};
+      if (chunk.size() >= this->chunk_limit) {
+        this->chunks.emplace_back().push_back(line);
+        return;
+      }
+
+      this->chunks.emplace_back().push_back(line);
+    }
+
+    std::string &emplace_back() {
+      if (this->chunks.empty()) {
+        return this->chunks.emplace_back().emplace_back();
+      }
+
+      size_t chunks_size {this->chunks.size()};
+      ekg::io::chunk_t &chunk {this->chunks.at(chunks_size - (chunks_size != 0))};
+      if (chunk.size() >= this->chunk_limit) {
+        return this->chunks.emplace_back().emplace_back();
+      }
+
+      return chunk.emplace_back();
+    }
+  };
+}
+
 #endif

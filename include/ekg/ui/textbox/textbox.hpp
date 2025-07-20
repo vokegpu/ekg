@@ -21,51 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef EKG_IO_DESCRIPTOR_HPP
-#define EKG_IO_DESCRIPTOR_HPP
+#ifndef EKG_UI_TEXTBOX_HPP
+#define EKG_UI_TEXTBOX_HPP
 
-#include "ekg/io/memory.hpp"
+#include "ekg/ui/scrollbar/scrollbar.hpp"
+#include "ekg/io/descriptor.hpp"
+#include "ekg/io/utf.hpp"
 
 namespace ekg {
-  enum type : ekg::flags_t {
-    unknown = 0,
-    callback = 1,
-    property = 2,
-    sampler = 3,
-    stack = 4,
-    button = 5,
-    scrollbar = 6,
-    frame = 7,
-    slider = 8,
-    label = 9,
-    popup = 10,
-    textbox = 11
+  struct textbox_color_scheme_t {
+  public:
+    ekg::rgba_t<float> background {};
+    ekg::rgba_t<float> outline {};
+    ekg::rgba_t<float> text_foreground {};
+    ekg::rgba_t<float> text_select_foreground {};
+    ekg::rgba_t<float> text_cursor_foreground {};
+    bool caret_cursor {};
+  };
+
+  struct textbox_t {
+  public:
+    struct widget_t {
+    public:
+      ekg::scrollbar_t scrollbar {};
+    };
+
+    static constexpr ekg::type type {ekg::type::textbox};
+    static ekg::textbox_t not_found;
+  public:
+    ekg::at_t property_at {};
+  public:
+    std::string tag {};
+    ekg::flags_t dock {};
+    ekg::rect_t<float> rect {};
+    ekg::textbox_color_scheme_t color_scheme {};
+  public:
+    ekg_descriptor(ekg::textbox_t);
   };
 }
-
-#define ekg_descriptor(descriptor_t) \
-  public: \
-    ekg::at_t at { \
-      .unique_id = ekg::not_found, \
-      .index = ekg::not_found, \
-      .flags = ekg::not_found \
-    }; \
-    bool is_dead {}; \
-  public: \
-    bool operator == (descriptor_t &descriptor) { \
-      return ( \
-        (this->is_dead && descriptor.at == descriptor_t::not_found.at) \
-        || \
-        (!this->is_dead && this->at == descriptor.at) \
-      ); \
-    } \
-\
-    bool operator != (descriptor_t &descriptor) { \
-      return !(*this == descriptor); \
-    } \
-\
-    operator ekg::at_t() { \
-      return this->at; \
-    }
 
 #endif

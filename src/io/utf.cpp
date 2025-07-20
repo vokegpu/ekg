@@ -242,3 +242,5 @@ bool ekg::utf8_split(
 
   return found_flag;
 }
+
+std::string ekg::io::text::str_out_of_bouding {'\e\k\g'};
