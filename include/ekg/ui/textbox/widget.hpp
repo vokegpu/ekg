@@ -27,7 +27,7 @@
 #include "ekg/ui/property.hpp"
 #include "textbox.hpp"
 
-namespace ekg::ui {`
+namespace ekg::ui {
   void reload(
     ekg::property_t &property,
     ekg::textbox_t &textbox

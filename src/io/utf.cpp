@@ -243,4 +243,232 @@ bool ekg::utf8_split(
   return found_flag;
 }
 
-std::string ekg::io::text::str_out_of_bouding {'\e\k\g'};
+std::string ekg::text::line_not_found {'\x1B'};
+
+std::string &ekg::text::at(size_t index) {
+  size_t chunks_size {this->loaded_chunks.size()};
+  size_t total_lines {};
+  size_t previous_total_lines {};
+  size_t chunk_size {};
+
+  for (size_t it {}; it < chunks_size; it++) {
+    ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+
+    previous_total_lines = total_lines;
+    total_lines += (chunk_size = chunk.size());
+
+    if (index < total_lines && (index - previous_total_lines) < chunk_size) {
+      return chunk.at(index - previous_total_lines);
+    }
+  }
+
+  return ekg::text::line_not_found;
+}
+
+void ekg::text::insert(
+  size_t index,
+  ekg::io::chunk_t &to_insert_chunk
+) {
+  if (this->loaded_chunks.empty()) {
+    if (index == 0) {
+      this->loaded_chunks.emplace_back();
+      this->insert(index, to_insert_chunk);
+    }
+    return;
+  }
+
+  bool ok {};
+
+  size_t previous_total_lines {};
+  size_t chunk_size {};
+  size_t current_total_lines {};
+
+  ekg::io::chunk_t to_swizzle_chunk {};
+
+  this->total_lines = 0;
+  for (size_t it {}; it < this->loaded_chunks.size(); it++) {
+    ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+
+    previous_total_lines = this->total_lines;
+    current_total_lines += (chunk_size = chunk.size());
+
+    if (
+      !ok
+      &&
+      index < current_total_lines
+      &&
+      (index - previous_total_lines) < chunk_size
+    ) {
+      chunk.insert(
+        chunk.begin() + (index - previous_total_lines),
+        to_insert_chunk.begin(),
+        to_insert_chunk.end()
+      );
+
+      if (chunk.size() < this->lines_per_chunk_limit) {
+        ok = true;
+        continue;
+      }
+
+      to_swizzle_chunk.insert(
+        to_swizzle_chunk.begin(),
+        chunk.begin() + this->lines_per_chunk_limit,
+        chunk.end()
+      );
+
+      chunk.erase(
+        chunk.begin() + this->lines_per_chunk_limit,
+        chunk.end()
+      );
+
+      size_t to_swizzle_chunk_size {to_swizzle_chunk.size()};
+      size_t newly_chunks {
+        to_swizzle_chunk_size / this->lines_per_chunk_limit          
+      };
+
+      for (size_t jt {}; jt < newly_chunks; jt++) {
+        this->loaded_chunks.insert(
+          this->loaded_chunks.begin() + it + jt + 1,
+          ekg::io::chunk_t {
+            to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 0)),
+            to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 1))
+          }
+        );
+      }
+
+      size_t rest {to_swizzle_chunk_size - (this->lines_per_chunk_limit * newly_chunks)};
+      if (rest > 0) {
+        this->loaded_chunks.insert(
+          this->loaded_chunks.begin() + it + newly_chunks + 1,
+          ekg::io::chunk_t {
+            to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (newly_chunks + 0)),
+            to_swizzle_chunk.end()
+          }
+        );
+      }
+
+      ok = true;
+    }
+
+    this->total_lines += this->loaded_chunks.at(it).size();
+  }
+}
+
+void ekg::text::insert(
+  size_t index,
+  const std::string &line
+) {
+  ekg::io::chunk_t chunk {};
+  chunk.push_back(line);
+  this->insert(index, chunk);
+}
+
+void ekg::text::erase(
+  size_t begin,
+  size_t end
+) {
+  if (this->loaded_chunks.empty()) {
+    throw std::out_of_range("ekg::text::erase -> text empty");
+    return;
+  }
+
+  if (begin >= this->total_lines || end >= this->total_lines || end <= begin) {
+    throw std::out_of_range("ekg::text::erase -> begin or end out of index");
+    return;
+  }
+
+  this->total_lines -= end - begin;
+
+  size_t previous_total_lines {};
+  size_t chunk_size {};
+  size_t total_lines {};
+  size_t remains_lines {};
+
+  bool empty_chunk {};
+  bool goto_next_chunk {};
+
+  for (size_t it {}; it < this->loaded_chunks.size(); it++) {
+    ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+
+    previous_total_lines = total_lines;
+    total_lines += (chunk_size = chunk.size());
+
+    if (begin < total_lines) {
+      remains_lines = end - begin;
+      begin = begin - previous_total_lines;
+      while (remains_lines != 0) {
+        ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+
+        chunk_size = chunk.size();
+        goto_next_chunk = begin + remains_lines > chunk.size();
+
+        chunk.erase(
+          chunk.begin() + begin,
+          chunk.begin() + begin + (!goto_next_chunk * remains_lines)
+        );
+
+        ekg_log_low_level(begin << " x ")
+
+        empty_chunk = chunk.empty();
+        if (empty_chunk) {
+          this->loaded_chunks.erase(
+            this->loaded_chunks.begin() + it
+          );
+        }
+
+        if (goto_next_chunk) {
+          it += !empty_chunk;
+          remains_lines -= chunk_size - begin;
+          begin = 0;
+          continue;
+        }
+
+        remains_lines = 0; 
+      }
+
+      break;
+    }
+  }
+}
+
+void ekg::text::push_back(const std::string &line) {
+  if (this->loaded_chunks.empty()) {
+    this->loaded_chunks.emplace_back().push_back(line);
+    return;
+  }
+
+  this->total_lines++;
+
+  size_t chunks_size {this->loaded_chunks.size()};
+  ekg::io::chunk_t &chunk {this->loaded_chunks.at(chunks_size - (chunks_size != 0))};
+  if (chunk.size() >= this->lines_per_chunk_limit) {
+    this->loaded_chunks.emplace_back().push_back(line);
+    return;
+  }
+
+  this->loaded_chunks.emplace_back().push_back(line);
+}
+
+std::string &ekg::text::emplace_back() {
+  if (this->loaded_chunks.empty()) {
+    return this->loaded_chunks.emplace_back().emplace_back();
+  }
+
+  this->total_lines++;
+
+  size_t chunks_size {this->loaded_chunks.size()};
+  ekg::io::chunk_t &chunk {this->loaded_chunks.at(chunks_size - (chunks_size != 0))};
+  if (chunk.size() >= this->lines_per_chunk_limit) {
+    return this->loaded_chunks.emplace_back().emplace_back();
+  }
+
+  return chunk.emplace_back();
+}
+
+size_t ekg::text::lines() {
+  return this->total_lines;
+}
+
+size_t ekg::text::chunks() {
+  return this->loaded_chunks.size();
+}
