@@ -435,7 +435,9 @@ void ekg::draw::font::blit(
   x = static_cast<float>(static_cast<int32_t>(x));
   y = static_cast<float>(static_cast<int32_t>(y - this->offset_text_height));
 
-  ekg::gpu::data_t &data {ekg::p_core->draw_allocator.bind_current_data()};
+  ekg::gpu::data_t &data {
+    ekg::p_core->draw_allocator.bind_current_data()
+  };
 
   data.buffer[0] = x;
   data.buffer[1] = y;

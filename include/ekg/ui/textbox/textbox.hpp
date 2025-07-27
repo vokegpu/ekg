@@ -27,6 +27,7 @@
 #include "ekg/ui/scrollbar/scrollbar.hpp"
 #include "ekg/io/descriptor.hpp"
 #include "ekg/io/utf.hpp"
+#include "ekg/io/font.hpp"
 
 namespace ekg {
   struct textbox_color_scheme_t {
@@ -43,6 +44,7 @@ namespace ekg {
   public:
     struct widget_t {
     public:
+      ekg::rect_t<float> rect_text_size {};
       ekg::scrollbar_t scrollbar {};
     };
 
@@ -52,9 +54,13 @@ namespace ekg {
     ekg::at_t property_at {};
   public:
     std::string tag {};
+    ekg::text text {};
+    ekg::font font_size {ekg::font::medium};
     ekg::flags_t dock {};
-    ekg::rect_t<float> rect {};
+    ekg::rect_t<float> rect {.w = 100.0f};
     ekg::textbox_color_scheme_t color_scheme {};
+    ekg::textbox_t::widget_t widget {};
+    ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
   public:
     ekg_descriptor(ekg::textbox_t);
   };

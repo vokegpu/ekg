@@ -27,6 +27,29 @@
 #include <sstream>
 #include <ostream>
 
+void ekg::utf8_sequence(
+  uint8_t &uc8,
+  char32_t &c32,
+  std::string_view utf8_str,
+  size_t &it
+) {
+  if (uc8 <= 0x7F) {
+    c32 = static_cast<char32_t>(uc8);
+  } else if ((uc8 & 0xE0) == 0xC0) {
+    c32 = uc8 & 0x1F;
+    c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
+  } else if ((uc8 & 0xF0) == 0xE0) {
+    c32 = uc8 & 0x0F;
+    c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
+    c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
+  } else if ((uc8 & 0xF8) == 0xF0) {
+    c32 = uc8 & 0x07;
+    c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
+    c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
+    c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
+  }
+}
+
 uint64_t ekg::utf8_check_sequence(
   uint8_t &char8,
   char32_t &char32,
@@ -245,11 +268,13 @@ bool ekg::utf8_split(
 
 std::string ekg::text::line_not_found {'\x1B'};
 
-std::string &ekg::text::at(size_t index) {
+std::string &ekg::text::write(size_t index) {
   size_t chunks_size {this->loaded_chunks.size()};
   size_t total_lines {};
   size_t previous_total_lines {};
   size_t chunk_size {};
+
+  this->was_audited = true;
 
   for (size_t it {}; it < chunks_size; it++) {
     ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
@@ -263,6 +288,13 @@ std::string &ekg::text::at(size_t index) {
   }
 
   return ekg::text::line_not_found;
+}
+
+std::string ekg::text::read(size_t index) {
+  bool was_audited_before {this->was_audited};
+  std::string &line {this->write(index)};
+  this->was_audited = was_audited_before;
+  return line;
 }
 
 void ekg::text::insert(
@@ -407,8 +439,6 @@ void ekg::text::erase(
           chunk.begin() + begin + (!goto_next_chunk * remains_lines)
         );
 
-        ekg_log_low_level(begin << " x ")
-
         empty_chunk = chunk.empty();
         if (empty_chunk) {
           this->loaded_chunks.erase(
@@ -471,4 +501,14 @@ size_t ekg::text::lines() {
 
 size_t ekg::text::chunks() {
   return this->loaded_chunks.size();
+}
+
+bool ekg::text::audited() {
+  bool should {this->was_audited};
+  this->was_audited = false;
+  return should;
+}
+
+std::vector<ekg::io::chunk_t> &ekg::text::data() {
+  return this->loaded_chunks;
 }

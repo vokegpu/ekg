@@ -32,6 +32,32 @@
 
 namespace ekg {
   /**
+   * @brief:
+   *  check utf8 sequence and add to `it` index.
+   *
+   * @param `uc8` the current char to be checked.
+   * @param `c32` the post utf32 char converted.
+   * @param `utf8_str` the utf8 encoded text.
+   * @param `it` the current `utf8_str` index.
+   *
+   * @description:
+   *  this function check the first byte of a char utf8 encoded:
+   *  if first char fit less than 127; 1 byte utf8 char.
+   *  if first char fit equals 192~224; 2 byte utf8 char.
+   *  if first char fit equals 224~240; 3 byte utf8 char.
+   *  if first char fit equals 240~248; 4 byte utf8 char.
+   * 
+   *  by the amount of bytes per-char it is added to `it` e.g:
+   *  if 224~240; then `it + 2`  (`it` already counts as 1 byte)
+   **/
+  void utf8_sequence(
+    uint8_t &uc8,
+    char32_t &c32,
+    std::string_view utf8_str,
+    size_t &it
+  );
+
+  /**
    * Returns a UTF string by `char32` converting
    * the UTF-32 unique char into a sequence of UTF-8
    * chars.
@@ -51,8 +77,7 @@ namespace ekg {
     uint64_t size
   );
 
-  /**
-   * Returns the `string` length considering UTF chars.
+  /**   * Returns the `string` length considering UTF chars.
    */
   uint64_t utf8_length(
     std::string_view string
@@ -127,12 +152,12 @@ namespace ekg {
     std::vector<ekg::io::chunk_t> loaded_chunks {};
     size_t lines_per_chunk_limit {10};
     size_t total_lines {};
+    bool was_audited {};
   public:
     static std::string line_not_found;
   public:
-    std::string &at(
-      size_t index
-    );
+    std::string read(size_t index);
+    std::string &write(size_t index);
 
     void insert(
       size_t index,
@@ -152,8 +177,11 @@ namespace ekg {
     void push_back(const std::string &line);
     std::string &emplace_back();
 
+    std::vector<ekg::io::chunk_t> &data();
+
     size_t lines();
     size_t chunks();
+    bool audited();
   };
 }
 

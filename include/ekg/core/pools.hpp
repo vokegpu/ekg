@@ -342,7 +342,7 @@ namespace ekg {
           ekg::textbox_t,
           ekg::pools.textbox,
           ekg::pools.textbox_property,
-          true,
+          false,
           {
             property.is_childnizate = false;
             property.is_children_docknizable = false;
