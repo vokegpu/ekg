@@ -138,11 +138,13 @@ void ekg::render() {
     ekg::gui.ui.redraw = false;
     
     ekg::p_core->draw_allocator.invoke();
+      size_t a {};
 
     for (ekg::at_t &at : ekg::p_core->stack) {
       ekg::property_t &property {
         ekg::query<ekg::property_t>(at)
       };
+
 
       if (property == ekg::property_t::not_found) {
         continue;
@@ -183,6 +185,7 @@ void ekg::render() {
         }
 
         ekg::ui::buffering(property, descriptor);
+        //property.widget.should_buffering = false;
       );
     }
 

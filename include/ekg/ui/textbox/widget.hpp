@@ -28,6 +28,12 @@
 #include "textbox.hpp"
 
 namespace ekg::ui {
+  bool find_cursor(
+    ekg::textbox_t &textbox,
+    size_t len,
+    ekg::textbox_t::cursor_t &cursor_out
+  );
+
   void reload(
     ekg::property_t &property,
     ekg::textbox_t &textbox

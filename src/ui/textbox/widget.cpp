@@ -31,6 +31,21 @@
 #include "ekg/core/runtime.hpp"
 #include "ekg/core/pools.hpp"
 
+bool ekg::ui::find_cursor(
+  ekg::textbox_t &textbox,
+  size_t len,
+  ekg::textbox_t::cursor_t &cursor_out
+) {
+  for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
+    if (cursor >= len && cursor <= len) {
+      cursor_out = cursor;
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void ekg::ui::reload(
   ekg::property_t &property,
   ekg::textbox_t &textbox
@@ -56,8 +71,6 @@ void ekg::ui::reload(
 
   textbox.rect.scaled_height = ekg::max<ekg::pixel_thickness_t>(1, textbox.rect.scaled_height);
   textbox.rect.h = aligned_dimension.h * textbox.rect.scaled_height;
-
-
 }
 
 void ekg::ui::event(
@@ -126,17 +139,30 @@ void ekg::ui::buffering(
     textbox.layers[ekg::layer::bg]
   );
 
-  /* start of text */
+  /* start of select */
 
-  ekg::gpu::data_t &data {
-    ekg::p_core->draw_allocator.bind_current_data()
-  };
+  for (ekg::textbox_t::select_draw_layer_t &layer : textbox.widget.layers_select) {
+    if (layer.is_ab_equals) {
+      ekg::draw::rect(
+        layer.rect + rect_abs,
+        textbox.color_scheme.text_cursor_foreground,
+        ekg::draw::mode::fill,
+        ekg::at_t::not_found
+      );
+
+      continue;
+    }
+  }
+
+  /* start of text */
 
   ekg::draw::font &draw_font {
     ekg::draw::get_font_renderer(textbox.font_size)
   };
 
-  ekg::vec2_t<float> pos {};
+  ekg::gpu::data_t &data {
+    ekg::p_core->draw_allocator.bind_current_data()
+  };
 
   data.buffer[0] = rect_abs.x;
   data.buffer[1] = rect_abs.y;
@@ -147,25 +173,190 @@ void ekg::ui::buffering(
   data.buffer[6] = static_cast<float>(textbox.color_scheme.text_foreground.z / 255);
   data.buffer[7] = static_cast<float>(textbox.color_scheme.text_foreground.w / 255);
 
+  ekg::hash_t hash {};
+  ekg::vec2_t<float> pos {};
+  ekg::rect_t<float> vertex {};
+  ekg::rect_t<float> uv {};
+
+  size_t len {};
   size_t text_len {};
   uint8_t uc8 {};
   char32_t c32 {};
-  std::string utf8_str {};
+
+  bool break_text {};
+  bool r_n_break_text {};
+
+  FT_Face ft_face {};
+  FT_Vector ft_vector_previous_char {};
+  char32_t ft_uint_previous {};
+
+  ekg::io::font_face_t &text_font_face {draw_font.faces[ekg::io::font_face_type::text]};
+  ekg::io::font_face_t &emojis_font_face {draw_font.faces[ekg::io::font_face_type::emojis]};
+  ekg::io::font_face_t &kanjis_font_face {draw_font.faces[ekg::io::font_face_type::kanjis]};
+
+  textbox.widget.cursors = {
+    {
+      2, 2
+    }
+  };
+
+  bool is_select_cursor {};
+  bool is_caret_cursor {};
+  bool cursors_going_on {!textbox.widget.cursors.empty()};
+  ekg::textbox_t::cursor_t cursor {};
+
+  textbox.widget.layers_select.clear();
 
   for (ekg::io::chunk_t &chunk : textbox.text.data()) {
-    text_len = chunk.size();
-    for (size_t it {}; it < text_len; it++) {
-      std::string &line_text {chunk.at(it)};
-      uc8 = static_cast<uint8_t>(uc8);
+    for (std::string &line : chunk) {
+      text_len = line.size();
+      for (size_t it {}; it < text_len; it++) {
+        uc8 = static_cast<uint8_t>(line.at(it));
 
-      ekg::utf8_sequence(
-        uc8,
-        c32,
-        line_text,
-        it
-      );
+        ekg::utf8_sequence(
+          uc8,
+          c32,
+          line,
+          it
+        );
+
+        break_text = uc8 == '\n';
+        if (
+            break_text
+            ||
+            (
+              r_n_break_text = (
+                uc8 == '\r' && it < text_len && line.at(it + 1) == '\n'
+              )
+            )
+          ) {
+
+          ekg::io::glyph_t &glyph {draw_font.mapped_glyph[c32]};
+
+          it += static_cast<uint64_t>(r_n_break_text);
+          hash += ekg_generate_hash(pos.y, c32, glyph.x);
+
+          pos.y += draw_font.text_height;
+          pos.x = 0.0f;
+          len++;
+
+          continue;
+        }
+
+        if (draw_font.ft_bool_kerning && ft_uint_previous) {
+          switch (c32 < 256 || !emojis_font_face.was_loaded) {
+            case true: {
+              ft_face = text_font_face.ft_face;
+              break;
+            }
+
+            default: {
+              ft_face = emojis_font_face.ft_face;
+              break;
+            }
+          }
+
+          FT_Get_Kerning(ft_face, ft_uint_previous, c32, 0, &ft_vector_previous_char);
+          pos.x += static_cast<float>(ft_vector_previous_char.x >> 6);
+        }
+
+        ekg::io::glyph_t &glyph {draw_font.mapped_glyph[c32]};
+
+        if (
+          cursors_going_on
+          &&
+          ekg::ui::find_cursor(textbox, len, cursor)
+        ) {
+          is_caret_cursor = cursor == len;
+          is_select_cursor = cursor >= len && cursor <= len && !is_caret_cursor;
+
+          if (is_caret_cursor) {
+            cursor.rect.x = pos.x;
+            cursor.rect.y = pos.y;
+            cursor.rect.w = textbox.color_scheme.caret_cursor ? glyph.wsize : textbox.color_scheme.cursor_thickness;
+            cursor.rect.h = draw_font.text_height;
+            textbox.widget.layers_select.push_back({true, cursor.rect});
+          }
+
+          if (is_select_cursor) {
+
+          }
+        }
+
+        if (!glyph.was_sampled) {
+          draw_font.new_glyphs_to_atlas.emplace_back(c32);
+          glyph.was_sampled = true;
+        }
+
+        vertex.x = pos.x + glyph.left;
+        vertex.y = pos.y + draw_font.atlas_rect.h - glyph.top;
+
+        vertex.w = glyph.w;
+        vertex.h = glyph.h;
+
+        uv.x = glyph.x;
+        uv.w = vertex.w / draw_font.atlas_rect.w;
+        uv.h = vertex.h / draw_font.atlas_rect.h;
+
+        ekg::p_core->draw_allocator.push_back_geometry(
+          vertex.x,
+          vertex.y,
+          uv.x,
+          uv.y
+        );
+
+        ekg::p_core->draw_allocator.push_back_geometry(
+          vertex.x,
+          vertex.y + vertex.h,
+          uv.x,
+          uv.y + uv.h
+        );
+
+        ekg::p_core->draw_allocator.push_back_geometry(
+          vertex.x + vertex.w,
+          vertex.y + vertex.h,
+          uv.x + uv.w,
+          uv.y + uv.h
+        );
+
+        ekg::p_core->draw_allocator.push_back_geometry(
+          vertex.x + vertex.w,
+          vertex.y + vertex.h,
+          uv.x + uv.w,
+          uv.y + uv.h
+        );
+
+        ekg::p_core->draw_allocator.push_back_geometry(
+          vertex.x + vertex.w,
+          vertex.y,
+          uv.x + uv.w,
+          uv.y
+        );
+
+        ekg::p_core->draw_allocator.push_back_geometry(
+          vertex.x,
+          vertex.y,
+          uv.x,
+          uv.y
+        );
+
+        pos.x += glyph.wsize;
+        ft_uint_previous = c32;
+
+        /**
+         * Peek `ekg/io/memory.hpp` for better hash definition and purpose.
+         **/
+        hash += ekg_generate_hash(pos.x, c32, glyph.x);
+        len++;
+      }
     }
   }
+
+  data.hash = hash;
+
+  ekg::draw::allocator::is_simple_shape = false;
+  ekg::p_core->draw_allocator.bind_texture(draw_font.atlas_texture_sampler_at);
+  ekg::p_core->draw_allocator.dispatch();
 
   /* start of outline */
 
@@ -175,6 +366,21 @@ void ekg::ui::buffering(
     ekg::draw::mode::outline,
     ekg::at_t::not_found
   );
+
+  /**
+   * Cursors should be rendered backward from text-render.
+   * Textbox first try-render render the cursors, then at end of renderer-segment
+   * check if latest size is diff, then re-call buffering once for render
+   * the cursos (backward).
+   * 
+   * The EKG renderer engine does not allow doing strip on gpu resources (not yet).
+   * May soon strip-resources should be implemented and this code part become deprecated.  
+   **/
+  size_t layers_select_size {textbox.widget.layers_select.size()};
+  if (textbox.widget.last_layers_select_size != layers_select_size) {
+    property.widget.should_buffering = true;
+    textbox.widget.last_layers_select_size = layers_select_size;
+  }
 
   ekg_draw_allocator_pass();
 }

@@ -78,6 +78,9 @@ void ekg::handler::theme::init() {
 
   light_pinky_theme.textbox_color_scheme.background = {242, 242, 242, 255};
   light_pinky_theme.textbox_color_scheme.outline = {190, 190, 190, 100};
+  light_pinky_theme.textbox_color_scheme.text_foreground = {141, 141, 141, 255};
+  light_pinky_theme.textbox_color_scheme.text_cursor_foreground = {141, 141, 141, 255};
+  light_pinky_theme.textbox_color_scheme.text_select_foreground = {245, 169, 184, 50};
 
   this->registry(light_pinky_theme.tag) = light_pinky_theme;
   this->set_current_theme(light_pinky_theme.tag);
@@ -132,6 +135,7 @@ void ekg::handler::theme::init() {
 
   light_pinky_theme.textbox_color_scheme.background = {204, 204, 204, 50};
   light_pinky_theme.textbox_color_scheme.outline = {190, 190, 190, 0};
+  light_pinky_theme.textbox_color_scheme.text_foreground = {141, 141, 141, 255};
 
   this->registry(black_light_pinky_theme.tag) = black_light_pinky_theme;
   //this->set_current_theme(black_light_pinky_theme.tag);

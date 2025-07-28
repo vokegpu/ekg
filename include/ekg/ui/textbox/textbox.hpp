@@ -37,15 +37,56 @@ namespace ekg {
     ekg::rgba_t<float> text_foreground {};
     ekg::rgba_t<float> text_select_foreground {};
     ekg::rgba_t<float> text_cursor_foreground {};
+    ekg::pixel_thickness_t cursor_thickness {2};
     bool caret_cursor {};
   };
 
   struct textbox_t {
   public:
+    struct select_draw_layer_t {
+    public:
+      bool is_ab_equals {};
+      ekg::rect_t<float> rect {};
+    };
+
+    struct cursor_t {
+    public:
+      size_t index_a {};
+      size_t index_b {};
+      ekg::rect_t<float> rect {};
+    public:
+      bool operator == (size_t index) {
+        return this->index_a == index && this->index_b == index;
+      }
+
+      bool operator > (size_t index) {
+        return this->index_a > index;
+      }
+
+      bool operator >= (size_t index) {
+        return this->index_a >= index;
+      }
+
+      bool operator < (size_t index) {
+        return this->index_b < index;
+      }
+
+      bool operator <= (size_t index) {
+        return this->index_b <= index;
+      }
+
+      bool operator == (const ekg::textbox_t::cursor_t &cursor) {
+        return this->index_a == cursor.index_a && this->index_b == cursor.index_b;
+      }
+    };
+
     struct widget_t {
     public:
       ekg::rect_t<float> rect_text_size {};
       ekg::scrollbar_t scrollbar {};
+      std::vector<ekg::textbox_t::cursor_t> cursors {};
+      std::vector<ekg::textbox_t::select_draw_layer_t> layers_select {};
+      size_t last_layers_select_size {};
     };
 
     static constexpr ekg::type type {ekg::type::textbox};
