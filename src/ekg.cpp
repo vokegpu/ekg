@@ -167,7 +167,7 @@ void ekg::render() {
          * 
          * I do not know why this is hapenning, likely wtf, if I remove this
          * scrolling is horrible, I am not sure why this is hapning, I tried make the make redraw always,
-         * rendering everything, no allocators asserts. Nothing. I tried do a stupid `meow<t>` where t receives a descriptor,
+         * rendering everything, no allocators asscerts. Nothing. I tried do a stupid `meow<t>` where t receives a descriptor,
          * but nothing too. I do not know why this happens but it is very insanely weird. Post does not affect the performance
          * a lot, may we consider to let for some long time. While no solution was found.
          * 

@@ -151,8 +151,10 @@ namespace ekg {
   protected:
     std::vector<ekg::io::chunk_t> loaded_chunks {};
     size_t lines_per_chunk_limit {10};
-    size_t total_lines {};
+    size_t total_chars {};
+    size_t prev_total_chars {};
     bool was_audited {};
+    bool should_count {};
   public:
     static std::string line_not_found;
   public:
@@ -179,8 +181,11 @@ namespace ekg {
 
     std::vector<ekg::io::chunk_t> &data();
 
+    size_t size();
     size_t lines();
     size_t chunks();
+
+    void unset_audited();
     bool audited();
   };
 }

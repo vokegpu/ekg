@@ -119,6 +119,8 @@ void ekg::ui::buffering(
   ekg::property_t &property,
   ekg::textbox_t &textbox
 ) {
+  textbox.text.unset_audited();
+
   ekg::rect_t<float> &rect_abs {
     ekg::ui::get_abs_rect(property, textbox.rect)
   };
@@ -142,16 +144,12 @@ void ekg::ui::buffering(
   /* start of select */
 
   for (ekg::textbox_t::select_draw_layer_t &layer : textbox.widget.layers_select) {
-    if (layer.is_ab_equals) {
-      ekg::draw::rect(
-        layer.rect + rect_abs,
-        textbox.color_scheme.text_cursor_foreground,
-        ekg::draw::mode::fill,
-        ekg::at_t::not_found
-      );
-
-      continue;
-    }
+    ekg::draw::rect(
+      layer.rect + rect_abs,
+      layer.is_ab_equals ? textbox.color_scheme.text_cursor_foreground : textbox.color_scheme.text_select_foreground,
+      ekg::draw::mode::fill,
+      ekg::at_t::not_found
+    );
   }
 
   /* start of text */
@@ -164,8 +162,8 @@ void ekg::ui::buffering(
     ekg::p_core->draw_allocator.bind_current_data()
   };
 
-  data.buffer[0] = rect_abs.x;
-  data.buffer[1] = rect_abs.y;
+  data.buffer[0] = static_cast<float>(static_cast<int32_t>(rect_abs.x));
+  data.buffer[1] = static_cast<float>(static_cast<int32_t>(rect_abs.y - draw_font.offset_text_height * 2.0f));
   data.buffer[2] = static_cast<float>(-draw_font.non_swizzlable_range);
 
   data.buffer[4] = static_cast<float>(textbox.color_scheme.text_foreground.x / 255);
@@ -196,13 +194,22 @@ void ekg::ui::buffering(
 
   textbox.widget.cursors = {
     {
-      2, 2
+      0, 13
     }
   };
 
-  bool is_select_cursor {};
-  bool is_caret_cursor {};
+  bool is_inline_selected {};
+  bool is_complete_line_selected {};
+  bool is_ab_equals_selected {};
+  bool was_complete_line_selected {};
   bool cursors_going_on {!textbox.widget.cursors.empty()};
+
+  size_t current_line_for_cursor_complete {};
+  size_t difference {};
+  size_t lines {};
+  size_t text_total_chars {textbox.text.size()};
+
+  ekg::pixel_t line_wsize {};
   ekg::textbox_t::cursor_t cursor {};
 
   textbox.widget.layers_select.clear();
@@ -238,7 +245,17 @@ void ekg::ui::buffering(
 
           pos.y += draw_font.text_height;
           pos.x = 0.0f;
+
+
+          textbox.widget.line_ending_untracked.push_back(
+            {
+              .indices = {len - it, len},
+              .text = line.substr(len - it, len - (len - it))
+            }
+          );
+
           len++;
+          lines++;
 
           continue;
         }
@@ -267,10 +284,27 @@ void ekg::ui::buffering(
           &&
           ekg::ui::find_cursor(textbox, len, cursor)
         ) {
-          is_caret_cursor = cursor == len;
-          is_select_cursor = cursor >= len && cursor <= len && !is_caret_cursor;
 
-          if (is_caret_cursor) {
+          is_ab_equals_selected = cursor == len;
+          is_inline_selected = cursor >= len && cursor <= len && !is_ab_equals_selected;
+
+          is_complete_line_selected = false;
+
+          if (is_inline_selected) {
+            difference = len - it;
+            if (difference >= cursor.index_a) {
+              is_complete_line_selected = true;
+            }
+
+            difference = len + (text_len - it);
+            if (difference <= cursor.index_b) {
+              is_complete_line_selected = is_complete_line_selected;
+            }
+
+            is_inline_selected = !is_complete_line_selected;
+          }
+
+          if (is_ab_equals_selected) {
             cursor.rect.x = pos.x;
             cursor.rect.y = pos.y;
             cursor.rect.w = textbox.color_scheme.caret_cursor ? glyph.wsize : textbox.color_scheme.cursor_thickness;
@@ -278,8 +312,37 @@ void ekg::ui::buffering(
             textbox.widget.layers_select.push_back({true, cursor.rect});
           }
 
-          if (is_select_cursor) {
+          if (is_inline_selected) {
+            cursor.rect.x = pos.x;
+            cursor.rect.y = pos.y;
+            cursor.rect.w = glyph.wsize;
+            cursor.rect.h = draw_font.text_height;
+            textbox.widget.layers_select.push_back({false, cursor.rect});
+          }
 
+          if (is_complete_line_selected && current_line_for_cursor_complete != lines) {
+            line_wsize = 0.0f;
+            current_line_for_cursor_complete = lines;
+            was_complete_line_selected = true;
+          }
+
+          if (is_complete_line_selected) {
+            line_wsize += glyph.wsize;
+          }
+
+          if (
+            was_complete_line_selected
+            &&
+            (current_line_for_cursor_complete != lines || lines + 1 == text_total_chars)
+            &&
+            !is_complete_line_selected
+          ) {
+            cursor.rect.x = 0.0f;
+            cursor.rect.y = pos.y;
+            cursor.rect.w = line_wsize;
+            cursor.rect.h = draw_font.text_height;
+            textbox.widget.layers_select.push_back({false, cursor.rect});
+            was_complete_line_selected = false;
           }
         }
 
@@ -380,6 +443,25 @@ void ekg::ui::buffering(
   if (textbox.widget.last_layers_select_size != layers_select_size) {
     property.widget.should_buffering = true;
     textbox.widget.last_layers_select_size = layers_select_size;
+    ekg::gui.ui.redraw = true;
+  }
+
+  if (!textbox.widget.line_ending_untracked.empty()) {
+    for (ekg::textbox_t::untracked_line_ending_t &untracked_line_ending : textbox.widget.line_ending_untracked) {
+      textbox.text.erase(
+        untracked_line_ending.indices.x,
+        untracked_line_ending.indices.y
+      );
+
+      textbox.text.insert(
+        untracked_line_ending.indices.x,
+        untracked_line_ending.text
+      );
+    }
+
+    property.widget.should_buffering = true;
+    textbox.widget.line_ending_untracked.clear();
+    ekg::gui.ui.redraw = true;
   }
 
   ekg_draw_allocator_pass();

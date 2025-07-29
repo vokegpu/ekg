@@ -56,28 +56,34 @@ namespace ekg {
       ekg::rect_t<float> rect {};
     public:
       bool operator == (size_t index) {
-        return this->index_a == index && this->index_b == index;
+        return index == this->index_a && index == this->index_b;
       }
 
       bool operator > (size_t index) {
-        return this->index_a > index;
+        return index > this->index_a;
       }
 
       bool operator >= (size_t index) {
-        return this->index_a >= index;
+        return index >= this->index_a;
       }
 
       bool operator < (size_t index) {
-        return this->index_b < index;
+        return index < this->index_b;
       }
 
       bool operator <= (size_t index) {
-        return this->index_b <= index;
+        return index <= this->index_b;
       }
 
       bool operator == (const ekg::textbox_t::cursor_t &cursor) {
         return this->index_a == cursor.index_a && this->index_b == cursor.index_b;
       }
+    };
+
+    struct untracked_line_ending_t {
+    public:
+      ekg::vec2_t<size_t> indices {};
+      std::string text {};
     };
 
     struct widget_t {
@@ -86,6 +92,7 @@ namespace ekg {
       ekg::scrollbar_t scrollbar {};
       std::vector<ekg::textbox_t::cursor_t> cursors {};
       std::vector<ekg::textbox_t::select_draw_layer_t> layers_select {};
+      std::vector<ekg::textbox_t::untracked_line_ending_t> line_ending_untracked {};
       size_t last_layers_select_size {};
     };
 

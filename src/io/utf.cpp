@@ -270,8 +270,8 @@ std::string ekg::text::line_not_found {'\x1B'};
 
 std::string &ekg::text::write(size_t index) {
   size_t chunks_size {this->loaded_chunks.size()};
-  size_t total_lines {};
-  size_t previous_total_lines {};
+  size_t total_chars {};
+  size_t previous_total_chars {};
   size_t chunk_size {};
 
   this->was_audited = true;
@@ -279,11 +279,11 @@ std::string &ekg::text::write(size_t index) {
   for (size_t it {}; it < chunks_size; it++) {
     ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
 
-    previous_total_lines = total_lines;
-    total_lines += (chunk_size = chunk.size());
+    previous_total_chars = total_chars;
+    total_chars += (chunk_size = chunk.size());
 
-    if (index < total_lines && (index - previous_total_lines) < chunk_size) {
-      return chunk.at(index - previous_total_lines);
+    if (index < total_chars && (index - previous_total_chars) < chunk_size) {
+      return chunk.at(index - previous_total_chars);
     }
   }
 
@@ -308,31 +308,31 @@ void ekg::text::insert(
     }
     return;
   }
+  this->was_audited = true;
 
   bool ok {};
 
-  size_t previous_total_lines {};
+  size_t previous_total_chars {};
   size_t chunk_size {};
-  size_t current_total_lines {};
+  size_t current_total_chars {};
 
   ekg::io::chunk_t to_swizzle_chunk {};
 
-  this->total_lines = 0;
   for (size_t it {}; it < this->loaded_chunks.size(); it++) {
     ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
 
-    previous_total_lines = this->total_lines;
-    current_total_lines += (chunk_size = chunk.size());
+    previous_total_chars = this->total_chars;
+    current_total_chars += (chunk_size = chunk.size());
 
     if (
       !ok
       &&
-      index < current_total_lines
+      index < current_total_chars
       &&
-      (index - previous_total_lines) < chunk_size
+      (index - previous_total_chars) < chunk_size
     ) {
       chunk.insert(
-        chunk.begin() + (index - previous_total_lines),
+        chunk.begin() + (index - previous_total_chars),
         to_insert_chunk.begin(),
         to_insert_chunk.end()
       );
@@ -381,8 +381,6 @@ void ekg::text::insert(
 
       ok = true;
     }
-
-    this->total_lines += this->loaded_chunks.at(it).size();
   }
 }
 
@@ -404,16 +402,22 @@ void ekg::text::erase(
     return;
   }
 
-  if (begin >= this->total_lines || end >= this->total_lines || end <= begin) {
-    throw std::out_of_range("ekg::text::erase -> begin or end out of index");
+  if (begin > this->total_chars) {
+    throw std::out_of_range("ekg::text::erase: " + std::to_string(begin) + ", " + std::to_string(this->total_chars));
     return;
   }
 
-  this->total_lines -= end - begin;
+  end = ekg::min(begin + end, this->total_chars);
 
-  size_t previous_total_lines {};
+  this->should_count = true;
+  this->size();
+
+  this->total_chars -= end - begin;
+  this->was_audited = true;
+
+  size_t previous_total_chars {};
   size_t chunk_size {};
-  size_t total_lines {};
+  size_t total_chars {};
   size_t remains_lines {};
 
   bool empty_chunk {};
@@ -422,12 +426,12 @@ void ekg::text::erase(
   for (size_t it {}; it < this->loaded_chunks.size(); it++) {
     ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
 
-    previous_total_lines = total_lines;
-    total_lines += (chunk_size = chunk.size());
+    previous_total_chars = total_chars;
+    total_chars += (chunk_size = chunk.size());
 
-    if (begin < total_lines) {
+    if (begin < total_chars) {
       remains_lines = end - begin;
-      begin = begin - previous_total_lines;
+      begin = begin - previous_total_chars;
       while (remains_lines != 0) {
         ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
 
@@ -459,6 +463,9 @@ void ekg::text::erase(
       break;
     }
   }
+
+  this->should_count = true;
+  this->size();
 }
 
 void ekg::text::push_back(const std::string &line) {
@@ -466,8 +473,9 @@ void ekg::text::push_back(const std::string &line) {
     this->loaded_chunks.emplace_back().push_back(line);
     return;
   }
-
-  this->total_lines++;
+  
+  this->should_count = true;
+  this->size();
 
   size_t chunks_size {this->loaded_chunks.size()};
   ekg::io::chunk_t &chunk {this->loaded_chunks.at(chunks_size - (chunks_size != 0))};
@@ -484,7 +492,8 @@ std::string &ekg::text::emplace_back() {
     return this->loaded_chunks.emplace_back().emplace_back();
   }
 
-  this->total_lines++;
+  this->should_count = true;
+  this->size();
 
   size_t chunks_size {this->loaded_chunks.size()};
   ekg::io::chunk_t &chunk {this->loaded_chunks.at(chunks_size - (chunks_size != 0))};
@@ -496,17 +505,36 @@ std::string &ekg::text::emplace_back() {
 }
 
 size_t ekg::text::lines() {
-  return this->total_lines;
+  return 0;
+}
+
+size_t ekg::text::size() {
+  if (this->should_count) {
+    this->total_chars = 0;
+    for (ekg::io::chunk_t &chunk : this->loaded_chunks) {
+      for (std::string &lines : chunk) {
+        this->total_chars += lines.size();
+      }
+    }
+
+    this->should_count = false;
+  }
+
+  return this->total_chars;
 }
 
 size_t ekg::text::chunks() {
   return this->loaded_chunks.size();
 }
 
-bool ekg::text::audited() {
-  bool should {this->was_audited};
+void ekg::text::unset_audited() {
   this->was_audited = false;
-  return should;
+}
+
+bool ekg::text::audited() {
+  this->was_audited = this->was_audited || (this->prev_total_chars != this->total_chars);
+  this->prev_total_chars = this->total_chars;
+  return this->was_audited;
 }
 
 std::vector<ekg::io::chunk_t> &ekg::text::data() {
