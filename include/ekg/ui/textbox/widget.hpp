@@ -34,6 +34,13 @@ namespace ekg::ui {
     ekg::textbox_t::cursor_t &cursor_out
   );
 
+  bool find_index_by_interact(
+    ekg::property_t &property,
+    ekg::textbox_t &textbox,
+    ekg::vec2_t<float> &interact,
+    size_t &index
+  );
+
   void reload(
     ekg::property_t &property,
     ekg::textbox_t &textbox

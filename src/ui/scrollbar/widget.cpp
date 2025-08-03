@@ -638,13 +638,6 @@ void ekg::ui::buffering(
   ekg::rect_t<float> &rect_parent,
   ekg::rect_t<float> &rect_parent_scissor
 ) {
-  ekg_draw_allocator_assert_scissor(
-    property.widget.rect_scissor,
-    rect_parent,
-    rect_parent_scissor,
-    ekg::always_parented
-  );
-
   scrollbar.widget.rect_horizontal.w = 0.0f;
   scrollbar.widget.rect_vertical.h = 0.0f;
 
@@ -656,7 +649,7 @@ void ekg::ui::buffering(
     &&
     !property.scroll.is_enabled.y
   ) {
-    ekg_draw_allocator_pass();
+    return;
   }
 
   ekg::rect_t<float> bar {};
@@ -835,8 +828,6 @@ void ekg::ui::buffering(
     ekg::draw::mode::outline,
     scrollbar.layers[ekg::layer::outline]
   );
-
-  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::buffering(
@@ -847,12 +838,21 @@ void ekg::ui::buffering(
     ekg::query<ekg::property_t>(property.parent_at)
   };
 
+  ekg_draw_allocator_assert_scissor(
+    property.widget.rect_scissor,
+    property_parent.widget.rect,
+    property_parent.widget.rect_scissor,
+    ekg::always_parented
+  );
+
   ekg::ui::buffering(
     property,
     scrollbar,
     property_parent.widget.rect,
     property_parent.widget.rect_scissor
   );
+
+  ekg_draw_allocator_pass();
 }
 
 void ekg::ui::unmap(

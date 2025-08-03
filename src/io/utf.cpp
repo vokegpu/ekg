@@ -353,12 +353,12 @@ std::string ekg::text::at(size_t index) {
     }
   }
 
-  throw std::out_of_range("ekg::text::insert -> lines length: " + std::to_string(current_lines));
+  throw std::out_of_range("ekg::text::at -> lines length: " + std::to_string(current_lines));
 }
 
 void ekg::text::insert(
   size_t index,
-  ekg::io::chunk_t &to_insert_chunk
+  const ekg::io::chunk_t &to_insert_chunk
 ) {
   if (this->loaded_chunks.empty()) {
     if (index == 0) {
@@ -375,7 +375,7 @@ void ekg::text::insert(
 
   ekg::io::chunk_t splitted {};
   for (size_t it {}; it < to_insert_chunk_size; it++) {
-    std::string &lines {to_insert_chunk.at(it)};
+    const std::string &lines {to_insert_chunk.at(it)};
     ekg::utf8_split_endings(lines, splitted);
   }
 

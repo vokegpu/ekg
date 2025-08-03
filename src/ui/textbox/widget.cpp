@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "ekg/ui/scrollbar/widget.hpp"
 #include "ekg/ui/textbox/widget.hpp"
 #include "ekg/layout/docknize.hpp"
 #include "ekg/io/log.hpp"
@@ -44,6 +45,17 @@ bool ekg::ui::find_cursor(
   }
 
   return false;
+}
+
+bool ekg::ui::find_index_by_interact(
+  ekg::property_t &property,
+  ekg::textbox_t &textbox,
+  ekg::vec2_t<float> &interact,
+  size_t &index
+) {
+  ekg::rect_t<float> &rect_abs {
+    ekg::ui::get_abs_rect(property, textbox.rect)
+  };
 }
 
 void ekg::ui::reload(
@@ -80,6 +92,56 @@ void ekg::ui::event(
 ) {
   switch (stage) {
     default: {
+      ekg::input_info_t &input {ekg::p_core->handler_input.input};
+      ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
+
+      bool should_enable_high_frequency {
+        property.states.is_hovering
+        ||
+        property.states.is_focused
+      };
+
+      if (
+        !property.states.is_focused
+        &&
+        property.states.is_hovering
+        &&
+        ekg::fire("textbox-focus")
+      ) {
+        should_enable_high_frequency = true;
+        property.states.is_focused = true;
+
+        if (textbox.widget.cursors.empty()) {
+          textbox.widget.cursors = {
+            {
+              2, 2
+            }
+          };
+        }
+      }
+
+      if (
+        property.states.is_focused
+        &&
+        !property.states.is_hovering
+        &&
+        input.was_pressed
+        &&
+        !input.was_typed
+      ) {
+        property.states.is_focused = false;
+        should_enable_high_frequency = false;
+      }
+
+      if (
+        should_enable_high_frequency
+      ) {
+        ekg::io::dispatch(
+          ekg::io::operation::high_frequency,
+          property.at
+        );
+      }
+
       break;
     }
   case ekg::io::stage::pre:
@@ -95,8 +157,23 @@ void ekg::ui::high_frequency(
   ekg::property_t &property,
   ekg::textbox_t &textbox
 ) {
+  ekg::rect_t<float> &rect_abs {
+    ekg::ui::get_abs_rect(property, textbox.rect)
+  };
+
+  ekg::ui::high_frequency(
+    property,
+    textbox.widget.scrollbar,
+    rect_abs
+  );
+
   ekg::gui.ui.redraw = true;
   property.widget.should_buffering = true;
+  property.widget.is_high_frequency = (
+    property.states.is_focused
+    ||
+    property.widget.is_high_frequency
+  );
 }
 
 void ekg::ui::pass(
@@ -196,15 +273,6 @@ void ekg::ui::buffering(
   ekg::io::font_face_t &emojis_font_face {draw_font.faces[ekg::io::font_face_type::emojis]};
   ekg::io::font_face_t &kanjis_font_face {draw_font.faces[ekg::io::font_face_type::kanjis]};
 
-  textbox.widget.cursors = {
-    {
-      5,5
-    },
-    {
-      6,6
-    }
-  };
-
   bool is_inline_selected {};
   bool is_complete_line_selected {};
   bool is_ab_equals_selected {};
@@ -220,8 +288,6 @@ void ekg::ui::buffering(
   ekg::pixel_t line_wsize {};
   ekg::textbox_t::cursor_t cursor {};
   std::vector<ekg::io::chunk_t> chunks {textbox.text.chunks_data()};
-
-  ekg::io::dispatch(ekg::io::operation::high_frequency, property.at);
 
   textbox.widget.layers_select.clear();
   for (ekg::io::chunk_t &chunk : chunks) {
@@ -261,7 +327,7 @@ void ekg::ui::buffering(
           &&
           ekg::ui::find_cursor(textbox, len, cursor)
         ) {
-          is_ab_equals_selected = cursor == len;
+          is_ab_equals_selected = cursor == len && property.states.is_focused;
           is_inline_selected = cursor >= len && cursor < len && !is_ab_equals_selected;
           is_complete_line_selected = false;
 
@@ -403,6 +469,15 @@ void ekg::ui::buffering(
   ekg::draw::allocator::is_simple_shape = false;
   ekg::p_core->draw_allocator.bind_texture(draw_font.atlas_texture_sampler_at);
   ekg::p_core->draw_allocator.dispatch();
+
+  /* start of scrollbar */
+
+  ekg::ui::buffering(
+    property,
+    textbox.widget.scrollbar,
+    rect_abs,
+    ekg::query<ekg::property_t>(property.parent_at).widget.rect_scissor
+  );
 
   /* start of outline */
 

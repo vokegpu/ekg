@@ -156,7 +156,7 @@ namespace ekg {
 
     void insert(
       size_t index,
-      ekg::io::chunk_t &to_insert_chunk
+      const ekg::io::chunk_t &to_insert_chunk
     );
     
     void insert(
