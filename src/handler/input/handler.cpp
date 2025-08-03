@@ -521,7 +521,7 @@ void ekg::handler::input::update() {
   #endif
 
   ekg::reset_if_reach(this->input.ui_timing, 1000);
-  ekg::timing_t::second = this->input.ui_timing.elapsed_ticks;
+  ekg::timing_t::second = this->input.ui_timing.current_ticks;
 }
 
 void ekg::handler::input::insert_input_bind(

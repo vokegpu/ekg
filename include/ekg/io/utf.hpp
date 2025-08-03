@@ -103,24 +103,9 @@ namespace ekg {
     std::string_view string
   );
 
-  /**
-   * Fast splitter specialized in `\n` or `\r\n` (non OS unix-based).
-   * UTF to sinalize the string unicode-like suggested by EKG. 
-   */
-  void utf8_split_new_line(
-    std::string_view string,
-    std::vector<std::string> &utf8_split_new_lined
-  );
-
-  /**
-   * Return true if `string` contains `find_char`,
-   * then it must allocate and insert elements to
-   * `p_string_split_list` ptr.
-   */
-  bool utf8_split(
-    std::vector<std::string> &string_split_list,
-    const std::string &string,
-    char find_char
+  size_t utf8_split_endings(
+    std::string_view line,
+    std::vector<std::string> &splitted
   );
 
   template<typename t>
@@ -151,24 +136,32 @@ namespace ekg {
   protected:
     std::vector<ekg::io::chunk_t> loaded_chunks {};
     size_t lines_per_chunk_limit {10};
+    size_t total_lines {};
     size_t total_chars {};
+    size_t prev_lines {};
     size_t prev_total_chars {};
+
     bool was_audited {};
     bool should_count {};
+  protected:
+    void swizzle(
+      size_t chunk_index,
+      size_t line_index,
+      std::vector<std::string> &to_swizzle,
+      bool skip_first_line
+    );
   public:
-    static std::string line_not_found;
-  public:
-    std::string read(size_t index);
-    std::string &write(size_t index);
+    void push_back(std::string_view line);
+    void set(size_t index, std::string_view line);
 
     void insert(
       size_t index,
       ekg::io::chunk_t &to_insert_chunk
     );
-
+    
     void insert(
       size_t index,
-      const std::string &line
+      std::string_view line
     );
 
     void erase(
@@ -176,16 +169,13 @@ namespace ekg {
       size_t end
     );
 
-    void push_back(const std::string &line);
-    std::string &emplace_back();
+    std::vector<ekg::io::chunk_t> &chunks_data();
+    size_t length_of_chunks();
 
-    std::vector<ekg::io::chunk_t> &data();
+    std::string at(size_t index);
+    size_t length_of_lines();
+    size_t length_of_chars();
 
-    size_t size();
-    size_t lines();
-    size_t chunks();
-
-    void unset_audited();
     bool audited();
   };
 }

@@ -80,19 +80,12 @@ namespace ekg {
       }
     };
 
-    struct untracked_line_ending_t {
-    public:
-      ekg::vec2_t<size_t> indices {};
-      std::string text {};
-    };
-
     struct widget_t {
     public:
       ekg::rect_t<float> rect_text_size {};
       ekg::scrollbar_t scrollbar {};
       std::vector<ekg::textbox_t::cursor_t> cursors {};
       std::vector<ekg::textbox_t::select_draw_layer_t> layers_select {};
-      std::vector<ekg::textbox_t::untracked_line_ending_t> line_ending_untracked {};
       size_t last_layers_select_size {};
     };
 
