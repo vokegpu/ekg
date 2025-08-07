@@ -135,7 +135,7 @@ namespace ekg {
   class text {
   protected:
     std::vector<ekg::io::chunk_t> loaded_chunks {};
-    size_t lines_per_chunk_limit {10};
+    size_t lines_per_chunk_limit {100000};
     size_t total_lines {};
     size_t total_chars {};
     size_t prev_lines {};
@@ -177,6 +177,7 @@ namespace ekg {
     size_t length_of_chars();
 
     bool audited();
+    void unset_audited();
   };
 }
 

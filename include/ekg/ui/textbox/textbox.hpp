@@ -28,6 +28,7 @@
 #include "ekg/io/descriptor.hpp"
 #include "ekg/io/utf.hpp"
 #include "ekg/io/font.hpp"
+#include "ekg/ui/property.hpp"
 
 namespace ekg {
   struct textbox_color_scheme_t {
@@ -39,6 +40,7 @@ namespace ekg {
     ekg::rgba_t<float> text_cursor_foreground {};
     ekg::pixel_thickness_t cursor_thickness {2};
     bool caret_cursor {};
+    ekg::pixel_thickness_t gutter_margin {2};
   };
 
   struct textbox_t {
@@ -51,38 +53,39 @@ namespace ekg {
 
     struct cursor_t {
     public:
-      size_t index_a {};
-      size_t index_b {};
+      ekg::vec2_t<size_t> a {};
+      ekg::vec2_t<size_t> b {};
       ekg::rect_t<float> rect {};
     public:
-      bool operator == (size_t index) {
-        return index == this->index_a && index == this->index_b;
+      bool operator == (const ekg::vec2_t<size_t> &index) {
+        return index.x == this->a.x && index.y == this->a.y && index.x == this->b.x && index.y == this->b.y;
       }
 
-      bool operator > (size_t index) {
-        return index > this->index_a;
+      bool operator > (const ekg::vec2_t<size_t> &index) {
+        return (index.x > this->a.x && index.y == this->a.y) || (index.y > this->a.y);
       }
 
-      bool operator >= (size_t index) {
-        return index >= this->index_a;
+      bool operator >= (const ekg::vec2_t<size_t> &index) {
+        return (index.x >= this->a.x && index.y == this->a.y) || (index.y > this->a.y);
       }
 
-      bool operator < (size_t index) {
-        return index < this->index_b;
+      bool operator < (const ekg::vec2_t<size_t> &index) {
+        return (index.x < this->b.x && index.y == this->b.y) || (index.y < this->b.y);
       }
 
-      bool operator <= (size_t index) {
-        return index <= this->index_b;
+      bool operator <= (const ekg::vec2_t<size_t> &index) {
+        return (index.x <= this->b.x && index.y == this->b.y) || (index.y < this->b.y);
       }
 
       bool operator == (const ekg::textbox_t::cursor_t &cursor) {
-        return this->index_a == cursor.index_a && this->index_b == cursor.index_b;
+        return *this == cursor.a && *this == cursor.b;
       }
     };
 
     struct widget_t {
     public:
       ekg::rect_t<float> rect_text_size {};
+      ekg::property_t scrollbar_property {};
       ekg::scrollbar_t scrollbar {};
       std::vector<ekg::textbox_t::cursor_t> cursors {};
       std::vector<ekg::textbox_t::select_draw_layer_t> layers_select {};

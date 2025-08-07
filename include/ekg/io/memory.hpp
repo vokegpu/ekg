@@ -130,7 +130,7 @@ namespace ekg {
 
       descriptor.at.unique_id = this->highest_unique_id++;
       descriptor.at.flags = t::type;
-      descriptor.at.index = index;
+      descriptor.at.index = index;      
 
       return descriptor;
     }
@@ -149,6 +149,7 @@ namespace ekg {
         for (size_t it {}; it < size; it++) {
           t &descriptor {this->loaded.at(it)};
           descriptor.at.index = it;
+
           if (descriptor.at.unique_id == at.unique_id) {
             at.index = it;
             return descriptor;

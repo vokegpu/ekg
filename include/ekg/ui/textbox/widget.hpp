@@ -30,7 +30,7 @@
 namespace ekg::ui {
   bool find_cursor(
     ekg::textbox_t &textbox,
-    size_t len,
+    ekg::vec2_t<size_t> &index,
     ekg::textbox_t::cursor_t &cursor_out
   );
 

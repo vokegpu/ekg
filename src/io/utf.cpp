@@ -501,7 +501,7 @@ void ekg::text::push_back(std::string_view line) {
     this->loaded_chunks.size() - 1,
     last_chunk.size() - !last_chunk.empty(),
     splitted,
-    true
+    false
   );
 }
 
@@ -535,7 +535,9 @@ size_t ekg::text::length_of_chars() {
 bool ekg::text::audited() {
   this->was_audited = this->was_audited || (this->prev_lines != this->total_lines);
   this->prev_lines = this->total_lines;
-  bool was_audited {this->was_audited};
+  return this->was_audited;
+}
+
+void ekg::text::unset_audited() {
   this->was_audited = false;
-  return was_audited;
 }

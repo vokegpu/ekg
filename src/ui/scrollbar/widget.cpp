@@ -187,7 +187,6 @@ void ekg::ui::reload(
   parent.scroll.nearest_scroll_bar_thickness = scrollbar.color_scheme.bar_thickness;
 }
 
-
 void ekg::ui::event(
   ekg::property_t &property,
   ekg::scrollbar_t &scrollbar,
@@ -207,7 +206,7 @@ void ekg::ui::event(
         input.has_motion
         ||
         input.was_wheel
-      ) {        
+      ) {
         bool is_visible {
           ekg::rect_collide_vec2<float>(property.widget.rect_scissor, interact)
         };
