@@ -321,11 +321,19 @@ void ekg::core::poll_event() {
           ekg::query<ekg::property_t>(focused_at)
         };
 
-        focused_property != ekg::property_t::not_found
-          && (focused_property.states.is_hovering = false);
+        if (first_absolute) {
+          first_absolute = (
+            focused_property != ekg::property_t::not_found
+              && property.abs_parent_at == focused_property.abs_parent_at
+          );
+        }
 
-        focused_at = at;
-        first_absolute = false;
+        if (!first_absolute) {
+          focused_property != ekg::property_t::not_found
+            && (focused_property.states.is_hovering = false);
+          
+          focused_at = at;
+        }
       }
 
       if (property.states.is_absolute && !first_absolute) {

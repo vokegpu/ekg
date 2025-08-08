@@ -237,6 +237,7 @@ void ekg::ui::event(
           ekg::rect_precise_collide_vec2(v_bar, interact)
         );
 
+        property.states.is_focused = is_visible;
         property.states.is_hovering = (
           property.states.is_active
           ||
@@ -534,6 +535,22 @@ void ekg::ui::event(
     stage,
     parent.widget.rect
   );
+
+  if (stage == ekg::io::stage::pre) {
+    /*
+    property.states.is_hovering = (
+      !property.states.is_active
+      &&
+      (
+        property.states.is_focused
+        ||
+        scrollbar.widget.states_horizontal_bar.is_hovering
+        ||
+        scrollbar.widget.states_vertical_bar.is_hovering
+      )
+    );
+    */
+  }
 
   if (
     (
