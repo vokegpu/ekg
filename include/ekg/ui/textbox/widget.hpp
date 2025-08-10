@@ -38,7 +38,7 @@ namespace ekg::ui {
     ekg::property_t &property,
     ekg::textbox_t &textbox,
     ekg::vec2_t<float> &interact,
-    size_t &index
+    ekg::vec2_t<size_t> &index
   );
 
   void reload(

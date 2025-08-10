@@ -5,7 +5,7 @@ ekg::input_info_t &ekg::input() {
   return ekg::p_core->handler_input.input;
 }
 
-bool ekg::fire(std::string_view tag) {
+bool ekg::fired(std::string_view tag) {
   return ekg::p_core->handler_input.get_input_bind_state(tag);
 }
 

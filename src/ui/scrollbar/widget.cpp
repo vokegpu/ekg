@@ -216,7 +216,7 @@ void ekg::ui::event(
           &&
           (property.scroll.is_enabled.x || property.scroll.is_enabled.y)
           &&
-          (ekg::fire("scrollbar-scroll") || ekg::fire("scrollbar-scroll-horizontal"))
+          (ekg::fired("scrollbar-scroll") || ekg::fired("scrollbar-scroll-horizontal"))
         );
 
         ekg::rect_t<float> h_bar {scrollbar.widget.rect_horizontal};
@@ -271,7 +271,7 @@ void ekg::ui::event(
       );
     
       ekg::input_info_t &input {ekg::p_core->handler_input.input};
-      bool is_scroll_fired {ekg::fire("scrollbar-scroll")};
+      bool is_scroll_fired {ekg::fired("scrollbar-scroll")};
     
       property.scroll.is_scrolling.x = false;
       property.scroll.is_scrolling.y = false;
@@ -296,7 +296,7 @@ void ekg::ui::event(
         }
       #else
         bool is_scroll_horizontal_fired {
-          ekg::fire("scrollbar-scroll-horizontal")
+          ekg::fired("scrollbar-scroll-horizontal")
         };
     
         if (
@@ -351,7 +351,7 @@ void ekg::ui::event(
         &&
         input.was_pressed
         &&
-        ekg::fire("scrollbar-drag")
+        ekg::fired("scrollbar-drag")
       ) {
         ekg::rect_t<float> h_bar {scrollbar.widget.rect_horizontal};
         h_bar.x += rect_parent.x;

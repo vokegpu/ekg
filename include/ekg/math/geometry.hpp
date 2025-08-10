@@ -621,6 +621,14 @@ namespace ekg {
   template<typename t>
   using rgba_t =ekg::vec4_t<t>;
 
+  template<typename t>
+  constexpr t arithmetic_normalize(
+    t x,
+    t len
+  ) {
+    return x / len;
+  }
+
   void ortho(
     float *p_mat4x4,
     float left,

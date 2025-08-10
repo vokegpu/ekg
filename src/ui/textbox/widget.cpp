@@ -38,6 +38,10 @@ bool ekg::ui::find_cursor(
   ekg::vec2_t<size_t> &index,
   ekg::textbox_t::cursor_t &cursor_out
 ) {
+  if (cursor_out != ekg::vec2_t<size_t>(0, 0) && cursor_out >= index && cursor_out <= index) {
+    return true;
+  }
+
   for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
     if (cursor >= index && cursor <= index) {
       cursor_out = cursor;
@@ -52,11 +56,124 @@ bool ekg::ui::find_index_by_interact(
   ekg::property_t &property,
   ekg::textbox_t &textbox,
   ekg::vec2_t<float> &interact,
-  size_t &index
+  ekg::vec2_t<size_t> &index
 ) {
   ekg::rect_t<float> &rect_abs {
     ekg::ui::get_abs_rect(property, textbox.rect)
   };
+
+  ekg::draw::font &draw_font {
+    ekg::draw::get_font_renderer(textbox.font_size)
+  };
+
+  ekg::io::font_face_t &text_font_face {draw_font.faces[ekg::io::font_face_type::text]};
+  ekg::io::font_face_t &emojis_font_face {draw_font.faces[ekg::io::font_face_type::emojis]};
+  ekg::io::font_face_t &kanjis_font_face {draw_font.faces[ekg::io::font_face_type::kanjis]};
+
+  FT_Face ft_face {};
+  FT_Vector ft_vector_previous_char {};
+  char32_t ft_uint_previous {};
+
+  size_t chunk_size {};
+  size_t il {};
+  size_t addition_chunk_index {};
+  size_t text_total_lines {textbox.text.length_of_lines()};
+
+  ekg::vec2_t<float> pos {};
+  ekg::vec2_t<float> rendered {};
+  ekg::rect_t<float> rect {};
+
+  size_t text_len {};
+  size_t utf8_text_len {};
+  uint8_t uc8 {};
+  char32_t c32 {};
+
+  std::vector<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
+  size_t chunks_size {chunks.size()};
+
+  index.y += textbox.widget.view_line_index;
+  textbox.widget.scrollbar.rect.h = text_total_lines * draw_font.text_height;
+
+  for (size_t ic {textbox.widget.view_chunk_index}; ic < chunks_size; ic++) {
+    ekg::io::chunk_t &chunk {chunks.at(ic)};
+
+    il = 0;
+    if (ic == textbox.widget.view_chunk_index) {
+      il = textbox.widget.view_chunk_line_index;
+    }
+
+    chunk_size = chunk.size();
+    for (;il < chunk_size; il++) {
+      std::string &line {chunk.at(il)};
+      text_len = line.size();
+      for (size_t it {}; it < text_len; it++) {
+        uc8 = static_cast<uint8_t>(line.at(it));
+
+        ekg::utf8_sequence(
+          uc8,
+          c32,
+          line,
+          it
+        );
+
+        if (draw_font.ft_bool_kerning && ft_uint_previous) {
+          switch (c32 < 256 || !emojis_font_face.was_loaded) {
+            case true: {
+              ft_face = text_font_face.ft_face;
+              break;
+            }
+
+            default: {
+              ft_face = emojis_font_face.ft_face;
+              break;
+            }
+          }
+
+          FT_Get_Kerning(ft_face, ft_uint_previous, c32, 0, &ft_vector_previous_char);
+          pos.x += static_cast<float>(ft_vector_previous_char.x >> 6);
+        }
+
+        ekg::io::glyph_t &glyph {draw_font.mapped_glyph[c32]};
+
+        rect.x = pos.x + rect_abs.x;
+        rect.y = pos.y + rect_abs.y;
+        rect.w = glyph.wsize / 2;
+        rect.h = draw_font.text_height;
+
+        if (ekg::rect_collide_vec2(rect, interact)) {
+          return true;
+        }
+
+        rect.w = glyph.wsize;
+        if (ekg::rect_collide_vec2(rect, interact)) {
+          index.x++;
+          return true;
+        }
+
+        index.x++;
+        pos.x += rect.w;
+
+        rect.w = rect_abs.w;
+        if (index.x == text_len && ekg::rect_collide_vec2(rect, interact)) {
+          index.x = text_len;
+          return true;
+        }
+      }
+
+      index.x = 0;
+      pos.x = 0.0f;
+
+      index.y++;
+      pos.y += draw_font.text_height;
+
+      rendered.y += draw_font.text_height;
+      if (rendered.y >= rect_abs.h) {
+        return false;
+      }
+    }
+  }
+
+  return false;
 }
 
 void ekg::ui::reload(
@@ -145,6 +262,8 @@ void ekg::ui::event(
       ekg::input_info_t &input {ekg::p_core->handler_input.input};
       ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
+      /* focus part */
+
       bool should_enable_high_frequency {
         property.states.is_hovering
         ||
@@ -153,19 +272,21 @@ void ekg::ui::event(
         scrollbar_property.widget.is_high_frequency
       };
 
+      bool is_focus_action_fired {
+        property.states.is_hovering
+        &&
+        input.was_pressed
+        &&
+        ekg::fired("textbox-focus")
+      };
+
       if (
         !property.states.is_focused
         &&
-        property.states.is_hovering
-        &&
-        ekg::fire("textbox-focus")
+        is_focus_action_fired
       ) {
         should_enable_high_frequency = true;
         property.states.is_focused = true;
-
-        if (textbox.widget.cursors.empty()) {
-
-        }
       }
 
       if (
@@ -179,6 +300,85 @@ void ekg::ui::event(
       ) {
         property.states.is_focused = false;
         should_enable_high_frequency = false;
+      }
+
+      if (!property.states.is_focused) {
+        return;
+      }
+
+      ekg::vec2_t<size_t> pick_index {};
+      bool should_pick_index {};
+      bool picked_index {};
+      bool should_create_a_cursor {};
+
+      if (
+        property.states.is_focused
+        &&
+        property.states.is_hovering
+        &&
+        input.was_pressed
+      ) {
+        should_pick_index = true;
+      }
+
+      /* where input logic and optmized parts are placed */
+
+      bool is_action_modifier_fired {
+        ekg::fired("textbox-action-modifier")
+      };
+
+      if (should_pick_index) {
+        picked_index =
+          ekg::ui::find_index_by_interact( 
+            pick_index
+          );
+      }
+
+      if (textbox.widget.set_cursor_static) {
+        textbox.widget.unset_cursor_static = input.was_released;
+      }
+
+      if (picked_index) {
+        if (input.was_pressed && is_focus_action_fired) {
+          textbox.widget.picked_left = pick_index;
+          textbox.widget.picked_right = pick_index;
+          textbox.widget.first_pick_pos = pick_index;
+          textbox.widget.set_cursor_static = true;
+          should_create_a_cursor = true;
+        }
+
+        if (input.was_released && !input.was_typed) {
+          textbox.widget.current_cursor_index = UINT64_MAX;
+        }
+
+        if (textbox.widget.current_cursor_index != UINT64_MAX) {
+          if (ekg::textbox_t::cursor_t {.a = pick_index, .b = pick_index} < textbox.widget.first_pick_pos) {
+            textbox.widget.picked_left = pick_index;
+            textbox.widget.picked_right = textbox.widget.first_pick_pos;
+          } else {
+            textbox.widget.picked_left = textbox.widget.first_pick_pos;
+            textbox.widget.picked_right = pick_index;
+          }
+        }
+
+        if (should_create_a_cursor && is_action_modifier_fired) {
+          textbox.widget.current_cursor_index = textbox.widget.cursors.size();
+          textbox.widget.cursors.push_back(
+            {
+              .a = textbox.widget.picked_left, 
+              .b = textbox.widget.picked_right
+            }
+          );
+        } else if (should_create_a_cursor) {
+          textbox.widget.current_cursor_index = 0;
+          textbox.widget.cursors.clear();
+          textbox.widget.cursors.push_back(
+            {
+              .a = textbox.widget.picked_left, 
+              .b = textbox.widget.picked_right
+            }
+          );
+        }
       }
 
       if (
@@ -205,6 +405,14 @@ void ekg::ui::high_frequency(
   ekg::property_t &property,
   ekg::textbox_t &textbox
 ) {
+  if (textbox.widget.set_cursor_static) {
+    ekg::reset(textbox.widget.cursor_timing);
+    textbox.widget.set_cursor_static = !textbox.widget.unset_cursor_static;
+  }
+
+  textbox.widget.unset_cursor_static = false;
+  ekg::reset_if_reach(textbox.widget.cursor_timing, 1000);
+
   ekg::rect_t<float> &rect_abs {
     ekg::ui::get_abs_rect(property, textbox.rect)
   };
@@ -269,10 +477,12 @@ void ekg::ui::buffering(
 
   /* start of select */
 
-  ekg::vec2_t<float> scrollable_pos {};
+  bool elapsed_mid_second {
+    textbox.widget.cursor_timing.current_ticks > 500
+  };
 
   for (ekg::textbox_t::select_draw_layer_t &layer : textbox.widget.layers_select) {
-    if (layer.is_ab_equals && ekg::timing_t::second > 500) {
+    if (layer.is_ab_equals && elapsed_mid_second) {
       continue;
     }
 
@@ -299,6 +509,10 @@ void ekg::ui::buffering(
     floorf(static_cast<float>(static_cast<int32_t>(rect_abs.y - draw_font.offset_text_height * 2)))
   };
 
+  ekg::io::font_face_t &text_font_face {draw_font.faces[ekg::io::font_face_type::text]};
+  ekg::io::font_face_t &emojis_font_face {draw_font.faces[ekg::io::font_face_type::emojis]};
+  ekg::io::font_face_t &kanjis_font_face {draw_font.faces[ekg::io::font_face_type::kanjis]};
+
   data.buffer[0] = pos.x;
   data.buffer[1] = pos.y;
   data.buffer[2] = static_cast<float>(-draw_font.non_swizzlable_range);
@@ -311,23 +525,16 @@ void ekg::ui::buffering(
   ekg::hash_t hash {};
   ekg::rect_t<float> vertex {};
   ekg::rect_t<float> uv {};
-  ekg::rect_t<float> rendered_size {};
+  ekg::rect_t<float> rendered {};
 
   size_t text_len {};
   size_t utf8_text_len {};
   uint8_t uc8 {};
   char32_t c32 {};
 
-  bool break_text {};
-  bool r_n_break_text {};
-
   FT_Face ft_face {};
   FT_Vector ft_vector_previous_char {};
   char32_t ft_uint_previous {};
-
-  ekg::io::font_face_t &text_font_face {draw_font.faces[ekg::io::font_face_type::text]};
-  ekg::io::font_face_t &emojis_font_face {draw_font.faces[ekg::io::font_face_type::emojis]};
-  ekg::io::font_face_t &kanjis_font_face {draw_font.faces[ekg::io::font_face_type::kanjis]};
 
   bool is_inline_selected {};
   bool is_complete_line_selected {};
@@ -341,7 +548,7 @@ void ekg::ui::buffering(
   size_t current_line_for_cursor_complete {UINT64_MAX};
   size_t text_total_chars {textbox.text.length_of_chars()};
   size_t text_total_lines {textbox.text.length_of_lines()};
-  size_t ij {};
+  size_t il {};
   size_t addition_chunk_index {};
   size_t chunk_size {};
   ekg::vec2_t<size_t> index {};
@@ -349,22 +556,18 @@ void ekg::ui::buffering(
   ekg::pixel_t line_wsize {};
   ekg::textbox_t::cursor_t cursor {};
   std::vector<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
+  size_t chunks_size {chunks.size()};
 
   textbox.widget.scrollbar.rect.h = text_total_lines * draw_font.text_height;
-
-  size_t visual_target_line_index {
+  textbox.widget.view_line_index = 
     static_cast<size_t>(
-      static_cast<float>(
-        -(
-          textbox.widget.scrollbar_property.scroll.position.y
-          /
-          textbox.widget.scrollbar.rect.h
-        )
+      -ekg::arithmetic_normalize<float>(
+        textbox.widget.scrollbar_property.scroll.position.y,
+        textbox.widget.scrollbar.rect.h
       )
       *
       text_total_lines
-    )
-  };
+    );
 
   /**
    * This technique prevent from floating-point precision loss inside GPU.
@@ -385,32 +588,34 @@ void ekg::ui::buffering(
    * 
    * - Rina - 11:39; 08/06/2025
    **/
-  float visible_text_height {static_cast<float>(visual_target_line_index * draw_font.text_height)};
+  float visible_text_height {static_cast<float>(textbox.widget.view_line_index * draw_font.text_height)};
   pos.y = textbox.widget.scrollbar_property.scroll.position.y + visible_text_height;
   pos.y = static_cast<float>(static_cast<int32_t>(floorf(pos.y)));
   pos.x = 0.0f;
 
   textbox.widget.layers_select.clear();
-
-  for (ekg::io::chunk_t &chunk : chunks) {
+  for (size_t ic {}; ic < chunks_size; ic++) {
+    ekg::io::chunk_t &chunk {chunks.at(ic)};
     chunk_size = chunk.size();
-    if (addition_chunk_index + chunk_size < visual_target_line_index) {
+    if (addition_chunk_index + chunk_size < textbox.widget.view_line_index) {
       pos.x = 0.0f;
       index.y += chunk_size;
       addition_chunk_index += chunk_size;
       continue;
     }
 
-    ij = 0;
+    il = 0;
     if (!oka_found_visual_index) {
-      ij = visual_target_line_index - addition_chunk_index;
-      index.y += ij;
+      textbox.widget.view_chunk_index = ic;
+      il = textbox.widget.view_line_index - addition_chunk_index;
+      textbox.widget.view_chunk_line_index = il;
+      index.y += il;
       oka_found_visual_index = true;
     }
 
     addition_chunk_index += chunk_size;
-    for (;ij < chunk_size; ij++) {
-      std::string &line {chunk.at(ij)};
+    for (;il < chunk_size; il++) {
+      std::string &line {chunk.at(il)};
       index.x = 0;
       text_len = line.size();
       for (size_t it {}; it < text_len; it++) {
@@ -487,7 +692,7 @@ void ekg::ui::buffering(
             &&
             (
               (current_line_for_cursor_complete != index.y)
-              || 
+              ||
               (is_end_of_line_and_text = index.y + 1 == text_total_lines && it + 1 == text_len)
             )
           ) {
@@ -579,11 +784,11 @@ void ekg::ui::buffering(
 
       pos.x = 0.0f;
       pos.y += draw_font.text_height;
-      rendered_size.y += draw_font.text_height;
+      rendered.y += draw_font.text_height;
       index.y++;
       hash += pos.y * 32;
     
-      if (rendered_size.y > rect_abs.h) {
+      if (rendered.y > rect_abs.h) {
         get_out = true;
         break;
       }

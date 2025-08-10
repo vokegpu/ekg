@@ -96,9 +96,9 @@ void ekg::ui::event(
           input.was_pressed
           &&
           (
-            (frame.drag != ekg::dock::none && ekg::fire("frame-drag"))
+            (frame.drag != ekg::dock::none && ekg::fired("frame-drag"))
             ||
-            (frame.resize != ekg::dock::none && ekg::fire("frame-resize"))
+            (frame.resize != ekg::dock::none && ekg::fired("frame-resize"))
           )
       ) {
 

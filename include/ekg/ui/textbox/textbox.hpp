@@ -61,6 +61,10 @@ namespace ekg {
         return index.x == this->a.x && index.y == this->a.y && index.x == this->b.x && index.y == this->b.y;
       }
 
+      bool operator != (const ekg::vec2_t<size_t> &index) {
+        return !(*this == index);
+      }
+
       bool operator > (const ekg::vec2_t<size_t> &index) {
         return (index.x > this->a.x && index.y == this->a.y) || (index.y > this->a.y);
       }
@@ -89,7 +93,20 @@ namespace ekg {
       ekg::scrollbar_t scrollbar {};
       std::vector<ekg::textbox_t::cursor_t> cursors {};
       std::vector<ekg::textbox_t::select_draw_layer_t> layers_select {};
+
       size_t last_layers_select_size {};
+      size_t view_line_index {UINT64_MAX};
+      size_t view_chunk_index {UINT64_MAX};
+      size_t view_chunk_line_index {UINT64_MAX};
+
+      ekg::vec2_t<size_t> picked_left {UINT64_MAX, UINT64_MAX};
+      ekg::vec2_t<size_t> picked_right {UINT64_MAX, UINT64_MAX};
+      ekg::vec2_t<size_t> first_pick_pos {};
+      size_t current_cursor_index {UINT64_MAX};
+
+      ekg::timing_t cursor_timing {};
+      bool set_cursor_static {};
+      bool unset_cursor_static {};
     };
 
     static constexpr ekg::type type {ekg::type::textbox};
