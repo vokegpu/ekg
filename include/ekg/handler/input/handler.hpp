@@ -29,6 +29,10 @@ namespace ekg::handler {
 
     ekg::timing_t double_interact {};
     ekg::timing_t last_time_wheel_was_fired {};
+
+    // prevent too many unoptmized use of string allocations
+    std::string key_name {};
+    std::string string_builder {};
   public:
     ekg::input_info_t input {};
   protected:

@@ -79,7 +79,11 @@ bool ekg::ui::find_index_by_interact(
   size_t addition_chunk_index {};
   size_t text_total_lines {textbox.text.length_of_lines()};
 
-  ekg::vec2_t<float> pos {};
+  ekg::vec2_t<float> pos {
+    static_cast<float>(static_cast<int32_t>(textbox.color_scheme.gutter_margin)) + textbox.widget.scrollbar_property.scroll.position.x,
+    floorf(static_cast<float>(static_cast<int32_t>(-draw_font.offset_text_height)))
+  };
+
   ekg::vec2_t<float> rendered {};
   ekg::rect_t<float> rect {};
 
@@ -92,7 +96,12 @@ bool ekg::ui::find_index_by_interact(
   size_t chunks_size {chunks.size()};
 
   index.y += textbox.widget.view_line_index;
-  textbox.widget.scrollbar.rect.h = text_total_lines * draw_font.text_height;
+  textbox.widget.scrollbar.rect.h = text_total_lines * textbox.widget.rect_text_size.h;
+
+  float visible_text_height {static_cast<float>(textbox.widget.view_line_index * textbox.widget.rect_text_size.h)};
+  pos.y = textbox.widget.scrollbar_property.scroll.position.y + visible_text_height;
+  pos.y = static_cast<float>(static_cast<int32_t>(floorf(pos.y)));
+  pos.x = textbox.color_scheme.gutter_margin;
 
   for (size_t ic {textbox.widget.view_chunk_index}; ic < chunks_size; ic++) {
     ekg::io::chunk_t &chunk {chunks.at(ic)};
@@ -138,7 +147,7 @@ bool ekg::ui::find_index_by_interact(
         rect.x = pos.x + rect_abs.x;
         rect.y = pos.y + rect_abs.y;
         rect.w = glyph.wsize / 2;
-        rect.h = draw_font.text_height;
+        rect.h = textbox.widget.rect_text_size.h;
 
         if (ekg::rect_collide_vec2(rect, interact)) {
           return true;
@@ -161,13 +170,13 @@ bool ekg::ui::find_index_by_interact(
       }
 
       index.x = 0;
-      pos.x = 0.0f;
+      pos.x = textbox.color_scheme.gutter_margin;
 
       index.y++;
-      pos.y += draw_font.text_height;
+      pos.y += textbox.widget.rect_text_size.h;
 
-      rendered.y += draw_font.text_height;
-      if (rendered.y >= rect_abs.h) {
+      rendered.y += textbox.widget.rect_text_size.h;
+      if (rendered.y >= rect_abs.h + textbox.widget.rect_text_size.h) {
         return false;
       }
     }
@@ -188,7 +197,7 @@ void ekg::ui::reload(
     ekg::draw::get_font_renderer(textbox.font_size)
   };
 
-  textbox.widget.rect_text_size.h = draw_font.get_text_height();
+  textbox.widget.rect_text_size.h = draw_font.text_height + draw_font.offset_text_height;
   textbox.widget.rect_text_size.w = textbox.widget.rect_text_size.h;
 
   ekg::aligned_t aligned_dimension {};
@@ -221,8 +230,8 @@ void ekg::ui::reload(
 
   textbox.widget.scrollbar.rect.x = rect_abs.x;
   textbox.widget.scrollbar.rect.y = rect_abs.y;
-  textbox.widget.scrollbar.rect.w = highest_size * draw_font.text_height;
-  textbox.widget.scrollbar.acceleration = {draw_font.text_height, draw_font.text_height};
+  textbox.widget.scrollbar.rect.w = highest_size * textbox.widget.rect_text_size.h;
+  textbox.widget.scrollbar.acceleration = {textbox.widget.rect_text_size.h, textbox.widget.rect_text_size.h};
 
   textbox.widget.scrollbar.color_scheme = ekg::p_core->handler_theme.get_current_theme().scrollbar_color_scheme;
 
@@ -317,19 +326,24 @@ void ekg::ui::event(
         property.states.is_hovering
         &&
         input.was_pressed
+        &&
+        !textbox.widget.scrollbar_property.states.is_hovering
       ) {
         should_pick_index = true;
       }
 
       /* where input logic and optmized parts are placed */
 
-      bool is_action_modifier_fired {
-        ekg::fired("textbox-action-modifier")
-      };
+      if (textbox.widget.current_cursor_index != UINT64_MAX) {
+        should_pick_index = true;
+      }
 
       if (should_pick_index) {
         picked_index =
-          ekg::ui::find_index_by_interact( 
+          ekg::ui::find_index_by_interact(
+            property,
+            textbox,
+            interact,
             pick_index
           );
       }
@@ -339,7 +353,7 @@ void ekg::ui::event(
       }
 
       if (picked_index) {
-        if (input.was_pressed && is_focus_action_fired) {
+        if (input.was_pressed && ekg::fired("textbox-action-cursor")) {
           textbox.widget.picked_left = pick_index;
           textbox.widget.picked_right = pick_index;
           textbox.widget.first_pick_pos = pick_index;
@@ -353,15 +367,30 @@ void ekg::ui::event(
 
         if (textbox.widget.current_cursor_index != UINT64_MAX) {
           if (ekg::textbox_t::cursor_t {.a = pick_index, .b = pick_index} < textbox.widget.first_pick_pos) {
-            textbox.widget.picked_left = pick_index;
-            textbox.widget.picked_right = textbox.widget.first_pick_pos;
-          } else {
             textbox.widget.picked_left = textbox.widget.first_pick_pos;
             textbox.widget.picked_right = pick_index;
+          } else {
+            textbox.widget.picked_left = pick_index;
+            textbox.widget.picked_right = textbox.widget.first_pick_pos;
+          }
+
+          if (textbox.widget.current_cursor_index < textbox.widget.cursors.size()) {
+            ekg::textbox_t::cursor_t &cursor {
+              textbox.widget.cursors[textbox.widget.current_cursor_index]
+            };
+
+            cursor.a = textbox.widget.picked_left;
+            cursor.b = textbox.widget.picked_right;
+
+            ekg_log_low_level("a: " << cursor.a.x << ", " << cursor.a.y << " b: " << cursor.b.x << " , " << cursor.b.y)
+
+            ekg::gui.ui.redraw = true;
+            property.widget.should_buffering = true;
           }
         }
 
-        if (should_create_a_cursor && is_action_modifier_fired) {
+        ekg::textbox_t::cursor_t cursor {};
+        if (should_create_a_cursor && !ekg::ui::find_cursor(textbox, pick_index, cursor) && ekg::fired("textbox-action-multicursor")) {
           textbox.widget.current_cursor_index = textbox.widget.cursors.size();
           textbox.widget.cursors.push_back(
             {
@@ -369,7 +398,10 @@ void ekg::ui::event(
               .b = textbox.widget.picked_right
             }
           );
-        } else if (should_create_a_cursor) {
+          should_create_a_cursor = false;
+        }
+
+        if (should_create_a_cursor) {
           textbox.widget.current_cursor_index = 0;
           textbox.widget.cursors.clear();
           textbox.widget.cursors.push_back(
@@ -481,13 +513,17 @@ void ekg::ui::buffering(
     textbox.widget.cursor_timing.current_ticks > 500
   };
 
+  ekg::rect_t<float> rect_select {};
   for (ekg::textbox_t::select_draw_layer_t &layer : textbox.widget.layers_select) {
     if (layer.is_ab_equals && elapsed_mid_second) {
       continue;
     }
 
+    rect_select = layer.rect + rect_abs + textbox.widget.scrollbar_property.scroll.position;
+    rect_select.y = layer.rect.y + rect_abs.y;
+
     ekg::draw::rect(
-      layer.rect + rect_abs + textbox.widget.scrollbar_property.scroll.position,
+      rect_select,
       layer.is_ab_equals ? textbox.color_scheme.text_cursor_foreground : textbox.color_scheme.text_select_foreground,
       ekg::draw::mode::fill,
       ekg::at_t::not_found
@@ -506,7 +542,7 @@ void ekg::ui::buffering(
 
   ekg::vec2_t<float> pos {
     static_cast<float>(static_cast<int32_t>(rect_abs.x + textbox.color_scheme.gutter_margin)) + textbox.widget.scrollbar_property.scroll.position.x,
-    floorf(static_cast<float>(static_cast<int32_t>(rect_abs.y - draw_font.offset_text_height * 2)))
+    floorf(static_cast<float>(static_cast<int32_t>(rect_abs.y - draw_font.offset_text_height)))
   };
 
   ekg::io::font_face_t &text_font_face {draw_font.faces[ekg::io::font_face_type::text]};
@@ -539,11 +575,15 @@ void ekg::ui::buffering(
   bool is_inline_selected {};
   bool is_complete_line_selected {};
   bool is_ab_equals_selected {};
+  bool is_cursor_at_end_of_line {};
   bool was_complete_line_selected {};
   bool cursors_going_on {!textbox.widget.cursors.empty()};
   bool is_end_of_line_and_text {};
   bool oka_found_visual_index {};
   bool get_out {};
+
+  float extra_final_char_cursor {};
+  float extra_rect_height {rect_abs.h + textbox.widget.rect_text_size.h};
 
   size_t current_line_for_cursor_complete {UINT64_MAX};
   size_t text_total_chars {textbox.text.length_of_chars()};
@@ -558,7 +598,7 @@ void ekg::ui::buffering(
   std::vector<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
   size_t chunks_size {chunks.size()};
 
-  textbox.widget.scrollbar.rect.h = text_total_lines * draw_font.text_height;
+  textbox.widget.scrollbar.rect.h = text_total_lines * textbox.widget.rect_text_size.h;
   textbox.widget.view_line_index = 
     static_cast<size_t>(
       -ekg::arithmetic_normalize<float>(
@@ -588,10 +628,10 @@ void ekg::ui::buffering(
    * 
    * - Rina - 11:39; 08/06/2025
    **/
-  float visible_text_height {static_cast<float>(textbox.widget.view_line_index * draw_font.text_height)};
+  float visible_text_height {static_cast<float>(textbox.widget.view_line_index * textbox.widget.rect_text_size.h)};
   pos.y = textbox.widget.scrollbar_property.scroll.position.y + visible_text_height;
   pos.y = static_cast<float>(static_cast<int32_t>(floorf(pos.y)));
-  pos.x = 0.0f;
+  pos.x = textbox.color_scheme.gutter_margin;
 
   textbox.widget.layers_select.clear();
   for (size_t ic {}; ic < chunks_size; ic++) {
@@ -650,11 +690,16 @@ void ekg::ui::buffering(
         if (
           cursors_going_on
           &&
-          ekg::ui::find_cursor(textbox, index, cursor)
+          (
+            ekg::ui::find_cursor(textbox, index, cursor)
+            ||
+            (is_cursor_at_end_of_line = it+1 == text_len && ++index.x && ekg::ui::find_cursor(textbox, index, cursor))
+          )
         ) {
           is_ab_equals_selected = property.states.is_focused && cursor == index;
           is_inline_selected = cursor >= index && cursor < index && !is_ab_equals_selected;
           is_complete_line_selected = false;
+          extra_final_char_cursor = (is_cursor_at_end_of_line * glyph.wsize);
 
           if (is_inline_selected) {
             if (
@@ -672,22 +717,22 @@ void ekg::ui::buffering(
           }
 
           if (is_ab_equals_selected) {
-            cursor.rect.x = pos.x;
+            cursor.rect.x = pos.x + extra_final_char_cursor;
             cursor.rect.y = pos.y;
             cursor.rect.w = textbox.color_scheme.caret_cursor ? glyph.wsize : textbox.color_scheme.cursor_thickness;
-            cursor.rect.h = draw_font.text_height;
+            cursor.rect.h = textbox.widget.rect_text_size.h;
             textbox.widget.layers_select.push_back({true, cursor.rect});
           }
 
           if (is_inline_selected) {
-            cursor.rect.x = pos.x;
+            cursor.rect.x = pos.x + extra_final_char_cursor;
             cursor.rect.y = pos.y;
             cursor.rect.w = glyph.wsize;
-            cursor.rect.h = draw_font.text_height;
+            cursor.rect.h = textbox.widget.rect_text_size.h;
             textbox.widget.layers_select.push_back({false, cursor.rect});
           }
 
-          if (
+          if ( 
             was_complete_line_selected
             &&
             (
@@ -696,16 +741,16 @@ void ekg::ui::buffering(
               (is_end_of_line_and_text = index.y + 1 == text_total_lines && it + 1 == text_len)
             )
           ) {
-            cursor.rect.x = 0.0f;
-            cursor.rect.y = pos.y - (draw_font.text_height * !is_end_of_line_and_text);
-            cursor.rect.w = line_wsize + (glyph.wsize * is_end_of_line_and_text);
-            cursor.rect.h = draw_font.text_height;
+            cursor.rect.x = textbox.color_scheme.gutter_margin;
+            cursor.rect.y = pos.y - (textbox.widget.rect_text_size.h * !is_end_of_line_and_text);
+            cursor.rect.w = line_wsize + (is_end_of_line_and_text * glyph.wsize) + extra_final_char_cursor;
+            cursor.rect.h = textbox.widget.rect_text_size.h;
             textbox.widget.layers_select.push_back({false, cursor.rect});
             was_complete_line_selected = false;            
           }
 
           if (is_complete_line_selected && current_line_for_cursor_complete != index.y) {
-            line_wsize = 0.0f;
+            line_wsize = textbox.color_scheme.gutter_margin;
             current_line_for_cursor_complete = index.y;
             was_complete_line_selected = true;
           }
@@ -779,16 +824,17 @@ void ekg::ui::buffering(
          * Peek `ekg/io/memory.hpp` for better hash definition and purpose.
          **/
         hash += ekg_generate_hash(pos.x, c32, glyph.x);
+
         index.x++;
       }
 
-      pos.x = 0.0f;
-      pos.y += draw_font.text_height;
-      rendered.y += draw_font.text_height;
+      pos.x = textbox.color_scheme.gutter_margin;
+      pos.y += textbox.widget.rect_text_size.h;
+      rendered.y += textbox.widget.rect_text_size.h;
       index.y++;
       hash += pos.y * 32;
     
-      if (rendered.y > rect_abs.h) {
+      if (rendered.y > extra_rect_height) {
         get_out = true;
         break;
       }
