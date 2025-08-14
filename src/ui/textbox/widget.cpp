@@ -364,9 +364,9 @@ void ekg::ui::event(
         if (input.was_released && !input.was_typed) {
           textbox.widget.current_cursor_index = UINT64_MAX;
         }
-
+ 
         if (textbox.widget.current_cursor_index != UINT64_MAX) {
-          if (ekg::textbox_t::cursor_t {.a = pick_index, .b = pick_index} < textbox.widget.first_pick_pos) {
+          if (ekg::textbox_t::cursor_t {.a = pick_index, .b = pick_index} <= textbox.widget.first_pick_pos) {
             textbox.widget.picked_left = textbox.widget.first_pick_pos;
             textbox.widget.picked_right = pick_index;
           } else {
@@ -381,8 +381,6 @@ void ekg::ui::event(
 
             cursor.a = textbox.widget.picked_left;
             cursor.b = textbox.widget.picked_right;
-
-            ekg_log_low_level("a: " << cursor.a.x << ", " << cursor.a.y << " b: " << cursor.b.x << " , " << cursor.b.y)
 
             ekg::gui.ui.redraw = true;
             property.widget.should_buffering = true;
@@ -581,9 +579,11 @@ void ekg::ui::buffering(
   bool is_end_of_line_and_text {};
   bool oka_found_visual_index {};
   bool get_out {};
+  bool is_last_char_from_line {};
 
   float extra_final_char_cursor {};
   float extra_rect_height {rect_abs.h + textbox.widget.rect_text_size.h};
+  float glyph_wsize {};
 
   size_t current_line_for_cursor_complete {UINT64_MAX};
   size_t text_total_chars {textbox.text.length_of_chars()};
@@ -687,19 +687,21 @@ void ekg::ui::buffering(
 
         ekg::io::glyph_t &glyph {draw_font.mapped_glyph[c32]};
 
+        is_last_char_from_line = it+1 == text_len;
         if (
           cursors_going_on
           &&
           (
             ekg::ui::find_cursor(textbox, index, cursor)
             ||
-            (is_cursor_at_end_of_line = it+1 == text_len && ++index.x && ekg::ui::find_cursor(textbox, index, cursor))
+            (is_cursor_at_end_of_line = is_last_char_from_line && ++index.x && ekg::ui::find_cursor(textbox, index, cursor))
           )
         ) {
+          glyph_wsize = glyph.wsize;
           is_ab_equals_selected = property.states.is_focused && cursor == index;
           is_inline_selected = cursor >= index && cursor < index && !is_ab_equals_selected;
           is_complete_line_selected = false;
-          extra_final_char_cursor = (is_cursor_at_end_of_line * glyph.wsize);
+          extra_final_char_cursor = (is_cursor_at_end_of_line * glyph_wsize);
 
           if (is_inline_selected) {
             if (
@@ -719,7 +721,7 @@ void ekg::ui::buffering(
           if (is_ab_equals_selected) {
             cursor.rect.x = pos.x + extra_final_char_cursor;
             cursor.rect.y = pos.y;
-            cursor.rect.w = textbox.color_scheme.caret_cursor ? glyph.wsize : textbox.color_scheme.cursor_thickness;
+            cursor.rect.w = textbox.color_scheme.caret_cursor ? glyph_wsize : textbox.color_scheme.cursor_thickness;
             cursor.rect.h = textbox.widget.rect_text_size.h;
             textbox.widget.layers_select.push_back({true, cursor.rect});
           }
@@ -727,10 +729,15 @@ void ekg::ui::buffering(
           if (is_inline_selected) {
             cursor.rect.x = pos.x + extra_final_char_cursor;
             cursor.rect.y = pos.y;
-            cursor.rect.w = glyph.wsize;
+            cursor.rect.w = glyph_wsize + (glyph_wsize * (is_last_char_from_line && !is_cursor_at_end_of_line && cursor.a.y != cursor.b.y));
             cursor.rect.h = textbox.widget.rect_text_size.h;
-            textbox.widget.layers_select.push_back({false, cursor.rect});
+            textbox.widget.layers_select.push_back({false, cursor.rect});            
           }
+
+          rect_select.x = textbox.color_scheme.gutter_margin;
+          rect_select.y = pos.y - (textbox.widget.rect_text_size.h * !is_end_of_line_and_text);
+          rect_select.w = line_wsize + (is_end_of_line_and_text * glyph_wsize) + glyph_wsize;
+          rect_select.h = textbox.widget.rect_text_size.h;
 
           if ( 
             was_complete_line_selected
@@ -738,15 +745,15 @@ void ekg::ui::buffering(
             (
               (current_line_for_cursor_complete != index.y)
               ||
-              (is_end_of_line_and_text = index.y + 1 == text_total_lines && it + 1 == text_len)
+              (is_end_of_line_and_text = index.y + 1 == text_total_lines && is_last_char_from_line)
             )
           ) {
             cursor.rect.x = textbox.color_scheme.gutter_margin;
             cursor.rect.y = pos.y - (textbox.widget.rect_text_size.h * !is_end_of_line_and_text);
-            cursor.rect.w = line_wsize + (is_end_of_line_and_text * glyph.wsize) + extra_final_char_cursor;
+            cursor.rect.w = line_wsize + (is_end_of_line_and_text * glyph_wsize) + glyph_wsize;
             cursor.rect.h = textbox.widget.rect_text_size.h;
             textbox.widget.layers_select.push_back({false, cursor.rect});
-            was_complete_line_selected = false;            
+            was_complete_line_selected = false;
           }
 
           if (is_complete_line_selected && current_line_for_cursor_complete != index.y) {
@@ -756,8 +763,10 @@ void ekg::ui::buffering(
           }
 
           if (is_complete_line_selected) {
-            line_wsize += glyph.wsize;
+            line_wsize += glyph_wsize;
           }
+
+          is_cursor_at_end_of_line = false;
         }
 
         if (!glyph.was_sampled) {
@@ -843,6 +852,12 @@ void ekg::ui::buffering(
     if (get_out) {
       break;
     }
+  }
+
+  if (was_complete_line_selected) {
+    rect_select.y += textbox.widget.rect_text_size.h;
+    textbox.widget.layers_select.push_back({false, rect_select});
+    was_complete_line_selected = false;            
   }
 
   data.hash = hash;

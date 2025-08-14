@@ -38,6 +38,7 @@ namespace ekg {
     ekg::rgba_t<float> text_foreground {};
     ekg::rgba_t<float> text_select_foreground {};
     ekg::rgba_t<float> text_cursor_foreground {};
+    ekg::rgba_t<float> text_select_outline {};
     ekg::pixel_thickness_t cursor_thickness {2};
     bool caret_cursor {};
     ekg::pixel_thickness_t gutter_margin {2};

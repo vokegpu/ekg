@@ -81,6 +81,7 @@ void ekg::handler::theme::init() {
   light_pinky_theme.textbox_color_scheme.text_foreground = {141, 141, 141, 255};
   light_pinky_theme.textbox_color_scheme.text_cursor_foreground = {141, 141, 141, 255};
   light_pinky_theme.textbox_color_scheme.text_select_foreground = {245, 169, 184, 50};
+  light_pinky_theme.textbox_color_scheme.text_select_outline = {245, 169, 184, 100};
 
   this->registry(light_pinky_theme.tag) = light_pinky_theme;
   this->set_current_theme(light_pinky_theme.tag);
