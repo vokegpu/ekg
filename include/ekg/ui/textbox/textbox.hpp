@@ -54,8 +54,10 @@ namespace ekg {
 
     struct cursor_t {
     public:
+      size_t highest_char_index {};
       ekg::vec2_t<size_t> a {};
       ekg::vec2_t<size_t> b {};
+      ekg::vec2_t<size_t> delta {};
       ekg::rect_t<float> rect {};
     public:
       bool operator == (const ekg::vec2_t<size_t> &index) {
@@ -102,12 +104,19 @@ namespace ekg {
 
       ekg::vec2_t<size_t> picked_left {UINT64_MAX, UINT64_MAX};
       ekg::vec2_t<size_t> picked_right {UINT64_MAX, UINT64_MAX};
-      ekg::vec2_t<size_t> first_pick_pos {};
       size_t current_cursor_index {UINT64_MAX};
 
       ekg::timing_t cursor_timing {};
       bool set_cursor_static {};
       bool unset_cursor_static {};
+    };
+
+    enum class text_input_mode : uint8_t {
+      none,
+      text,
+      ending,
+      backspace,
+      del
     };
 
     static constexpr ekg::type type {ekg::type::textbox};

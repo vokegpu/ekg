@@ -177,7 +177,7 @@ namespace ekg {
     size_t length_of_chars();
 
     bool audited();
-    void unset_audited();
+    b
   };
 }
 

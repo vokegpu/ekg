@@ -94,6 +94,14 @@ namespace ekg {
         this->y / div_by
       };
     }
+
+    bool operator == (const ekg::vec2_t<t> &vec) {
+      return this->x == vec.x && this->y == vec.y;
+    }
+
+    bool operator != (const ekg::vec2_t<t> &vec) {
+      return !(*this == vec);
+    }
   };
 
   template<typename t>

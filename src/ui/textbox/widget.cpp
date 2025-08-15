@@ -185,6 +185,189 @@ bool ekg::ui::find_index_by_interact(
   return false;
 }
 
+void ekg::ui::handle_cursor_interact(
+  ekg::property_t &property,
+  ekg::textbox_t &textbox,
+  bool picked_index,
+  ekg::vec2_t<size_t> &pick_index,
+  ekg::input_info_t &input
+) {
+  if (input.was_released && !input.was_typed) {
+    textbox.widget.current_cursor_index = UINT64_MAX;
+  }
+
+  if (!picked_index) {
+    return;
+  }
+
+  bool should_create_a_cursor {};
+  ekg::vec2_t<size_t> first_pick_pos {};
+
+  if (input.was_pressed && ekg::fired("textbox-action-cursor")) {
+    textbox.widget.picked_left = pick_index;
+    textbox.widget.picked_right = pick_index;
+    first_pick_pos = pick_index;
+    textbox.widget.set_cursor_static = true;
+    should_create_a_cursor = true;
+  }
+
+  if (
+    textbox.widget.current_cursor_index != UINT64_MAX &&
+    textbox.widget.current_cursor_index >= textbox.widget.cursors.size()
+  ) {
+    textbox.widget.current_cursor_index = UINT64_MAX;
+  }
+
+  if (textbox.widget.current_cursor_index != UINT64_MAX) {
+    ekg::textbox_t::cursor_t &cursor {
+      textbox.widget.cursors[textbox.widget.current_cursor_index]
+    };
+
+    if (ekg::textbox_t::cursor_t {.a = pick_index, .b = pick_index} <= cursor.delta) {
+      textbox.widget.picked_left = cursor.delta;
+      textbox.widget.picked_right = pick_index;
+    } else {
+      textbox.widget.picked_left = pick_index;
+      textbox.widget.picked_right = cursor.delta;
+    }
+
+    cursor.a = textbox.widget.picked_left;
+    cursor.b = textbox.widget.picked_right;
+
+    ekg::gui.ui.redraw = true;
+    property.widget.should_buffering = true;
+  }
+
+  ekg::textbox_t::cursor_t cursor {};
+  if (
+    should_create_a_cursor
+    &&
+    !ekg::ui::find_cursor(textbox, pick_index, cursor)
+    &&
+    ekg::fired("textbox-action-multicursor")
+  ) {
+    textbox.widget.current_cursor_index = textbox.widget.cursors.size();
+    textbox.widget.cursors.push_back(
+      {
+        .highest_char_index = textbox.widget.picked_left.x,
+        .a = textbox.widget.picked_left, 
+        .b = textbox.widget.picked_right,
+        .delta = first_pick_pos
+      }
+    );
+    should_create_a_cursor = false;
+  }
+
+  if (should_create_a_cursor) {
+    textbox.widget.current_cursor_index = 0;
+    textbox.widget.cursors.clear();
+    textbox.widget.cursors.push_back(
+      {
+        .highest_char_index = textbox.widget.picked_left.x,
+        .a = textbox.widget.picked_left, 
+        .b = textbox.widget.picked_right,
+        .delta = first_pick_pos
+      }
+    );
+  }
+}
+
+void ekg::ui::handle_cursor_movement(
+  ekg::textbox_t &textbox
+) {
+  bool is_left_fired {ekg::fired("textbox-action-left")};
+  bool is_right_fired {ekg::fired("textbox-action-right")};
+  bool is_up_fired {ekg::fired("textbox-action-up")};
+  bool is_down_fired {ekg::fired("textbox-action-down")};
+
+  if (!is_left_fired && !is_right_fired && !is_up_fired && !is_down_fired) {
+    return;
+  }
+
+  textbox.widget.set_cursor_static = true;
+
+  bool is_ab_equals {};
+  bool is_ab_delta_equals {};
+
+  size_t text_total_lines {textbox.text.length_of_lines()};
+
+  for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
+    is_ab_equals = cursor.a == cursor.b;
+    is_ab_delta_equals = is_ab_equals && cursor.delta == cursor.a;
+
+    if (is_left_fired) {
+      if (is_ab_equals) {
+        if (cursor.a.x > 0) {
+          cursor.a.x -= 1;
+        } else if (cursor.a.x == 0 && cursor.a.y > 0) {
+          cursor.a.y -= 1;
+          cursor.a.x = ekg::utf8_length(textbox.text.at(cursor.a.y));
+        }
+      }
+
+      cursor.highest_char_index = cursor.a.x;
+      cursor.b = cursor.a;
+      cursor.delta = cursor.b;
+
+      continue;
+    }
+
+    if (is_right_fired) {
+      if (is_ab_equals) {
+        size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.a.y))};
+        if (cursor.b.x < line_text_length) {
+          cursor.b.x += 1;
+        } else if (cursor.a.y < text_total_lines-1) {
+          cursor.b.y += 1;
+          cursor.b.x = 0;
+        }
+      }
+
+      cursor.highest_char_index = cursor.b.x;
+      cursor.a = cursor.b;
+      cursor.delta = cursor.a;
+
+      continue;
+    }
+
+    if (is_up_fired) {
+      if (cursor.a.y > 0) {
+        cursor.a.y -= 1;
+      }
+
+      if (is_ab_equals) cursor.a.x = cursor.highest_char_index;
+
+      size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.a.y))};
+      if (cursor.a.x > line_text_length) {
+        cursor.a.x = line_text_length;
+      }
+
+      if (!is_ab_equals) cursor.highest_char_index = cursor.a.x;
+
+      cursor.b = cursor.a;
+      cursor.delta = cursor.b;
+    }
+
+    if (is_down_fired) {
+      if (cursor.b.y < text_total_lines-1) {
+        cursor.b.y += 1;
+      }
+
+      if (is_ab_equals) cursor.b.x = cursor.highest_char_index;
+
+      size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.b.y))};
+      if (cursor.b.x > line_text_length) {
+        cursor.b.x = line_text_length;
+      }
+
+      if (!is_ab_equals) cursor.highest_char_index = cursor.b.x;
+
+      cursor.a = cursor.b;
+      cursor.delta = cursor.a;
+    }
+  }
+}
+
 void ekg::ui::reload(
   ekg::property_t &property,
   ekg::textbox_t &textbox
@@ -318,7 +501,6 @@ void ekg::ui::event(
       ekg::vec2_t<size_t> pick_index {};
       bool should_pick_index {};
       bool picked_index {};
-      bool should_create_a_cursor {};
 
       if (
         property.states.is_focused
@@ -352,64 +534,8 @@ void ekg::ui::event(
         textbox.widget.unset_cursor_static = input.was_released;
       }
 
-      if (picked_index) {
-        if (input.was_pressed && ekg::fired("textbox-action-cursor")) {
-          textbox.widget.picked_left = pick_index;
-          textbox.widget.picked_right = pick_index;
-          textbox.widget.first_pick_pos = pick_index;
-          textbox.widget.set_cursor_static = true;
-          should_create_a_cursor = true;
-        }
-
-        if (input.was_released && !input.was_typed) {
-          textbox.widget.current_cursor_index = UINT64_MAX;
-        }
- 
-        if (textbox.widget.current_cursor_index != UINT64_MAX) {
-          if (ekg::textbox_t::cursor_t {.a = pick_index, .b = pick_index} <= textbox.widget.first_pick_pos) {
-            textbox.widget.picked_left = textbox.widget.first_pick_pos;
-            textbox.widget.picked_right = pick_index;
-          } else {
-            textbox.widget.picked_left = pick_index;
-            textbox.widget.picked_right = textbox.widget.first_pick_pos;
-          }
-
-          if (textbox.widget.current_cursor_index < textbox.widget.cursors.size()) {
-            ekg::textbox_t::cursor_t &cursor {
-              textbox.widget.cursors[textbox.widget.current_cursor_index]
-            };
-
-            cursor.a = textbox.widget.picked_left;
-            cursor.b = textbox.widget.picked_right;
-
-            ekg::gui.ui.redraw = true;
-            property.widget.should_buffering = true;
-          }
-        }
-
-        ekg::textbox_t::cursor_t cursor {};
-        if (should_create_a_cursor && !ekg::ui::find_cursor(textbox, pick_index, cursor) && ekg::fired("textbox-action-multicursor")) {
-          textbox.widget.current_cursor_index = textbox.widget.cursors.size();
-          textbox.widget.cursors.push_back(
-            {
-              .a = textbox.widget.picked_left, 
-              .b = textbox.widget.picked_right
-            }
-          );
-          should_create_a_cursor = false;
-        }
-
-        if (should_create_a_cursor) {
-          textbox.widget.current_cursor_index = 0;
-          textbox.widget.cursors.clear();
-          textbox.widget.cursors.push_back(
-            {
-              .a = textbox.widget.picked_left, 
-              .b = textbox.widget.picked_right
-            }
-          );
-        }
-      }
+      ekg::ui::handle_cursor_interact(property, textbox, picked_index, pick_index, input);
+      ekg::ui::handle_cursor_movement(textbox);
 
       if (
         should_enable_high_frequency

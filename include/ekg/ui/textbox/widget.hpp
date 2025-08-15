@@ -41,6 +41,18 @@ namespace ekg::ui {
     ekg::vec2_t<size_t> &index
   );
 
+  void handle_cursor_interact(
+    ekg::property_t &property,
+    ekg::textbox_t &textbox,
+    bool picked_index,
+    ekg::vec2_t<size_t> &pick_index,
+    ekg::input_info_t &input
+  );
+
+  void handle_cursor_movement(
+    ekg::textbox_t &textbox
+  );
+
   void reload(
     ekg::property_t &property,
     ekg::textbox_t &textbox
