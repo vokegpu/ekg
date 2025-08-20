@@ -31,7 +31,8 @@
 namespace ekg {
   typedef int32_t pixel_thickness_t;
   typedef float pixel_t;
-
+  
+  constexpr float pi {3.1415927f};
   constexpr float one_pixel {1.0000000f};
   constexpr float half_pixel {0.5000000f};
 
@@ -627,7 +628,7 @@ namespace ekg {
   }
 
   template<typename t>
-  using rgba_t =ekg::vec4_t<t>;
+  using rgba_t = ekg::vec4_t<t>;
 
   template<typename t>
   constexpr t arithmetic_normalize(

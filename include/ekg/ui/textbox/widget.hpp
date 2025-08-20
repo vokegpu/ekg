@@ -50,6 +50,7 @@ namespace ekg::ui {
   );
 
   void handle_cursor_movement(
+    ekg::property_t &property,
     ekg::textbox_t &textbox
   );
 

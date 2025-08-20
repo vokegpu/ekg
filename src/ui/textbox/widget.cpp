@@ -81,7 +81,7 @@ bool ekg::ui::find_index_by_interact(
 
   ekg::vec2_t<float> pos {
     static_cast<float>(static_cast<int32_t>(textbox.color_scheme.gutter_margin)) + textbox.widget.scrollbar_property.scroll.position.x,
-    floorf(static_cast<float>(static_cast<int32_t>(-draw_font.offset_text_height)))
+    0.0f
   };
 
   ekg::vec2_t<float> rendered {};
@@ -273,6 +273,7 @@ void ekg::ui::handle_cursor_interact(
 }
 
 void ekg::ui::handle_cursor_movement(
+  ekg::property_t &property,
   ekg::textbox_t &textbox
 ) {
   bool is_left_fired {ekg::fired("textbox-action-left")};
@@ -288,8 +289,12 @@ void ekg::ui::handle_cursor_movement(
 
   bool is_ab_equals {};
   bool is_ab_delta_equals {};
+  bool is_bounding {};
 
   size_t text_total_lines {textbox.text.length_of_lines()};
+
+  ekg::rect_t<float> &rect_abs {ekg::ui::get_abs_rect(property, textbox.rect)};
+  ekg::vec2_t<float> cursor_pos {};
 
   for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
     is_ab_equals = cursor.a == cursor.b;
@@ -308,8 +313,6 @@ void ekg::ui::handle_cursor_movement(
       cursor.highest_char_index = cursor.a.x;
       cursor.b = cursor.a;
       cursor.delta = cursor.b;
-
-      continue;
     }
 
     if (is_right_fired) {
@@ -326,44 +329,67 @@ void ekg::ui::handle_cursor_movement(
       cursor.highest_char_index = cursor.b.x;
       cursor.a = cursor.b;
       cursor.delta = cursor.a;
-
-      continue;
     }
 
     if (is_up_fired) {
+      if (is_ab_equals) cursor.a.x = cursor.highest_char_index;
+
+      is_bounding = true;
       if (cursor.a.y > 0) {
         cursor.a.y -= 1;
+        is_bounding = false;
       }
-
-      if (is_ab_equals) cursor.a.x = cursor.highest_char_index;
 
       size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.a.y))};
       if (cursor.a.x > line_text_length) {
         cursor.a.x = line_text_length;
       }
 
-      if (!is_ab_equals) cursor.highest_char_index = cursor.a.x;
+      if (is_bounding) {
+        cursor.highest_char_index = cursor.a.x;
+        cursor.a.x = 0;
+      }
+
+      if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.a.x;
 
       cursor.b = cursor.a;
       cursor.delta = cursor.b;
     }
 
     if (is_down_fired) {
+      if (is_ab_equals) cursor.b.x = cursor.highest_char_index;
+
+      is_bounding = true;
       if (cursor.b.y < text_total_lines-1) {
         cursor.b.y += 1;
+        is_bounding = false;
       }
-
-      if (is_ab_equals) cursor.b.x = cursor.highest_char_index;
 
       size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.b.y))};
       if (cursor.b.x > line_text_length) {
         cursor.b.x = line_text_length;
       }
 
-      if (!is_ab_equals) cursor.highest_char_index = cursor.b.x;
+      if (is_bounding) {
+        cursor.highest_char_index = cursor.b.x;
+        cursor.b.x = line_text_length;
+      }
+
+      if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.b.x;
 
       cursor.a = cursor.b;
       cursor.delta = cursor.a;
+    }
+
+    cursor_pos.y = textbox.widget.scrollbar_property.scroll.position.y + (cursor.a.y * textbox.widget.rect_text_size.h);
+    cursor_pos.y = static_cast<float>(static_cast<int32_t>(floorf(cursor_pos.y)));
+
+    if (cursor_pos.y + textbox.widget.rect_text_size.h > rect_abs.h) {
+      textbox.widget.scrollbar_property.scroll.position.w -=
+        ekg::min(cursor_pos.y + textbox.widget.rect_text_size.h - rect_abs.h, textbox.widget.rect_text_size.h);
+    } else if (cursor_pos.y <= 0.0f) {
+      textbox.widget.scrollbar_property.scroll.position.w +=
+        ekg::min(-cursor_pos.y, textbox.widget.rect_text_size.h);
     }
   }
 }
@@ -535,7 +561,7 @@ void ekg::ui::event(
       }
 
       ekg::ui::handle_cursor_interact(property, textbox, picked_index, pick_index, input);
-      ekg::ui::handle_cursor_movement(textbox);
+      ekg::ui::handle_cursor_movement(property, textbox);
 
       if (
         should_enable_high_frequency
