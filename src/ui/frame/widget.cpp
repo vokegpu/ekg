@@ -199,7 +199,7 @@ void ekg::ui::event(
           }
         }
 
-        ekg::clamp_rect_by_square<float>(
+        new_rect = ekg::clamp_rect_by_square<float>(
           new_rect,
           ekg::dpi.min_sizes
         );
