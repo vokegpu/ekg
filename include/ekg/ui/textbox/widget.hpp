@@ -49,11 +49,6 @@ namespace ekg::ui {
     ekg::input_info_t &input
   );
 
-  void handle_cursor_movement(
-    ekg::property_t &property,
-    ekg::textbox_t &textbox
-  );
-
   void reload(
     ekg::property_t &property,
     ekg::textbox_t &textbox

@@ -276,122 +276,7 @@ void ekg::ui::handle_cursor_movement(
   ekg::property_t &property,
   ekg::textbox_t &textbox
 ) {
-  bool is_left_fired {ekg::fired("textbox-action-left")};
-  bool is_right_fired {ekg::fired("textbox-action-right")};
-  bool is_up_fired {ekg::fired("textbox-action-up")};
-  bool is_down_fired {ekg::fired("textbox-action-down")};
 
-  if (!is_left_fired && !is_right_fired && !is_up_fired && !is_down_fired) {
-    return;
-  }
-
-  textbox.widget.set_cursor_static = true;
-
-  bool is_ab_equals {};
-  bool is_ab_delta_equals {};
-  bool is_bounding {};
-
-  size_t text_total_lines {textbox.text.length_of_lines()};
-
-  ekg::rect_t<float> &rect_abs {ekg::ui::get_abs_rect(property, textbox.rect)};
-  ekg::vec2_t<float> cursor_pos {};
-
-  for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
-    is_ab_equals = cursor.a == cursor.b;
-    is_ab_delta_equals = is_ab_equals && cursor.delta == cursor.a;
-
-    if (is_left_fired) {
-      if (is_ab_equals) {
-        if (cursor.a.x > 0) {
-          cursor.a.x -= 1;
-        } else if (cursor.a.x == 0 && cursor.a.y > 0) {
-          cursor.a.y -= 1;
-          cursor.a.x = ekg::utf8_length(textbox.text.at(cursor.a.y));
-        }
-      }
-
-      cursor.highest_char_index = cursor.a.x;
-      cursor.b = cursor.a;
-      cursor.delta = cursor.b;
-    }
-
-    if (is_right_fired) {
-      if (is_ab_equals) {
-        size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.a.y))};
-        if (cursor.b.x < line_text_length) {
-          cursor.b.x += 1;
-        } else if (cursor.a.y < text_total_lines-1) {
-          cursor.b.y += 1;
-          cursor.b.x = 0;
-        }
-      }
-
-      cursor.highest_char_index = cursor.b.x;
-      cursor.a = cursor.b;
-      cursor.delta = cursor.a;
-    }
-
-    if (is_up_fired) {
-      if (is_ab_equals) cursor.a.x = cursor.highest_char_index;
-
-      is_bounding = true;
-      if (cursor.a.y > 0) {
-        cursor.a.y -= 1;
-        is_bounding = false;
-      }
-
-      size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.a.y))};
-      if (cursor.a.x > line_text_length) {
-        cursor.a.x = line_text_length;
-      }
-
-      if (is_bounding) {
-        cursor.highest_char_index = cursor.a.x;
-        cursor.a.x = 0;
-      }
-
-      if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.a.x;
-
-      cursor.b = cursor.a;
-      cursor.delta = cursor.b;
-    }
-
-    if (is_down_fired) {
-      if (is_ab_equals) cursor.b.x = cursor.highest_char_index;
-
-      is_bounding = true;
-      if (cursor.b.y < text_total_lines-1) {
-        cursor.b.y += 1;
-        is_bounding = false;
-      }
-
-      size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.b.y))};
-      if (cursor.b.x > line_text_length) {
-        cursor.b.x = line_text_length;
-      }
-
-      if (is_bounding) {
-        cursor.highest_char_index = cursor.b.x;
-        cursor.b.x = line_text_length;
-      }
-
-      if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.b.x;
-
-      cursor.a = cursor.b;
-      cursor.delta = cursor.a;
-    }
-
-    cursor_pos.y = textbox.widget.scrollbar_property.scroll.position.y + (cursor.a.y * textbox.widget.rect_text_size.h);
-    cursor_pos.y = static_cast<float>(static_cast<int32_t>(floorf(cursor_pos.y)));
-
-    if (cursor_pos.y + textbox.widget.rect_text_size.h > rect_abs.h) {
-      textbox.widget.scrollbar_property.scroll.position.w -=
-        ekg::min(cursor_pos.y + textbox.widget.rect_text_size.h - rect_abs.h, textbox.widget.rect_text_size.h);
-    } else if (cursor_pos.y <= 0.0f) {
-      textbox.widget.scrollbar_property.scroll.position.w +=
-        ekg::min(-cursor_pos.y, textbox.widget.rect_text_size.h);
-    }
-  }
 }
 
 void ekg::ui::reload(
@@ -560,8 +445,13 @@ void ekg::ui::event(
         textbox.widget.unset_cursor_static = input.was_released;
       }
 
-      ekg::ui::handle_cursor_interact(property, textbox, picked_index, pick_index, input);
-      ekg::ui::handle_cursor_movement(property, textbox);
+      ekg::ui::handle_cursor_interact(
+        property,
+        textbox,
+        picked_index,
+        pick_index,
+        input
+      );
 
       if (
         should_enable_high_frequency
@@ -570,6 +460,124 @@ void ekg::ui::event(
           ekg::io::operation::high_frequency,
           property.at
         );
+      }
+
+      /* logic of cursors, for handling lot of curosrs we will use only one loop for improve performance */
+
+      bool is_left_fired {ekg::fired("textbox-action-left")};
+      bool is_right_fired {ekg::fired("textbox-action-right")};
+      bool is_up_fired {ekg::fired("textbox-action-up")};
+      bool is_down_fired {ekg::fired("textbox-action-down")};
+
+      if (!is_left_fired && !is_right_fired && !is_up_fired && !is_down_fired) {
+        textbox.widget.set_cursor_static = true;
+      }
+
+      bool is_ab_equals {};
+      bool is_ab_delta_equals {};
+      bool is_bounding {};
+
+      size_t text_total_lines {textbox.text.length_of_lines()};
+
+      ekg::rect_t<float> &rect_abs {ekg::ui::get_abs_rect(property, textbox.rect)};
+      ekg::vec2_t<float> cursor_pos {};
+
+      for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
+        is_ab_equals = cursor.a == cursor.b;
+        is_ab_delta_equals = is_ab_equals && cursor.delta == cursor.a;
+
+        if (is_left_fired) {
+          if (is_ab_equals) {
+            if (cursor.a.x > 0) {
+              cursor.a.x -= 1;
+            } else if (cursor.a.x == 0 && cursor.a.y > 0) {
+              cursor.a.y -= 1;
+              cursor.a.x = ekg::utf8_length(textbox.text.at(cursor.a.y));
+            }
+          }
+
+          cursor.highest_char_index = cursor.a.x;
+          cursor.b = cursor.a;
+          cursor.delta = cursor.b;
+        }
+
+
+        if (is_right_fired) {
+          if (is_ab_equals) {
+            size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.a.y))};
+            if (cursor.b.x < line_text_length) {
+              cursor.b.x += 1;
+            } else if (cursor.a.y < text_total_lines-1) {
+              cursor.b.y += 1;
+              cursor.b.x = 0;
+            }
+          }
+
+          cursor.highest_char_index = cursor.b.x;
+          cursor.a = cursor.b;
+          cursor.delta = cursor.a;
+        }
+
+        if (is_up_fired) {
+          if (is_ab_equals) cursor.a.x = cursor.highest_char_index;
+
+          is_bounding = true;
+          if (cursor.a.y > 0) {
+            cursor.a.y -= 1;
+            is_bounding = false;
+          }
+
+          size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.a.y))};
+          if (cursor.a.x > line_text_length) {
+            cursor.a.x = line_text_length;
+          }
+
+          if (is_bounding) {
+            cursor.highest_char_index = cursor.a.x;
+            cursor.a.x = 0;
+          }
+
+          if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.a.x;
+
+          cursor.b = cursor.a;
+          cursor.delta = cursor.b;
+        }
+
+        if (is_down_fired) {
+          if (is_ab_equals) cursor.b.x = cursor.highest_char_index;
+
+          is_bounding = true;
+          if (cursor.b.y < text_total_lines-1) {
+            cursor.b.y += 1;
+            is_bounding = false;
+          }
+
+          size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.b.y))};
+          if (cursor.b.x > line_text_length) {
+            cursor.b.x = line_text_length;
+          }
+
+          if (is_bounding) {
+            cursor.highest_char_index = cursor.b.x;
+            cursor.b.x = line_text_length;
+          }
+
+          if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.b.x;
+
+          cursor.a = cursor.b;
+          cursor.delta = cursor.a;
+        }
+
+        cursor_pos.y = textbox.widget.scrollbar_property.scroll.position.y + (cursor.a.y * textbox.widget.rect_text_size.h);
+        cursor_pos.y = static_cast<float>(static_cast<int32_t>(floorf(cursor_pos.y)));
+
+        if (cursor_pos.y + textbox.widget.rect_text_size.h > rect_abs.h) {
+          textbox.widget.scrollbar_property.scroll.position.w -=
+            ekg::min(cursor_pos.y + textbox.widget.rect_text_size.h - rect_abs.h, textbox.widget.rect_text_size.h);
+        } else if (cursor_pos.y <= 0.0f) {
+          textbox.widget.scrollbar_property.scroll.position.w +=
+            ekg::min(-cursor_pos.y, textbox.widget.rect_text_size.h);
+        }
       }
 
       break;
