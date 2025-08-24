@@ -29,6 +29,7 @@
 #include "ekg/io/utf.hpp"
 #include "ekg/io/font.hpp"
 #include "ekg/ui/property.hpp"
+#include <regex>
 
 namespace ekg {
   struct textbox_color_scheme_t {
@@ -46,6 +47,12 @@ namespace ekg {
 
   struct textbox_t {
   public:
+    enum operation : size_t {
+      modifier_left,
+      modifier_right
+    };
+    static constexpr size_t operation_enum_size {ekg::textbox_t::operation::modifier_right+1};
+
     struct select_draw_layer_t {
     public:
       bool is_ab_equals {};
@@ -132,6 +139,11 @@ namespace ekg {
     ekg::textbox_color_scheme_t color_scheme {};
     ekg::textbox_t::widget_t widget {};
     ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
+    
+    std::array<std::regex, ekg::textbox_t::operation_enum_size> regex_operations {
+      std::regex(" +|:+|&+|\\(\\)|\\(|\\)|;+"),
+      std::regex(" +|:+|&+|\\(\\)|\\(|\\)|;+")
+    };
   public:
     ekg_descriptor(ekg::textbox_t);
   };

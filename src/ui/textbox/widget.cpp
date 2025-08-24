@@ -272,13 +272,6 @@ void ekg::ui::handle_cursor_interact(
   }
 }
 
-void ekg::ui::handle_cursor_movement(
-  ekg::property_t &property,
-  ekg::textbox_t &textbox
-) {
-
-}
-
 void ekg::ui::reload(
   ekg::property_t &property,
   ekg::textbox_t &textbox
@@ -465,9 +458,14 @@ void ekg::ui::event(
       /* logic of cursors, for handling lot of curosrs we will use only one loop for improve performance */
 
       bool is_left_fired {ekg::fired("textbox-action-left")};
+      bool is_modifier_left_fired {is_left_fired && ekg::fired("textbox-action-modifier-left")};
       bool is_right_fired {ekg::fired("textbox-action-right")};
+      bool is_modifier_right_fired {is_right_fired && ekg::fired("textbox-action-modifier-right")};
       bool is_up_fired {ekg::fired("textbox-action-up")};
+      bool is_modifier_up_fired {is_up_fired && ekg::fired("textbox-action-modifier-up")};
       bool is_down_fired {ekg::fired("textbox-action-down")};
+      bool is_modifier_down_fired {ekg::fired("textbox-action-modifier-down")};
+      bool is_action_selected_fired {is_modifier_down_fired && ekg::fired("textbox-action-select")};
 
       if (!is_left_fired && !is_right_fired && !is_up_fired && !is_down_fired) {
         textbox.widget.set_cursor_static = true;
@@ -496,11 +494,16 @@ void ekg::ui::event(
             }
           }
 
+          if (is_modifier_left_fired) {
+            std::string line {textbox.text.at(cursor.a.y)};
+            std::regex &regex {textbox.regex_operations[ekg::textbox_t::operation::modifier_left]};
+            
+          }
+
           cursor.highest_char_index = cursor.a.x;
           cursor.b = cursor.a;
           cursor.delta = cursor.b;
         }
-
 
         if (is_right_fired) {
           if (is_ab_equals) {
