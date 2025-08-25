@@ -479,6 +479,7 @@ void ekg::ui::event(
 
       ekg::rect_t<float> &rect_abs {ekg::ui::get_abs_rect(property, textbox.rect)};
       ekg::vec2_t<float> cursor_pos {};
+      std::sregex_iterator end {};
 
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
@@ -496,8 +497,13 @@ void ekg::ui::event(
 
           if (is_modifier_left_fired) {
             std::string line {textbox.text.at(cursor.a.y)};
-            std::regex &regex {textbox.regex_operations[ekg::textbox_t::operation::modifier_left]};
-            
+            std::sregex_iterator it(
+              line.begin(),
+              line.end(),
+              textbox.regex_operations[ekg::textbox_t::operation::modifier_left]
+            );
+
+            std::smatch j = *it;
           }
 
           cursor.highest_char_index = cursor.a.x;
