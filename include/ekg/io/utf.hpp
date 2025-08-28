@@ -58,6 +58,46 @@ namespace ekg {
   );
 
   /**
+   * @brief
+   *  find for a aligned utf position by byte position
+   * 
+   * @param `string` string for find utf position
+   * @param `byte_pos` byte pos used for find utf position
+   * @param `utf_pos` utf position relative to byte position
+   * 
+   * @description
+   *   if no utf position was found then `utf_pos` keeps unchanged.
+   *   if a invalid byte position is passed, e.g a position inside a
+   *   utf sequence, it return atuomatically `false`.
+   * 
+   * @return `true` if a valid utf position was found else `false` if was not found
+   **/
+  bool utf8_find_utf_pos_by_byte_pos(
+    std::string &string,
+    size_t byte_pos,
+    size_t &utf_pos
+  );
+
+  /**
+   * @brief
+   *  find for a byte pos from an aligned utf position
+   * 
+   * @param `string` string for find utf position
+   * @param `utf_pos` utf pos used for find byte pos
+   * @param `byte_pos` byte pos relative to utf position
+   * 
+   * @description
+   *   if no byte position was found then `utf_byte` keeps unchanged.
+   * 
+   * @return `true` if a valid byte position was found else `false` if was not found
+   **/
+  bool utf8_find_byte_pos_by_utf_pos(
+    std::string &string,
+    size_t utf_pos,
+    size_t &byte_pos
+  );
+
+  /**
    * Returns a UTF string by `char32` converting
    * the UTF-32 unique char into a sequence of UTF-8
    * chars.

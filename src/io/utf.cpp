@@ -50,6 +50,70 @@ void ekg::utf8_sequence(
   }
 }
 
+bool ekg::utf8_find_utf_pos_by_byte_pos(
+  std::string &string,
+  size_t byte_pos,
+  size_t &utf_pos
+) {
+  size_t utf_sequence_size {};
+  size_t string_size {string.size()};
+  size_t utf_pos_count {};
+  for (size_t it {}; it < string_size; it++) {
+    if (it == byte_pos) {
+      utf_pos = utf_pos_count;
+      return true;
+    }
+
+    char &char8 {string.at(it)};
+    utf_sequence_size = 0;
+    utf_sequence_size += ((char8 & 0xE0) == 0xC0);
+    utf_sequence_size += 2 * ((char8 & 0xF0) == 0xE0);
+    utf_sequence_size += 3 * ((char8 & 0xF8) == 0xF0);
+
+    if (it > byte_pos && it + utf_sequence_size < byte_pos) {
+      return false;
+    }
+
+    it += utf_sequence_size;
+    utf_pos_count++;
+
+    if (it == byte_pos) {
+      utf_pos = utf_pos_count;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool ekg::utf8_find_byte_pos_by_utf_pos(
+  std::string &string,
+  size_t utf_pos,
+  size_t &byte_pos
+) {
+  size_t utf_sequence_size {};
+  size_t string_size {string.size()};
+  size_t utf_pos_count {};
+
+  for (size_t it {}; it < string_size; it++) {
+    if (utf_pos_count == utf_pos) {
+      byte_pos = it;
+      return true;
+    }
+
+    char &char8 {string.at(it)};
+    utf_sequence_size = 0;
+    utf_sequence_size += ((char8 & 0xE0) == 0xC0);
+    utf_sequence_size += 2 * ((char8 & 0xF0) == 0xE0);
+    utf_sequence_size += 3 * ((char8 & 0xF8) == 0xF0);
+
+    it += utf_sequence_size;
+    utf_pos_count++;
+  }
+
+  return false; 
+}
+
 uint64_t ekg::utf8_check_sequence(
   uint8_t &char8,
   char32_t &char32,
