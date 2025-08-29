@@ -141,8 +141,8 @@ namespace ekg {
     ekg::at_array_t<ekg::layer, ekg::enum_layer_size> layers {};
     
     std::array<std::regex, ekg::textbox_t::operation_enum_size> regex_operations {
-      std::regex("^| +|:+|&+|\\(\\)|\\(|\\)|;+"),
-      std::regex("$| +|:+|&+|\\(\\)|\\(|\\)|;+")
+      std::regex("^[ \t:;]|[^ \t:;]+|:+|&+|\\(\\)|\\(|\\)|;+"),
+      std::regex("$|[ \t:;]+|:+|&+|\\(\\)|\\(|\\)|;+")
     };
   public:
     ekg_descriptor(ekg::textbox_t);

@@ -402,6 +402,10 @@ void ekg::ui::event(
         return;
       }
 
+      if (property.states.is_hovering) {
+        ekg::p_core->p_platform_base->system_cursor = ekg::system_cursor::ibeam;
+      }
+
       ekg::vec2_t<size_t> pick_index {};
       bool should_pick_index {};
       bool picked_index {};
