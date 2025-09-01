@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <regex>
 
 namespace ekg {
   /**
@@ -95,6 +96,52 @@ namespace ekg {
     std::string &string,
     size_t utf_pos,
     size_t &byte_pos
+  );
+
+  /**
+   * @brief
+   *  align utf position and byute-position by the next byte-position
+   * 
+   * @param `string` string for be used in alignment
+   * @param `unaligned_byte_pos` byte pos to be aligned
+   * @param `unaligned_utf_pos` utf pos to be aligned
+   * @param `next_byte_pos` next byte pos to align byte-pos and utf-pos
+   * 
+   * @description
+   *  if next byte pos is greater than unaligned byte pos, then move to left
+   *  if not move to right
+   *  
+   *  may output be corrupted if current unaligned byte-pos is an invalid utf position
+   * 
+   * @return true if could align, else false if could not
+   **/
+  bool utf8_align_utf_pos_by_byte_pos(
+    std::string &string,
+    size_t &unaligned_byte_pos,
+    size_t &unaligned_utf_pos,
+    size_t next_byte_pos
+  );
+
+  /**
+   * @brief
+   *  get the first nearest group matched byte-position
+   * 
+   * @param `begin` const string iterator to begin regex matching
+   * @param `end` const string iterator to end regex matching
+   * @param `nearest_byte_pos` first group matched bidirectional byte-position
+   * 
+   * @description
+   *  for left dock the first matched group position is assigned,
+   *  for right dock the last matched group position is assigned
+   *
+   * @return true if matched else false if not matched
+   **/
+  bool utf8_nearest_regex_group_matched_position(
+    const std::string::const_iterator &begin,
+    const std::string::const_iterator &end,
+    size_t &nearest_byte_pos,
+    std::regex &pattern,
+    const ekg::dock &dock
   );
 
   /**

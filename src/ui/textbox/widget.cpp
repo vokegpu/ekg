@@ -479,18 +479,14 @@ void ekg::ui::event(
       bool is_ab_delta_equals {};
       bool is_bounding {};
 
-      size_t utf_position_count {};
-      size_t utf_sequence_size {};
-      size_t new_cursor_byte_pos {};
-      size_t cursor_byte_pos {};
       size_t text_total_lines {textbox.text.length_of_lines()};
       size_t byte_pos {};
+      size_t nearest_byte_pos {};
+      size_t cursor_byte_pos {};
 
       ekg::rect_t<float> &rect_abs {ekg::ui::get_abs_rect(property, textbox.rect)};
       ekg::vec2_t<float> cursor_pos {};
-      
       std::string line {};
-      std::sregex_iterator end {};
 
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
@@ -503,10 +499,11 @@ void ekg::ui::event(
             } else if (cursor.a.x == 0 && cursor.a.y > 0) {
               cursor.a.y -= 1;
               cursor.a.x = ekg::utf8_length(textbox.text.at(cursor.a.y));
+              is_modifier_left_fired = false;
             }
           }
 
-          if (
+          (
             is_modifier_left_fired
             &&
             ekg::utf8_find_byte_pos_by_utf_pos(
@@ -514,38 +511,22 @@ void ekg::ui::event(
               cursor.a.x,
               cursor_byte_pos
             )
-          ) {
-            std::sregex_iterator iterator(
-              line.begin(),
-              line.begin() + cursor_byte_pos,
-              textbox.regex_operations[ekg::textbox_t::operation::modifier_left]
-            );
-
-            new_cursor_byte_pos = UINT64_MAX;
-            std::sregex_iterator end {};
-            for (auto it = iterator; it != end; it++) {
-              std::smatch j = *it;
-              new_cursor_byte_pos = j.position();
-              ekg_log_low_level(new_cursor_byte_pos << " " << j.prefix().str())
-            }
-
-            if (new_cursor_byte_pos != UINT64_MAX) {
-              byte_pos = new_cursor_byte_pos;
-              utf_position_count = 0;
-              while (byte_pos < cursor_byte_pos) {
-                char &char8 {line.at(byte_pos)};
-                utf_sequence_size = 1;
-                utf_sequence_size += ((char8 & 0xE0) == 0xC0);
-                utf_sequence_size += 2 * ((char8 & 0xF0) == 0xE0);
-                utf_sequence_size += 3 * ((char8 & 0xF8) == 0xF0);
-                byte_pos += utf_sequence_size;
-                utf_position_count++;
-              }
-
-              ekg_log_low_level(utf_position_count)
-              cursor.a.x -= utf_position_count;
-            }
-          }
+            &&
+            ekg::utf8_nearest_regex_group_matched_position(
+              line.cbegin(),
+              line.cbegin() + cursor_byte_pos,
+              nearest_byte_pos,
+              textbox.regex_operations[ekg::textbox_t::operation::modifier_left],
+              ekg::dock::left
+            )
+            &&
+            ekg::utf8_align_utf_pos_by_byte_pos(
+              line,
+              cursor.a.x,
+              cursor_byte_pos,
+              nearest_byte_pos
+            )
+          );
 
           cursor.highest_char_index = cursor.a.x;
           cursor.b = cursor.a;
@@ -560,10 +541,11 @@ void ekg::ui::event(
             } else if (cursor.a.y < text_total_lines-1) {
               cursor.b.y += 1;
               cursor.b.x = 0;
+              is_modifier_right_fired = false;
             }
           }
 
-          if (
+          (
             is_modifier_right_fired
             &&
             ekg::utf8_find_byte_pos_by_utf_pos(
@@ -571,40 +553,22 @@ void ekg::ui::event(
               cursor.b.x,
               cursor_byte_pos
             )
-          ) {
-            std::sregex_iterator iterator(
-              line.begin() + cursor_byte_pos,
-              line.end(),
-              textbox.regex_operations[ekg::textbox_t::operation::modifier_right]
-            );
-
-            new_cursor_byte_pos = UINT64_MAX;
-            std::sregex_iterator end {};
-            for (auto it = iterator; it != end; it++) {
-              std::smatch j = *it;
-              new_cursor_byte_pos = cursor_byte_pos + j.position();
-              ekg_log_low_level(new_cursor_byte_pos << " v " << j.prefix().str())
-              break;
-            }
-
-            if (new_cursor_byte_pos != UINT64_MAX) {
-              byte_pos = cursor_byte_pos;
-              utf_position_count = 0;
-              ekg_log_low_level(byte_pos << " x " << new_cursor_byte_pos)
-              while (byte_pos < new_cursor_byte_pos) {
-                char &char8 {line.at(byte_pos)};
-                utf_sequence_size = 1;
-                utf_sequence_size += ((char8 & 0xE0) == 0xC0);
-                utf_sequence_size += 2 * ((char8 & 0xF0) == 0xE0);
-                utf_sequence_size += 3 * ((char8 & 0xF8) == 0xF0);
-                byte_pos += utf_sequence_size;
-                utf_position_count++;
-              }
-
-              ekg_log_low_level(utf_position_count)
-              cursor.b.x += utf_position_count;
-            }
-          }
+            &&
+            ekg::utf8_nearest_regex_group_matched_position(
+              line.cbegin() + cursor_byte_pos,
+              line.cend(),
+              nearest_byte_pos,
+              textbox.regex_operations[ekg::textbox_t::operation::modifier_right],
+              ekg::dock::right
+            )
+            &&
+            ekg::utf8_align_utf_pos_by_byte_pos(
+              line,
+              cursor.b.x,
+              cursor_byte_pos,
+              cursor_byte_pos + nearest_byte_pos
+            )
+          );
 
           cursor.highest_char_index = cursor.b.x;
           cursor.a = cursor.b;

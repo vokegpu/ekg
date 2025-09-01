@@ -27,6 +27,98 @@
 #include <sstream>
 #include <ostream>
 
+bool ekg::utf8_align_utf_pos_by_byte_pos(
+  std::string &string,
+  size_t &unaligned_byte_pos,
+  size_t &unaligned_utf_pos,
+  size_t next_byte_pos
+) {
+  if (string.empty() || next_byte_pos == unaligned_byte_pos) {
+    return false;
+  }
+
+  ekg::dock axis {
+    next_byte_pos > unaligned_byte_pos
+    ? ekg::dock::left : ekg::dock::right 
+  };
+
+  size_t byte_pos {};
+  size_t utf_pos_count {};
+  size_t utf_sequence_size {};
+
+  switch (axis) {
+  case ekg::dock::left:
+    byte_pos = unaligned_byte_pos;
+    while (byte_pos < next_byte_pos) {
+      char &c8 {string.at(byte_pos)};
+      utf_sequence_size = 1;
+      utf_sequence_size += ((c8 & 0xE0) == 0xC0);
+      utf_sequence_size += 2 * ((c8 & 0xF0) == 0xE0);
+      utf_sequence_size += 3 * ((c8 & 0xF8) == 0xF0);
+      byte_pos += utf_sequence_size;
+      unaligned_utf_pos++;
+    }
+
+    unaligned_byte_pos = next_byte_pos;
+
+    break;
+  case ekg::dock::right:
+    byte_pos = next_byte_pos;
+    while (byte_pos < unaligned_byte_pos) {
+      char &c8 {string.at(byte_pos)};
+      utf_sequence_size = 1;
+      utf_sequence_size += ((c8 & 0xE0) == 0xC0);
+      utf_sequence_size += 2 * ((c8 & 0xF0) == 0xE0);
+      utf_sequence_size += 3 * ((c8 & 0xF8) == 0xF0);
+      byte_pos += utf_sequence_size;
+      unaligned_utf_pos--;
+    }
+
+    unaligned_byte_pos = next_byte_pos;
+
+    break;
+  default:
+    break;
+  }
+
+  return true;
+}
+
+bool ekg::utf8_nearest_regex_group_matched_position(
+  const std::string::const_iterator &begin,
+  const std::string::const_iterator &end,
+  size_t &nearest_byte_pos,
+  std::regex &pattern,
+  const ekg::dock &dock
+) {
+  std::sregex_iterator sregex_it(begin, end, pattern);
+  std::sregex_iterator sregex_it_end {};
+
+  if (sregex_it == sregex_it_end) {
+    return false;
+  }
+  
+  std::smatch match {};
+  size_t groups_size {};
+
+  bool any_matched {};
+  bool is_right {dock == ekg::dock::right};
+
+  for (; sregex_it != sregex_it_end; sregex_it++) {
+    match = *sregex_it;
+    groups_size = match.size();
+    for (size_t i {1}; i < groups_size; i++) {
+      if (match[i].matched) {
+        any_matched = true;
+        nearest_byte_pos = match.position(i);
+        if (is_right) return true;
+      }
+    }
+  }
+
+  return any_matched;
+}
+
 void ekg::utf8_sequence(
   uint8_t &uc8,
   char32_t &c32,
@@ -64,11 +156,11 @@ bool ekg::utf8_find_utf_pos_by_byte_pos(
       return true;
     }
 
-    char &char8 {string.at(it)};
+    char &c8 {string.at(it)};
     utf_sequence_size = 0;
-    utf_sequence_size += ((char8 & 0xE0) == 0xC0);
-    utf_sequence_size += 2 * ((char8 & 0xF0) == 0xE0);
-    utf_sequence_size += 3 * ((char8 & 0xF8) == 0xF0);
+    utf_sequence_size += ((c8 & 0xE0) == 0xC0);
+    utf_sequence_size += 2 * ((c8 & 0xF0) == 0xE0);
+    utf_sequence_size += 3 * ((c8 & 0xF8) == 0xF0);
 
     if (it > byte_pos && it + utf_sequence_size < byte_pos) {
       return false;
@@ -101,11 +193,11 @@ bool ekg::utf8_find_byte_pos_by_utf_pos(
       return true;
     }
 
-    char &char8 {string.at(it)};
+    char &c8 {string.at(it)};
     utf_sequence_size = 0;
-    utf_sequence_size += ((char8 & 0xE0) == 0xC0);
-    utf_sequence_size += 2 * ((char8 & 0xF0) == 0xE0);
-    utf_sequence_size += 3 * ((char8 & 0xF8) == 0xF0);
+    utf_sequence_size += ((c8 & 0xE0) == 0xC0);
+    utf_sequence_size += 2 * ((c8 & 0xF0) == 0xE0);
+    utf_sequence_size += 3 * ((c8 & 0xF8) == 0xF0);
 
     it += utf_sequence_size;
     utf_pos_count++;
@@ -115,25 +207,25 @@ bool ekg::utf8_find_byte_pos_by_utf_pos(
 }
 
 uint64_t ekg::utf8_check_sequence(
-  uint8_t &char8,
+  uint8_t &c8,
   char32_t &char32,
   std::string &utf_string,
   std::string_view string,
   uint64_t index
 ) {
-  if (char8 <= 0x7F) {
-    utf_string = char8;
-    char32 = static_cast<char32_t>(char8);
+  if (c8 <= 0x7F) {
+    utf_string = c8;
+    char32 = static_cast<char32_t>(c8);
     return 0;
-  } else if ((char8 & 0xE0) == 0xC0) {
+  } else if ((c8 & 0xE0) == 0xC0) {
     utf_string = string.substr(index, 2);
     char32 = ekg::utf8_to_utf32(utf_string);
     return 1;
-  } else if ((char8 & 0xF0) == 0xE0) {
+  } else if ((c8 & 0xF0) == 0xE0) {
     utf_string = string.substr(index, 3);
     char32 = ekg::utf8_to_utf32(utf_string);
     return 2;
-  } else if ((char8 & 0xF8) == 0xF0) {
+  } else if ((c8 & 0xF8) == 0xF0) {
     utf_string = string.substr(index, 4);
     char32 = ekg::utf8_to_utf32(utf_string);
     return 3;
@@ -172,19 +264,19 @@ char32_t ekg::utf8_to_utf32(std::string_view string) {
   char32_t char32 {};
 
   uint64_t it {};
-  uint8_t char8 {static_cast<uint8_t>(string.at(0))};
+  uint8_t c8 {static_cast<uint8_t>(string.at(0))};
 
-  if (char8 <= 0x7F) {
-    char32 = char8;
-  } else if (char8 <= 0xDF) {
-    char32 = char8 & 0x1F;
+  if (c8 <= 0x7F) {
+    char32 = c8;
+  } else if (c8 <= 0xDF) {
+    char32 = c8 & 0x1F;
     char32 = (char32 << 6) | (string.at(++it) & 0x3F);
-  } else if (char8 <= 0xEF) {
-    char32 = char8 & 0x0F;
+  } else if (c8 <= 0xEF) {
+    char32 = c8 & 0x0F;
     char32 = (char32 << 6) | (string.at(++it) & 0x3F);
     char32 = (char32 << 6) | (string.at(++it) & 0x3F);
   } else {
-    char32 = char8 & 0x07;
+    char32 = c8 & 0x07;
     char32 = (char32 << 6) | (string.at(++it) & 0x3F);
     char32 = (char32 << 6) | (string.at(++it) & 0x3F);
     char32 = (char32 << 6) | (string.at(++it) & 0x3F);
@@ -199,21 +291,21 @@ uint64_t ekg::utf8_length(std::string_view utf_string) {
   }
 
   uint64_t string_size {};
-  uint8_t char8 {};
+  uint8_t c8 {};
 
   for (uint64_t it {}; it < utf_string.size(); it++) {
-    char8 = static_cast<uint8_t>(utf_string.at(it));
-    if (char8 == '\n' || char8 == '\r') {
+    c8 = static_cast<uint8_t>(utf_string.at(it));
+    if (c8 == '\n' || c8 == '\r') {
       continue;
-    } else if (char8 <= 0x7F) {
+    } else if (c8 <= 0x7F) {
       string_size++;
-    } else if ((char8 & 0xE0) == 0xC0) {
+    } else if ((c8 & 0xE0) == 0xC0) {
       string_size++;
       it++;
-    } else if ((char8 & 0xF0) == 0xE0) {
+    } else if ((c8 & 0xF0) == 0xE0) {
       string_size++;
       it += 2;
-    } else if ((char8 & 0xF8) == 0xF0) {
+    } else if ((c8 & 0xF8) == 0xF0) {
       string_size++;
       it += 3;
     }
@@ -236,7 +328,7 @@ std::string ekg::utf8_substr(std::string_view string, uint64_t offset, uint64_t 
   uint64_t index {};
   uint64_t utf_sequence_size {};
   uint64_t begin {UINT64_MAX};
-  uint8_t char8 {};
+  uint8_t c8 {};
   bool at_last_index {};
 
   /*
@@ -245,12 +337,12 @@ std::string ekg::utf8_substr(std::string_view string, uint64_t offset, uint64_t 
    */
 
   while (index < string_size) {
-    char8 = static_cast<uint8_t>(string.at(index));
+    c8 = static_cast<uint8_t>(string.at(index));
 
     utf_sequence_size = 1;
-    utf_sequence_size += ((char8 & 0xE0) == 0xC0);
-    utf_sequence_size += 2 * ((char8 & 0xF0) == 0xE0);
-    utf_sequence_size += 3 * ((char8 & 0xF8) == 0xF0);
+    utf_sequence_size += ((c8 & 0xE0) == 0xC0);
+    utf_sequence_size += 2 * ((c8 & 0xF0) == 0xE0);
+    utf_sequence_size += 3 * ((c8 & 0xF8) == 0xF0);
 
     at_last_index = index + utf_sequence_size == string_size;
 
