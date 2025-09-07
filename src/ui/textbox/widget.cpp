@@ -615,17 +615,17 @@ void ekg::ui::event(
             is_bounding = false;
           }
 
+          if (!is_ab_equals) cursor.highest_char_index = cursor.a.x;
+
           size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.a.y))};
           if (cursor.a.x > line_text_length) {
             cursor.a.x = line_text_length;
           }
-
+          
           if (is_bounding) {
             cursor.highest_char_index = cursor.a.x;
             cursor.a.x = 0;
           }
-
-          if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.a.x;
 
           cursor.b = cursor.a;
         }
@@ -639,6 +639,8 @@ void ekg::ui::event(
             is_bounding = false;
           }
 
+          if (!is_ab_equals) cursor.highest_char_index = cursor.b.x;
+
           size_t line_text_length {ekg::utf8_length(textbox.text.at(cursor.b.y))};
           if (cursor.b.x > line_text_length) {
             cursor.b.x = line_text_length;
@@ -648,8 +650,6 @@ void ekg::ui::event(
             cursor.highest_char_index = cursor.b.x;
             cursor.b.x = line_text_length;
           }
-
-          if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.b.x;
 
           cursor.a = cursor.b;
         }
