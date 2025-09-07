@@ -61,6 +61,7 @@ namespace ekg {
 
     struct cursor_t {
     public:
+      ekg::dock direction {};
       size_t highest_char_index {};
       ekg::vec2_t<size_t> a {};
       ekg::vec2_t<size_t> b {};

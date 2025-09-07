@@ -50,6 +50,7 @@ namespace ekg::draw {
     uint32_t font_size {};
     float text_height {};
     float non_swizzlable_range {};
+    float space_wsize {};
     FT_Bool ft_bool_kerning {};
 
     bool font_size_changed {};

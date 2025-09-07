@@ -153,38 +153,15 @@ void ekg::handler::input::init() {
   this->insert_input_bind("textbox-action-cursor", "abs-mouse-1");
   this->insert_input_bind("textbox-action-multicursor", "lctrl+mouse-1");
   this->insert_input_bind("textbox-action-multicursor", "rctrl+mouse-1");
+  this->insert_input_bind("textbox-action-select", "lshift");
+  this->insert_input_bind("textbox-action-select", "rshift");
+  this->insert_input_bind("textbox-action-modifier", "lctrl");
+  this->insert_input_bind("textbox-action-modifier", "rctrl");
 
   this->insert_input_bind("textbox-action-up", "abs-up");
-  this->insert_input_bind("textbox-action-select", "lshift+up");
-  this->insert_input_bind("textbox-action-select", "rshift+up");
-  this->insert_input_bind("textbox-action-modifier-up", "lctrl+up");
-  this->insert_input_bind("textbox-action-modifier-up", "rctrl+up");
-
   this->insert_input_bind("textbox-action-down", "abs-down");
-  this->insert_input_bind("textbox-action-select", "lshift+down");
-  this->insert_input_bind("textbox-action-select", "rshift+down");
-  this->insert_input_bind("textbox-action-modifier-down", "lctrl+down");
-  this->insert_input_bind("textbox-action-modifier-down", "rctrl+down");
-
   this->insert_input_bind("textbox-action-right", "abs-right");
-  this->insert_input_bind("textbox-action-select", "lctrl+lshift+right");
-  this->insert_input_bind("textbox-action-select", "lctrl+rshift+right");
-  this->insert_input_bind("textbox-action-select", "rctrl+lshift+right");
-  this->insert_input_bind("textbox-action-select", "rctrl+rshift+right");
-  this->insert_input_bind("textbox-action-select", "lshift+right");
-  this->insert_input_bind("textbox-action-select", "rshift+right");
-  this->insert_input_bind("textbox-action-modifier-right", "lctrl+right");
-  this->insert_input_bind("textbox-action-modifier-right", "rctrl+right");
-
   this->insert_input_bind("textbox-action-left", "abs-left");
-  this->insert_input_bind("textbox-action-select", "lctrl+lshift+left");
-  this->insert_input_bind("textbox-action-select", "lctrl+rshift+left");
-  this->insert_input_bind("textbox-action-select", "rctrl+lshift+left");
-  this->insert_input_bind("textbox-action-select", "rctrl+rshift+left");
-  this->insert_input_bind("textbox-action-select", "lshift+left");
-  this->insert_input_bind("textbox-action-select", "rshift+left");
-  this->insert_input_bind("textbox-action-modifier-left", "lctrl+left");
-  this->insert_input_bind("textbox-action-modifier-left", "rctrl+left");
 
   this->insert_input_bind("clipboard-copy", "lctrl+c");
   this->insert_input_bind("clipboard-copy", "rctrl+c");

@@ -224,9 +224,11 @@ void ekg::ui::handle_cursor_interact(
     };
 
     if (ekg::textbox_t::cursor_t {.a = pick_index, .b = pick_index} <= cursor.delta) {
+      cursor.direction = ekg::dock::left;
       textbox.widget.picked_left = cursor.delta;
       textbox.widget.picked_right = pick_index;
     } else {
+      cursor.direction = ekg::dock::right;
       textbox.widget.picked_left = pick_index;
       textbox.widget.picked_right = cursor.delta;
     }
@@ -459,17 +461,22 @@ void ekg::ui::event(
         );
       }
 
+      if (!input.was_typed) {
+        return;
+      }
+
       /* logic of cursors, for handling lot of curosrs we will use only one loop for improve performance */
 
+      bool is_modifier_fired {ekg::fired("textbox-action-modifier")};
       bool is_left_fired {ekg::fired("textbox-action-left")};
-      bool is_modifier_left_fired {is_left_fired && ekg::fired("textbox-action-modifier-left")};
+      bool is_modifier_left_fired {is_left_fired && is_modifier_fired};
       bool is_right_fired {ekg::fired("textbox-action-right")};
-      bool is_modifier_right_fired {is_right_fired && ekg::fired("textbox-action-modifier-right")};
+      bool is_modifier_right_fired {is_right_fired && is_modifier_fired};
       bool is_up_fired {ekg::fired("textbox-action-up")};
-      bool is_modifier_up_fired {is_up_fired && ekg::fired("textbox-action-modifier-up")};
+      bool is_modifier_up_fired {is_up_fired && is_modifier_fired};
       bool is_down_fired {ekg::fired("textbox-action-down")};
-      bool is_modifier_down_fired {is_down_fired && ekg::fired("textbox-action-modifier-down")};
-      bool is_action_selected_fired {is_modifier_down_fired && ekg::fired("textbox-action-select")};
+      bool is_modifier_down_fired {is_down_fired && is_modifier_fired};
+      bool is_action_selected_fired {ekg::fired("textbox-action-select")};
 
       if (is_left_fired || is_right_fired || is_up_fired || is_down_fired) {
         textbox.widget.set_cursor_static = true;
@@ -483,14 +490,40 @@ void ekg::ui::event(
       size_t byte_pos {};
       size_t nearest_byte_pos {};
       size_t cursor_byte_pos {};
+      size_t highest {};
 
       ekg::rect_t<float> &rect_abs {ekg::ui::get_abs_rect(property, textbox.rect)};
       ekg::vec2_t<float> cursor_pos {};
       std::string line {};
 
+      ekg::textbox_t::cursor_t cursor {};
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
         is_ab_delta_equals = is_ab_equals && cursor.delta == cursor.a;
+
+        /**
+         * Before move the cursor, we need make sure we are working with
+         * right directions. This is necessary for make possible select.
+         **/
+        if (
+          is_action_selected_fired
+        ) {
+          if (cursor == cursor.delta && is_left_fired) {
+            cursor.b = cursor.a;
+            cursor.direction = ekg::dock::left;
+          } else if (cursor == cursor.delta && is_right_fired) {
+            cursor.a = cursor.b;
+            cursor.direction = ekg::dock::right;
+          } else if (cursor < cursor.delta) {
+            cursor.a = cursor.b;
+            cursor.direction = ekg::dock::right;
+          } else if (cursor > cursor.delta) {
+            cursor.b = cursor.a;
+            cursor.direction = ekg::dock::left;
+          }
+
+          is_ab_equals = true;
+        }
 
         if (is_left_fired) {
           if (is_ab_equals) {
@@ -530,7 +563,6 @@ void ekg::ui::event(
 
           cursor.highest_char_index = cursor.a.x;
           cursor.b = cursor.a;
-          cursor.delta = cursor.b;
         }
 
         if (is_right_fired) {
@@ -572,7 +604,6 @@ void ekg::ui::event(
 
           cursor.highest_char_index = cursor.b.x;
           cursor.a = cursor.b;
-          cursor.delta = cursor.a;
         }
 
         if (is_up_fired) {
@@ -597,7 +628,6 @@ void ekg::ui::event(
           if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.a.x;
 
           cursor.b = cursor.a;
-          cursor.delta = cursor.b;
         }
 
         if (is_down_fired) {
@@ -622,9 +652,7 @@ void ekg::ui::event(
           if (!is_ab_equals && !is_bounding) cursor.highest_char_index = cursor.b.x;
 
           cursor.a = cursor.b;
-          cursor.delta = cursor.a;
         }
-
         cursor_pos.y = textbox.widget.scrollbar_property.scroll.position.y + (cursor.a.y * textbox.widget.rect_text_size.h);
         cursor_pos.y = static_cast<float>(static_cast<int32_t>(floorf(cursor_pos.y)));
 
@@ -634,6 +662,46 @@ void ekg::ui::event(
         } else if (cursor_pos.y <= 0.0f) {
           textbox.widget.scrollbar_property.scroll.position.w +=
             ekg::min(-cursor_pos.y, textbox.widget.rect_text_size.h);
+        }
+
+        /**
+         * While firstly we move cursor and check the right direction.
+         * We need check again the right direction after moved.
+         * This will make possible modifier works with select from any direction.
+         **/
+        if (is_action_selected_fired) {
+          if (cursor == cursor.delta && is_left_fired) {
+            cursor.b = cursor.a;
+            cursor.direction = ekg::dock::left;
+          } else if (cursor == cursor.delta && is_right_fired) {
+            cursor.a = cursor.b;
+            cursor.direction = ekg::dock::right;
+          } else if (cursor < cursor.delta) {
+            cursor.a = cursor.b;
+            cursor.direction = ekg::dock::right;
+          } else if (cursor > cursor.delta) {
+            cursor.b = cursor.a;
+            cursor.direction = ekg::dock::left;
+          }
+
+          highest = cursor.highest_char_index;
+          if (cursor.direction == ekg::dock::left) {
+            cursor.a = cursor.a;
+            cursor.b = cursor.delta;
+            highest = cursor.a.x;
+          } else if (cursor.direction == ekg::dock::right) {
+            cursor.a = cursor.delta;
+            cursor.b = cursor.b;
+            highest = cursor.a.x;
+          }
+
+          if (is_left_fired) {
+            cursor.highest_char_index = highest;
+          } else if (is_right_fired) {
+            cursor.highest_char_index = highest;
+          }
+        } else {
+          cursor.delta = cursor.a;
         }
       }
 
@@ -791,14 +859,12 @@ void ekg::ui::buffering(
   bool is_complete_line_selected {};
   bool is_ab_equals_selected {};
   bool is_cursor_at_end_of_line {};
-  bool was_complete_line_selected {};
   bool cursors_going_on {!textbox.widget.cursors.empty()};
-  bool is_end_of_line_and_text {};
   bool oka_found_visual_index {};
   bool get_out {};
   bool is_last_char_from_line {};
 
-  float extra_final_char_cursor {};
+  float end_cursor_position {};
   float extra_rect_height {rect_abs.h + textbox.widget.rect_text_size.h};
   float glyph_wsize {};
 
@@ -814,6 +880,7 @@ void ekg::ui::buffering(
   ekg::textbox_t::cursor_t cursor {};
   std::vector<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
   size_t chunks_size {chunks.size()};
+  bool is_renderable {};
 
   textbox.widget.scrollbar.rect.h = text_total_lines * textbox.widget.rect_text_size.h;
   textbox.widget.view_line_index = 
@@ -850,6 +917,10 @@ void ekg::ui::buffering(
   pos.y = static_cast<float>(static_cast<int32_t>(floorf(pos.y)));
   pos.x = textbox.color_scheme.gutter_margin;
 
+  std::string empty {"\n"};
+  bool is_empty {};
+  bool was_empty_before {};
+
   textbox.widget.layers_select.clear();
   for (size_t ic {}; ic < chunks_size; ic++) {
     ekg::io::chunk_t &chunk {chunks.at(ic)};
@@ -872,7 +943,9 @@ void ekg::ui::buffering(
 
     addition_chunk_index += chunk_size;
     for (;il < chunk_size; il++) {
-      std::string &line {chunk.at(il)};
+      std::string &chunk_line {chunk.at(il)};
+      std::string &line {(is_empty = chunk_line.empty()) ? empty : chunk_line};
+
       index.x = 0;
       text_len = line.size();
       for (size_t it {}; it < text_len; it++) {
@@ -911,14 +984,19 @@ void ekg::ui::buffering(
           (
             ekg::ui::find_cursor(textbox, index, cursor)
             ||
-            (is_cursor_at_end_of_line = is_last_char_from_line && ++index.x && ekg::ui::find_cursor(textbox, index, cursor))
+            (
+              is_cursor_at_end_of_line =
+                is_last_char_from_line
+                &&
+                ++index.x && ekg::ui::find_cursor(textbox, index, cursor)
+            )
           )
         ) {
           glyph_wsize = glyph.wsize;
+          end_cursor_position = glyph_wsize * is_cursor_at_end_of_line;
           is_ab_equals_selected = property.states.is_focused && cursor == index;
           is_inline_selected = cursor >= index && cursor < index && !is_ab_equals_selected;
           is_complete_line_selected = false;
-          extra_final_char_cursor = (is_cursor_at_end_of_line * glyph_wsize);
 
           if (is_inline_selected) {
             if (
@@ -936,7 +1014,7 @@ void ekg::ui::buffering(
           }
 
           if (is_ab_equals_selected) {
-            cursor.rect.x = pos.x + extra_final_char_cursor;
+            cursor.rect.x = pos.x + end_cursor_position;
             cursor.rect.y = pos.y;
             cursor.rect.w = textbox.color_scheme.caret_cursor ? glyph_wsize : textbox.color_scheme.cursor_thickness;
             cursor.rect.h = textbox.widget.rect_text_size.h;
@@ -944,46 +1022,28 @@ void ekg::ui::buffering(
           }
 
           if (is_inline_selected) {
-            cursor.rect.x = pos.x + extra_final_char_cursor;
+            cursor.rect.x = pos.x + end_cursor_position;
             cursor.rect.y = pos.y;
-            cursor.rect.w = glyph_wsize + (glyph_wsize * (is_last_char_from_line && !is_cursor_at_end_of_line && cursor.a.y != cursor.b.y));
-            cursor.rect.h = textbox.widget.rect_text_size.h;
-            textbox.widget.layers_select.push_back({false, cursor.rect});            
-          }
-
-          rect_select.x = textbox.color_scheme.gutter_margin;
-          rect_select.y = pos.y - (textbox.widget.rect_text_size.h * !is_end_of_line_and_text);
-          rect_select.w = line_wsize + (is_end_of_line_and_text * glyph_wsize) + glyph_wsize;
-          rect_select.h = textbox.widget.rect_text_size.h;
-
-          if ( 
-            was_complete_line_selected
-            &&
-            (
-              (current_line_for_cursor_complete != index.y)
-              ||
-              (is_end_of_line_and_text = index.y + 1 == text_total_lines && is_last_char_from_line)
-            )
-          ) {
-            cursor.rect.x = textbox.color_scheme.gutter_margin;
-            cursor.rect.y = pos.y - (textbox.widget.rect_text_size.h * !is_end_of_line_and_text);
-            cursor.rect.w = line_wsize + (is_end_of_line_and_text * glyph_wsize) + glyph_wsize;
+            cursor.rect.w = glyph_wsize;
             cursor.rect.h = textbox.widget.rect_text_size.h;
             textbox.widget.layers_select.push_back({false, cursor.rect});
-            was_complete_line_selected = false;
           }
 
-          if (is_complete_line_selected && current_line_for_cursor_complete != index.y) {
-            line_wsize = textbox.color_scheme.gutter_margin;
-            current_line_for_cursor_complete = index.y;
-            was_complete_line_selected = true;
+          if (
+            is_complete_line_selected
+            &&
+            it == 0
+          ) {
+            line_wsize = 0;
           }
 
-          if (is_complete_line_selected) {
+          if (is_complete_line_selected && !is_empty) {
             line_wsize += glyph_wsize;
           }
+        }
 
-          is_cursor_at_end_of_line = false;
+        if (is_empty) {
+          continue;
         }
 
         if (!glyph.was_sampled) {
@@ -1046,12 +1106,22 @@ void ekg::ui::buffering(
         pos.x += glyph.wsize;
         ft_uint_previous = c32;
 
-        /**
+        /** 
          * Peek `ekg/io/memory.hpp` for better hash definition and purpose.
          **/
         hash += ekg_generate_hash(pos.x, c32, glyph.x);
-
         index.x++;
+      }
+
+      if (
+        is_complete_line_selected
+      ) {
+        cursor.rect.x = textbox.color_scheme.gutter_margin;
+        cursor.rect.y = pos.y;
+        cursor.rect.h = textbox.widget.rect_text_size.h;
+        cursor.rect.w = line_wsize + glyph_wsize;
+        textbox.widget.layers_select.push_back({false, cursor.rect});
+        is_complete_line_selected = false;
       }
 
       pos.x = textbox.color_scheme.gutter_margin;
@@ -1059,6 +1129,7 @@ void ekg::ui::buffering(
       rendered.y += textbox.widget.rect_text_size.h;
       index.y++;
       hash += pos.y * 32;
+      index.x += is_empty;
     
       if (rendered.y > extra_rect_height) {
         get_out = true;
@@ -1069,12 +1140,6 @@ void ekg::ui::buffering(
     if (get_out) {
       break;
     }
-  }
-
-  if (was_complete_line_selected) {
-    rect_select.y += textbox.widget.rect_text_size.h;
-    textbox.widget.layers_select.push_back({false, rect_select});
-    was_complete_line_selected = false;            
   }
 
   data.hash = hash;
