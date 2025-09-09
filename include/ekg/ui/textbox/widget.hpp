@@ -49,6 +49,13 @@ namespace ekg::ui {
     ekg::input_info_t &input
   );
 
+  void erase(
+    ekg::textbox_t &textbox,
+    const ekg::vec2_t<size_t> &a,
+    const ekg::vec2_t<size_t> &b,
+    ekg::textbox_t::cursor_t &cursor
+  );
+
   void reload(
     ekg::property_t &property,
     ekg::textbox_t &textbox

@@ -103,6 +103,9 @@ bool ekg::ui::find_index_by_interact(
   pos.y = static_cast<float>(static_cast<int32_t>(floorf(pos.y)));
   pos.x = textbox.color_scheme.gutter_margin;
 
+  std::string empty {"\n"};
+  bool is_empty {};
+
   for (size_t ic {textbox.widget.view_chunk_index}; ic < chunks_size; ic++) {
     ekg::io::chunk_t &chunk {chunks.at(ic)};
 
@@ -113,7 +116,9 @@ bool ekg::ui::find_index_by_interact(
 
     chunk_size = chunk.size();
     for (;il < chunk_size; il++) {
-      std::string &line {chunk.at(il)};
+      std::string &chunk_line {chunk.at(il)};
+      std::string &line {(is_empty = chunk_line.empty()) ? empty : chunk_line};
+
       text_len = line.size();
       for (size_t it {}; it < text_len; it++) {
         uc8 = static_cast<uint8_t>(line.at(it));
@@ -154,7 +159,7 @@ bool ekg::ui::find_index_by_interact(
         }
 
         rect.w = glyph.wsize;
-        if (ekg::rect_collide_vec2(rect, interact)) {
+        if (!is_empty && ekg::rect_collide_vec2(rect, interact)) {
           index.x++;
           return true;
         }
@@ -164,7 +169,7 @@ bool ekg::ui::find_index_by_interact(
 
         rect.w = rect_abs.w;
         if (index.x == text_len && ekg::rect_collide_vec2(rect, interact)) {
-          index.x = text_len;
+          index.x = is_empty ? 0 : text_len;
           return true;
         }
       }
@@ -271,6 +276,18 @@ void ekg::ui::handle_cursor_interact(
         .delta = first_pick_pos
       }
     );
+  }
+}
+
+void ekg::ui::erase(
+  ekg::textbox_t &textbox,
+  const ekg::vec2_t<size_t> &a,
+  const ekg::vec2_t<size_t> &b,
+  ekg::textbox_t::cursor_t &cursor
+) {
+  if (a.y == b.y) {
+    ekg::utf8_substr(textbox.text.at(a.y), a.x, b.x - a.x);
+    return;
   }
 }
 
@@ -477,6 +494,8 @@ void ekg::ui::event(
       bool is_down_fired {ekg::fired("textbox-action-down")};
       bool is_modifier_down_fired {is_down_fired && is_modifier_fired};
       bool is_action_selected_fired {ekg::fired("textbox-action-select")};
+      bool is_action_erase_left_fired {ekg::fired("textbox-action-erase-left")};
+      bool is_action_erase_right_fired {ekg::fired("textbox-action-erase-right")};
 
       if (is_left_fired || is_right_fired || is_up_fired || is_down_fired) {
         textbox.widget.set_cursor_static = true;
@@ -496,10 +515,12 @@ void ekg::ui::event(
       ekg::vec2_t<float> cursor_pos {};
       std::string line {};
 
-      ekg::textbox_t::cursor_t cursor {};
+      ekg::textbox_t::cursor_t io_cursor {};
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
         is_ab_delta_equals = is_ab_equals && cursor.delta == cursor.a;
+
+        io_cursor = cursor;
 
         /**
          * Before move the cursor, we need make sure we are working with
@@ -653,6 +674,7 @@ void ekg::ui::event(
 
           cursor.a = cursor.b;
         }
+
         cursor_pos.y = textbox.widget.scrollbar_property.scroll.position.y + (cursor.a.y * textbox.widget.rect_text_size.h);
         cursor_pos.y = static_cast<float>(static_cast<int32_t>(floorf(cursor_pos.y)));
 
@@ -703,6 +725,10 @@ void ekg::ui::event(
         } else {
           cursor.delta = cursor.a;
         }
+
+        if (is_action_erase_left_fired || is_action_erase_right_fired)
+        ekg::ui::erase(textbox, cursor.a, cursor.b, cursor);
+        io_cursor = cursor;
       }
 
       break;

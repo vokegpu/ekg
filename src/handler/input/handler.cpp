@@ -128,8 +128,6 @@ void ekg::handler::input::init() {
 
   this->insert_input_bind("textbox-focus", "mouse-1");
   this->insert_input_bind("textbox-focus", "finger-click");
-  this->insert_input_bind("textbox-action-break", "return");
-  this->insert_input_bind("textbox-action-break", "keypad enter");
 
   this->insert_input_bind("textbox-action-select-all", "lctrl+a");
   this->insert_input_bind("textbox-action-select-all", "rctrl+a");
@@ -142,8 +140,8 @@ void ekg::handler::input::init() {
   this->insert_input_bind("textbox-action-select-word", "mouse-1-double");
   this->insert_input_bind("textbox-action-select-word", "finger-hold");
 
-  this->insert_input_bind("textbox-action-delete-left", "abs-backspace");
-  this->insert_input_bind("textbox-action-delete-right", "abs-delete");
+  this->insert_input_bind("textbox-action-erase-left", "abs-backspace");
+  this->insert_input_bind("textbox-action-erase-right", "abs-delete");
   this->insert_input_bind("textbox-action-break-line", "return");
   this->insert_input_bind("textbox-action-break-line", "keypad enter");
   this->insert_input_bind("textbox-action-break-line", "lshift+return");
