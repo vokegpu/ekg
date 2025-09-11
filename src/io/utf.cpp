@@ -356,7 +356,7 @@ std::string ekg::utf8_substr(std::string_view string, uint64_t offset, uint64_t 
     if (
         /**
          * OBS:
-         *  If the `offset` parameter is equals to the last UTF-8 string size,
+         *  If the `offset` paramete is equals to the last UTF-8 string size,
          *  then it continue without substring process.
          **/
         (at_last_index && begin != UINT64_MAX && offset != utf_text_size) ||
@@ -405,9 +405,15 @@ void ekg::text::swizzle(
   std::vector<std::string> &to_swizzle,
   bool skip_first_line
 ) {
+  bool is_empty {to_swizzle.empty()};
   ekg::io::chunk_t &chunk {this->loaded_chunks.at(chunk_index)};
+
   if (skip_first_line) {
-    chunk.at(line_index) = to_swizzle.at(0);
+    chunk.at(line_index) = is_empty ? "" : to_swizzle.at(0);
+  }
+
+  if (to_swizzle.empty()) {
+    return;
   }
 
   chunk.insert(

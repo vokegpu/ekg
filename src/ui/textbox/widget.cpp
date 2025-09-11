@@ -286,9 +286,40 @@ void ekg::ui::erase(
   ekg::textbox_t::cursor_t &cursor
 ) {
   if (a.y == b.y) {
-    ekg::utf8_substr(textbox.text.at(a.y), a.x, b.x - a.x);
+    std::string line {textbox.text.at(a.y)};
+
+    std::string la {
+      ekg::utf8_substr(
+        line,
+        0, a.x
+      )
+    };
+
+    std::string lb {
+     ekg::utf8_substr(
+        line,
+        b.x, line.size()
+      )
+    };
+
+    line.clear();
+    if (!lb.empty() || !la.empty()) {
+      line = la + lb;
+    }
+
+    textbox.text.set(
+      a.y,
+      line
+    );
+
+    cursor.b = cursor.a;
+    cursor.delta = cursor.a;
+
     return;
   }
+
+
+  
 }
 
 void ekg::ui::reload(
@@ -484,18 +515,20 @@ void ekg::ui::event(
 
       /* logic of cursors, for handling lot of curosrs we will use only one loop for improve performance */
 
+      bool is_action_erase_right_fired {ekg::fired("textbox-action-erase-right")};
+      bool is_action_erase_left_fired {ekg::fired("textbox-action-erase-left")};
+      bool is_action_erase_fired {is_action_erase_left_fired || is_action_erase_right_fired};
+      bool is_action_selected_fired {is_action_erase_fired || ekg::fired("textbox-action-select")};
+
       bool is_modifier_fired {ekg::fired("textbox-action-modifier")};
-      bool is_left_fired {ekg::fired("textbox-action-left")};
+      bool is_left_fired {is_action_erase_left_fired || ekg::fired("textbox-action-left")};
       bool is_modifier_left_fired {is_left_fired && is_modifier_fired};
-      bool is_right_fired {ekg::fired("textbox-action-right")};
+      bool is_right_fired {is_action_erase_right_fired || ekg::fired("textbox-action-right")};
       bool is_modifier_right_fired {is_right_fired && is_modifier_fired};
       bool is_up_fired {ekg::fired("textbox-action-up")};
       bool is_modifier_up_fired {is_up_fired && is_modifier_fired};
       bool is_down_fired {ekg::fired("textbox-action-down")};
       bool is_modifier_down_fired {is_down_fired && is_modifier_fired};
-      bool is_action_selected_fired {ekg::fired("textbox-action-select")};
-      bool is_action_erase_left_fired {ekg::fired("textbox-action-erase-left")};
-      bool is_action_erase_right_fired {ekg::fired("textbox-action-erase-right")};
 
       if (is_left_fired || is_right_fired || is_up_fired || is_down_fired) {
         textbox.widget.set_cursor_static = true;
@@ -515,12 +548,9 @@ void ekg::ui::event(
       ekg::vec2_t<float> cursor_pos {};
       std::string line {};
 
-      ekg::textbox_t::cursor_t io_cursor {};
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
         is_ab_delta_equals = is_ab_equals && cursor.delta == cursor.a;
-
-        io_cursor = cursor;
 
         /**
          * Before move the cursor, we need make sure we are working with
@@ -726,9 +756,9 @@ void ekg::ui::event(
           cursor.delta = cursor.a;
         }
 
-        if (is_action_erase_left_fired || is_action_erase_right_fired)
-        ekg::ui::erase(textbox, cursor.a, cursor.b, cursor);
-        io_cursor = cursor;
+        if (is_action_erase_fired) {
+          ekg::ui::erase(textbox, cursor.a, cursor.b, cursor);
+        }
       }
 
       break;
@@ -935,7 +965,7 @@ void ekg::ui::buffering(
    * This technique works because the line height is fixed, ultimately, soon, should be re-worked
    * to support differents text-heights at same time, also, for widgets scrolling (I do not think
    * someone can write a GUI context with +5000000 heights from widgets without pages).
-   * 
+   * []
    * - Rina - 11:39; 08/06/2025
    **/
   float visible_text_height {static_cast<float>(textbox.widget.view_line_index * textbox.widget.rect_text_size.h)};
