@@ -71,6 +71,7 @@ namespace ekg {
     bool has_motion {};
     bool was_wheel {};
     bool was_typed {};
+    std::string_view typed {};
   };
 
   struct input_key_t {

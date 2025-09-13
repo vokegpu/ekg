@@ -142,7 +142,7 @@ void ekg::handler::theme::init() {
   black_light_pinky_theme.textbox_color_scheme.text_select_outline = {245, 169, 184, 100};
 
   this->registry(black_light_pinky_theme.tag) = black_light_pinky_theme;
-  this->set_current_theme(black_light_pinky_theme.tag);
+  //this->set_current_theme(black_light_pinky_theme.tag);
 }
 
 void ekg::handler::theme::quit() {

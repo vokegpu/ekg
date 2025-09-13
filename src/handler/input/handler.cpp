@@ -261,12 +261,12 @@ void ekg::handler::input::poll_event() {
     case ekg::io::event_type::text_input: {
       this->input.was_pressed = true;
       this->input.was_typed = true;
+      this->input.typed = platform_event.text_input;
       break;
     }
 
     case ekg::io::event_type::key_down: {
       this->input.was_pressed = true;
-      this->input.was_typed = true;
 
       this->string_builder.clear();
 

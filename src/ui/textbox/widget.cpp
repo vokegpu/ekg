@@ -326,6 +326,28 @@ void ekg::ui::handle_erase(
   cursor.delta = cursor.a;
 }
 
+void ekg::ui::handle_insert(
+  ekg::textbox_t &textbox,
+  ekg::textbox_t::cursor_t &cursor,
+  std::string_view typed
+) {
+  if (cursor.a != cursor.b) {
+    ekg::ui::handle_erase(textbox, cursor);
+  }
+
+  std::string line {textbox.text.at(cursor.a.y)};
+
+  line.insert(
+    line.begin() + cursor.a.x,
+    typed.begin(),
+    typed.end()
+  );
+
+  textbox.text.set(cursor.a.y, line);
+  cursor.a.x += ekg::utf8_length(typed);
+  cursor.b = cursor.a;
+}
+
 void ekg::ui::reload(
   ekg::property_t &property,
   ekg::textbox_t &textbox
@@ -513,7 +535,7 @@ void ekg::ui::event(
         );
       }
 
-      if (!input.was_typed) {
+      if (!input.was_typed && !input.was_pressed) {
         return;
       }
 
@@ -534,7 +556,7 @@ void ekg::ui::event(
       bool is_down_fired {ekg::fired("textbox-action-down")};
       bool is_modifier_down_fired {is_down_fired && is_modifier_fired};
 
-      if (is_left_fired || is_right_fired || is_up_fired || is_down_fired || is_action_erase_fired) {
+      if (is_left_fired || is_right_fired || is_up_fired || is_down_fired || is_action_erase_fired || input.was_typed) {
         textbox.widget.set_cursor_static = true;
       }
 
@@ -551,6 +573,7 @@ void ekg::ui::event(
       ekg::vec2_t<float> cursor_pos {};
       std::string line {};
 
+      ekg_log_low_level(input.was_typed);
 
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
@@ -768,6 +791,10 @@ void ekg::ui::event(
 
         if (is_action_erase_fired) {
           ekg::ui::handle_erase(textbox, cursor);
+        }
+
+        if (input.was_typed) {
+          ekg::ui::handle_insert(textbox, cursor, input.typed);
         }
       }
 

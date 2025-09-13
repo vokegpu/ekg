@@ -54,6 +54,12 @@ namespace ekg::ui {
     ekg::textbox_t::cursor_t &cursor
   );
 
+  void handle_insert(
+    ekg::textbox_t &textbox,
+    ekg::textbox_t::cursor_t &cursor,
+    std::string_view typed
+  );
+
   void reload(
     ekg::property_t &property,
     ekg::textbox_t &textbox
