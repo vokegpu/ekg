@@ -279,37 +279,23 @@ void ekg::ui::handle_cursor_interact(
   }
 }
 
-void ekg::ui::erase(
+void ekg::ui::handle_erase(
   ekg::textbox_t &textbox,
-  const ekg::vec2_t<size_t> &a,
-  const ekg::vec2_t<size_t> &b,
   ekg::textbox_t::cursor_t &cursor
 ) {
-  if (a.y == b.y) {
-    std::string line {textbox.text.at(a.y)};
+  if (cursor.a.y == cursor.b.y) {
+    std::string line {textbox.text.at(cursor.a.y)};
+    std::string concated {};
 
-    std::string la {
-      ekg::utf8_substr(
-        line,
-        0, a.x
-      )
-    };
-
-    std::string lb {
-     ekg::utf8_substr(
-        line,
-        b.x, line.size()
-      )
-    };
-
-    line.clear();
-    if (!lb.empty() || !la.empty()) {
-      line = la + lb;
-    }
+    ekg::utf8_concat(
+      line,
+      {0, cursor.a.x, cursor.b.x, line.size()},
+      concated
+    );
 
     textbox.text.set(
-      a.y,
-      line
+      cursor.a.y,
+      concated
     );
 
     cursor.b = cursor.a;
@@ -318,8 +304,26 @@ void ekg::ui::erase(
     return;
   }
 
+  textbox.text.set(
+    cursor.a.y,
+    ekg::utf8_substr(
+      textbox.text.at(cursor.a.y),
+      0, cursor.a.x
+    )
+    +
+    ekg::utf8_substr(
+      textbox.text.at(cursor.b.y),
+      cursor.b.x, UINT32_MAX
+    )
+  );
 
-  
+  textbox.text.erase(
+    cursor.a.y + 1,
+    cursor.b.y + 1
+  );
+
+  cursor.b = cursor.a;
+  cursor.delta = cursor.a;
 }
 
 void ekg::ui::reload(
@@ -518,24 +522,23 @@ void ekg::ui::event(
       bool is_action_erase_right_fired {ekg::fired("textbox-action-erase-right")};
       bool is_action_erase_left_fired {ekg::fired("textbox-action-erase-left")};
       bool is_action_erase_fired {is_action_erase_left_fired || is_action_erase_right_fired};
-      bool is_action_selected_fired {is_action_erase_fired || ekg::fired("textbox-action-select")};
+      bool is_action_selected_fired {ekg::fired("textbox-action-select")};
 
       bool is_modifier_fired {ekg::fired("textbox-action-modifier")};
-      bool is_left_fired {is_action_erase_left_fired || ekg::fired("textbox-action-left")};
-      bool is_modifier_left_fired {is_left_fired && is_modifier_fired};
-      bool is_right_fired {is_action_erase_right_fired || ekg::fired("textbox-action-right")};
-      bool is_modifier_right_fired {is_right_fired && is_modifier_fired};
+      bool is_left_fired {ekg::fired("textbox-action-left")};
+      bool is_modifier_left_fired {};
+      bool is_right_fired {ekg::fired("textbox-action-right")};
+      bool is_modifier_right_fired {};
       bool is_up_fired {ekg::fired("textbox-action-up")};
       bool is_modifier_up_fired {is_up_fired && is_modifier_fired};
       bool is_down_fired {ekg::fired("textbox-action-down")};
       bool is_modifier_down_fired {is_down_fired && is_modifier_fired};
 
-      if (is_left_fired || is_right_fired || is_up_fired || is_down_fired) {
+      if (is_left_fired || is_right_fired || is_up_fired || is_down_fired || is_action_erase_fired) {
         textbox.widget.set_cursor_static = true;
       }
 
       bool is_ab_equals {};
-      bool is_ab_delta_equals {};
       bool is_bounding {};
 
       size_t text_total_lines {textbox.text.length_of_lines()};
@@ -548,9 +551,16 @@ void ekg::ui::event(
       ekg::vec2_t<float> cursor_pos {};
       std::string line {};
 
+
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
-        is_ab_delta_equals = is_ab_equals && cursor.delta == cursor.a;
+
+        is_action_selected_fired = is_action_selected_fired || (is_action_erase_fired && is_ab_equals);
+        is_left_fired = is_left_fired || (is_action_erase_left_fired && is_ab_equals);
+        is_right_fired = is_right_fired || (is_action_erase_right_fired && is_ab_equals);
+
+        is_modifier_left_fired = is_left_fired && is_modifier_fired;
+        is_modifier_right_fired = is_right_fired && is_modifier_fired;
 
         /**
          * Before move the cursor, we need make sure we are working with
@@ -757,7 +767,7 @@ void ekg::ui::event(
         }
 
         if (is_action_erase_fired) {
-          ekg::ui::erase(textbox, cursor.a, cursor.b, cursor);
+          ekg::ui::handle_erase(textbox, cursor);
         }
       }
 

@@ -212,6 +212,12 @@ namespace ekg {
       )
     );  
   }
+
+  void utf8_concat(
+    std::string &string,
+    const ekg::vec4_t<size_t> &stride,
+    std::string &concated
+  );
 }
 
 namespace ekg::io {

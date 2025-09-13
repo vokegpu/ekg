@@ -399,6 +399,25 @@ size_t ekg::utf8_split_endings(
   return new_lines_count;
 }
 
+void ekg::utf8_concat(
+  std::string &string,
+  const ekg::vec4_t<std::size_t> &stride,
+  std::string &concated
+) {
+  std::string a {
+    ekg::utf8_substr(string, stride.x, stride.y)
+  };
+
+  std::string b {
+    ekg::utf8_substr(string, stride.z, stride.w)
+  };
+
+  concated.clear();
+  if (!a.empty() || !b.empty()) {
+    concated = a + b;
+  }
+}
+
 void ekg::text::swizzle(
   size_t chunk_index,
   size_t line_index,
@@ -586,7 +605,11 @@ void ekg::text::erase(
     return;
   }
 
-  end = ekg::min(begin + end, this->total_lines);
+  if (end < begin) {
+    throw std::out_of_range("ekg::text::erase: " + std::to_string(end) + " end is > than " + std::to_string(begin) + " begin");
+    return;
+  }
+
   this->total_lines -= end - begin;
 
   this->was_audited = true;
@@ -606,7 +629,7 @@ void ekg::text::erase(
     previous_lines = lines;
     lines += (chunk_size = chunk.size());
 
-    if (begin < lines) {
+    if (begin <= lines) {
       remains_lines = end - begin;
       begin = begin - previous_lines;
       while (remains_lines != 0) {

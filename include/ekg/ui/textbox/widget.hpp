@@ -49,10 +49,8 @@ namespace ekg::ui {
     ekg::input_info_t &input
   );
 
-  void erase(
+  void handle_erase(
     ekg::textbox_t &textbox,
-    const ekg::vec2_t<size_t> &a,
-    const ekg::vec2_t<size_t> &b,
     ekg::textbox_t::cursor_t &cursor
   );
 
