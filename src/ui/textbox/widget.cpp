@@ -335,15 +335,31 @@ void ekg::ui::handle_insert(
     ekg::ui::handle_erase(textbox, cursor);
   }
 
+  if (typed == EKG_EOF_SYSTEM) {
+    std::string line {textbox.text.at(cursor.a.y)};
+
+    textbox.text.set(cursor.a.y, ekg::utf8_substr(line, 0, cursor.a.x));
+    textbox.text.insert(cursor.a.y, ekg::utf8_substr(line, cursor.a.x, UINT32_MAX));
+
+    cursor.a.y++;
+    cursor.a.x = 0;
+    cursor.b = cursor.a;
+
+    return;
+  }
+
+  size_t byte_pos {};
   std::string line {textbox.text.at(cursor.a.y)};
+  ekg::utf8_find_byte_pos_by_utf_pos(line, cursor.a.x, byte_pos);
 
   line.insert(
-    line.begin() + cursor.a.x,
+    line.begin() + byte_pos,
     typed.begin(),
     typed.end()
   );
 
   textbox.text.set(cursor.a.y, line);
+  
   cursor.a.x += ekg::utf8_length(typed);
   cursor.b = cursor.a;
 }
@@ -544,7 +560,8 @@ void ekg::ui::event(
       bool is_action_erase_right_fired {ekg::fired("textbox-action-erase-right")};
       bool is_action_erase_left_fired {ekg::fired("textbox-action-erase-left")};
       bool is_action_erase_fired {is_action_erase_left_fired || is_action_erase_right_fired};
-      bool is_action_selected_fired {ekg::fired("textbox-action-select")};
+      bool is_action_selected_keybind_fired {ekg::fired("textbox-action-select")};
+      bool is_action_selected_fired {};
 
       bool is_modifier_fired {ekg::fired("textbox-action-modifier")};
       bool is_left_fired {ekg::fired("textbox-action-left")};
@@ -555,8 +572,11 @@ void ekg::ui::event(
       bool is_modifier_up_fired {is_up_fired && is_modifier_fired};
       bool is_down_fired {ekg::fired("textbox-action-down")};
       bool is_modifier_down_fired {is_down_fired && is_modifier_fired};
+      bool is_arrows_fired {is_left_fired || is_right_fired || is_up_fired || is_down_fired};      
 
-      if (is_left_fired || is_right_fired || is_up_fired || is_down_fired || is_action_erase_fired || input.was_typed) {
+      bool is_textbox_action_break_line_fired {ekg::fired("textbox-action-break-line")};
+
+      if (is_arrows_fired || is_action_erase_fired || input.was_typed || is_textbox_action_break_line_fired) {
         textbox.widget.set_cursor_static = true;
       }
 
@@ -573,12 +593,10 @@ void ekg::ui::event(
       ekg::vec2_t<float> cursor_pos {};
       std::string line {};
 
-      ekg_log_low_level(input.was_typed);
-
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
 
-        is_action_selected_fired = is_action_selected_fired || (is_action_erase_fired && is_ab_equals);
+        is_action_selected_fired = (is_arrows_fired && is_action_selected_keybind_fired) || (is_action_erase_fired && is_ab_equals);
         is_left_fired = is_left_fired || (is_action_erase_left_fired && is_ab_equals);
         is_right_fired = is_right_fired || (is_action_erase_right_fired && is_ab_equals);
 
@@ -793,8 +811,13 @@ void ekg::ui::event(
           ekg::ui::handle_erase(textbox, cursor);
         }
 
-        if (input.was_typed) {
-          ekg::ui::handle_insert(textbox, cursor, input.typed);
+        if (input.was_typed || is_textbox_action_break_line_fired) {          
+          ekg::ui::handle_insert(
+            textbox,
+            cursor,
+            is_textbox_action_break_line_fired
+              ? EKG_EOF_SYSTEM : input.typed
+          );
         }
       }
 

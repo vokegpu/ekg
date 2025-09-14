@@ -399,7 +399,7 @@ size_t ekg::utf8_split_endings(
   return new_lines_count;
 }
 
-void ekg::utf8_concat(
+void ekg:: utf8_concat(
   std::string &string,
   const ekg::vec4_t<std::size_t> &stride,
   std::string &concated
