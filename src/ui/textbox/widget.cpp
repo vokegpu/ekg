@@ -287,6 +287,8 @@ void ekg::ui::handle_erase(
     std::string line {textbox.text.at(cursor.a.y)};
     std::string concated {};
 
+    ekg_log_low_level(cursor.a.x << " | " << cursor.b.x);
+
     ekg::utf8_concat(
       line,
       {0, cursor.a.x, cursor.b.x, line.size()},
@@ -593,6 +595,8 @@ void ekg::ui::event(
       ekg::vec2_t<float> cursor_pos {};
       std::string line {};
 
+      ekg_log_low_level("xup << " << textbox.widget.cursors.size());
+
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
 
@@ -609,23 +613,31 @@ void ekg::ui::event(
          **/
         if (
           is_action_selected_fired
+          &&
+          !(is_action_erase_left_fired || is_action_erase_left_fired)
         ) {
           if (cursor == cursor.delta && is_left_fired) {
             cursor.b = cursor.a;
             cursor.direction = ekg::dock::left;
+            ekg_log_low_level("aa");
           } else if (cursor == cursor.delta && is_right_fired) {
             cursor.a = cursor.b;
             cursor.direction = ekg::dock::right;
+            ekg_log_low_level("bb");
           } else if (cursor < cursor.delta) {
             cursor.a = cursor.b;
             cursor.direction = ekg::dock::right;
+            ekg_log_low_level("cc");
           } else if (cursor > cursor.delta) {
             cursor.b = cursor.a;
             cursor.direction = ekg::dock::left;
+            ekg_log_low_level("dd");
           }
 
           is_ab_equals = true;
         }
+
+        ekg_log_low_level("merow");
 
         if (is_left_fired) {
           if (is_ab_equals) {
@@ -776,15 +788,19 @@ void ekg::ui::event(
           if (cursor == cursor.delta && is_left_fired) {
             cursor.b = cursor.a;
             cursor.direction = ekg::dock::left;
+            ekg_log_low_level("a");
           } else if (cursor == cursor.delta && is_right_fired) {
             cursor.a = cursor.b;
             cursor.direction = ekg::dock::right;
+            ekg_log_low_level("b");
           } else if (cursor < cursor.delta) {
             cursor.a = cursor.b;
             cursor.direction = ekg::dock::right;
+            ekg_log_low_level("c");
           } else if (cursor > cursor.delta) {
             cursor.b = cursor.a;
             cursor.direction = ekg::dock::left;
+            ekg_log_low_level("d");
           }
 
           highest = cursor.highest_char_index;
@@ -805,6 +821,7 @@ void ekg::ui::event(
           }
         } else {
           cursor.delta = cursor.a;
+            ekg_log_low_level(cursor.delta.x << " xu " );
         }
 
         if (is_action_erase_fired) {

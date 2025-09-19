@@ -187,7 +187,8 @@ bool ekg::utf8_find_byte_pos_by_utf_pos(
   size_t string_size {string.size()};
   size_t utf_pos_count {};
 
-  for (size_t it {}; it < string_size; it++) {
+  size_t it {};
+  for (; it < string_size; it++) {
     if (utf_pos_count == utf_pos) {
       byte_pos = it;
       return true;
@@ -201,6 +202,11 @@ bool ekg::utf8_find_byte_pos_by_utf_pos(
 
     it += utf_sequence_size;
     utf_pos_count++;
+  }
+
+  if (utf_pos_count == utf_pos) {
+    byte_pos = it;
+    return true;
   }
 
   return false; 
@@ -399,7 +405,7 @@ size_t ekg::utf8_split_endings(
   return new_lines_count;
 }
 
-void ekg:: utf8_concat(
+void ekg::utf8_concat(
   std::string &string,
   const ekg::vec4_t<std::size_t> &stride,
   std::string &concated
@@ -415,6 +421,7 @@ void ekg:: utf8_concat(
   concated.clear();
   if (!a.empty() || !b.empty()) {
     concated = a + b;
+    ekg_log_low_level(a << " x " << b)
   }
 }
 
@@ -632,6 +639,7 @@ void ekg::text::erase(
     if (begin <= lines) {
       remains_lines = end - begin;
       begin = begin - previous_lines;
+
       while (remains_lines != 0) {
         ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
 
