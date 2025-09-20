@@ -421,7 +421,6 @@ void ekg::utf8_concat(
   concated.clear();
   if (!a.empty() || !b.empty()) {
     concated = a + b;
-    ekg_log_low_level(a << " x " << b)
   }
 }
 
@@ -431,6 +430,8 @@ void ekg::text::swizzle(
   std::vector<std::string> &to_swizzle,
   bool skip_first_line
 ) {
+  this->was_audited = true;
+
   bool is_empty {to_swizzle.empty()};
   ekg::io::chunk_t &chunk {this->loaded_chunks.at(chunk_index)};
 
@@ -439,7 +440,7 @@ void ekg::text::swizzle(
   }
 
   if (to_swizzle.empty()) {
-    return;
+    to_swizzle.emplace_back();
   }
 
   chunk.insert(

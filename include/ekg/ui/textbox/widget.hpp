@@ -54,6 +54,10 @@ namespace ekg::ui {
     ekg::textbox_t::cursor_t &cursor
   );
 
+  void refresh_scroll_sizes(
+    ekg::textbox_t &textbox
+  );
+
   void handle_insert(
     ekg::textbox_t &textbox,
     ekg::textbox_t::cursor_t &cursor,

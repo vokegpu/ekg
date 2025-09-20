@@ -33,6 +33,20 @@
 #include "ekg/core/pools.hpp"
 #include "ekg/math/floating_point.hpp"
 
+void ekg::ui::refresh_scroll_sizes(
+  ekg::textbox_t &textbox
+) {
+  size_t highest_size {};
+  for (ekg::io::chunk_t &chunk : textbox.text.chunks_data()) {
+    for (std::string &line : chunk) {
+      highest_size = ekg::max(line.size(), highest_size);
+    }
+  };
+
+  textbox.widget.scrollbar.rect.w = highest_size * (textbox.widget.rect_text_size.h * 0.6f);
+  textbox.widget.scrollbar.rect.h = textbox.text.length_of_lines() * textbox.widget.rect_text_size.h;
+}
+
 bool ekg::ui::find_cursor(
   ekg::textbox_t &textbox,
   ekg::vec2_t<size_t> &index,
@@ -79,11 +93,6 @@ bool ekg::ui::find_index_by_interact(
   size_t addition_chunk_index {};
   size_t text_total_lines {textbox.text.length_of_lines()};
 
-  ekg::vec2_t<float> pos {
-    static_cast<float>(static_cast<int32_t>(textbox.color_scheme.gutter_margin)) + textbox.widget.scrollbar_property.scroll.position.x,
-    0.0f
-  };
-
   ekg::vec2_t<float> rendered {};
   ekg::rect_t<float> rect {};
 
@@ -98,10 +107,14 @@ bool ekg::ui::find_index_by_interact(
   index.y += textbox.widget.view_line_index;
   textbox.widget.scrollbar.rect.h = text_total_lines * textbox.widget.rect_text_size.h;
 
+  ekg::vec2_t<float> pos {
+    0.0f,
+    0.0f
+  };
+
   float visible_text_height {static_cast<float>(textbox.widget.view_line_index * textbox.widget.rect_text_size.h)};
   pos.y = textbox.widget.scrollbar_property.scroll.position.y + visible_text_height;
   pos.y = static_cast<float>(static_cast<int32_t>(floorf(pos.y)));
-  pos.x = textbox.color_scheme.gutter_margin;
 
   std::string empty {"\n"};
   bool is_empty {};
@@ -149,7 +162,7 @@ bool ekg::ui::find_index_by_interact(
 
         ekg::io::glyph_t &glyph {draw_font.mapped_glyph[c32]};
 
-        rect.x = pos.x + rect_abs.x;
+        rect.x = pos.x + textbox.widget.scrollbar_property.scroll.position.x + rect_abs.x;
         rect.y = pos.y + rect_abs.y;
         rect.w = glyph.wsize / 2;
         rect.h = textbox.widget.rect_text_size.h;
@@ -287,7 +300,6 @@ void ekg::ui::handle_erase(
     std::string line {textbox.text.at(cursor.a.y)};
     std::string concated {};
 
-    ekg_log_low_level(cursor.a.x << " | " << cursor.b.x);
 
     ekg::utf8_concat(
       line,
@@ -346,7 +358,6 @@ void ekg::ui::handle_insert(
     cursor.a.y++;
     cursor.a.x = 0;
     cursor.b = cursor.a;
-
     return;
   }
 
@@ -395,23 +406,12 @@ void ekg::ui::reload(
   size_t highest_size {};
   std::vector<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
 
-  if (textbox.text.audited()) {
-    for (ekg::io::chunk_t &chunk : chunks) {
-      for (std::string &line : chunk) {
-        highest_size = ekg::max(line.size(), highest_size);
-      }
-    };
-
-    property.widget.should_buffering = true;
-  }
-
   ekg::rect_t<float> &rect_abs {
     ekg::ui::get_abs_rect(property, textbox.rect)
   };
 
   textbox.widget.scrollbar.rect.x = rect_abs.x;
   textbox.widget.scrollbar.rect.y = rect_abs.y;
-  textbox.widget.scrollbar.rect.w = highest_size * textbox.widget.rect_text_size.h;
   textbox.widget.scrollbar.acceleration = {textbox.widget.rect_text_size.h, textbox.widget.rect_text_size.h};
 
   textbox.widget.scrollbar.color_scheme = ekg::p_core->handler_theme.get_current_theme().scrollbar_color_scheme;
@@ -423,6 +423,8 @@ void ekg::ui::reload(
     property.children,
     false
   );
+
+  ekg::ui::refresh_scroll_sizes(textbox);
 }
 
 void ekg::ui::event(
@@ -498,6 +500,14 @@ void ekg::ui::event(
 
       if (property.states.is_hovering) {
         ekg::p_core->p_platform_base->system_cursor = ekg::system_cursor::ibeam;
+      }
+
+      if (
+        textbox.widget.scrollbar.widget.states_horizontal_bar.is_hovering
+        ||
+        textbox.widget.scrollbar.widget.states_vertical_bar.is_hovering
+      ) {
+        ekg::p_core->p_platform_base->system_cursor = ekg::system_cursor::arrow;
       }
 
       ekg::vec2_t<size_t> pick_index {};
@@ -595,7 +605,6 @@ void ekg::ui::event(
       ekg::vec2_t<float> cursor_pos {};
       std::string line {};
 
-      ekg_log_low_level("xup << " << textbox.widget.cursors.size());
 
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
         is_ab_equals = cursor.a == cursor.b;
@@ -619,25 +628,20 @@ void ekg::ui::event(
           if (cursor == cursor.delta && is_left_fired) {
             cursor.b = cursor.a;
             cursor.direction = ekg::dock::left;
-            ekg_log_low_level("aa");
           } else if (cursor == cursor.delta && is_right_fired) {
             cursor.a = cursor.b;
             cursor.direction = ekg::dock::right;
-            ekg_log_low_level("bb");
           } else if (cursor < cursor.delta) {
             cursor.a = cursor.b;
             cursor.direction = ekg::dock::right;
-            ekg_log_low_level("cc");
           } else if (cursor > cursor.delta) {
             cursor.b = cursor.a;
             cursor.direction = ekg::dock::left;
-            ekg_log_low_level("dd");
           }
 
           is_ab_equals = true;
         }
 
-        ekg_log_low_level("merow");
 
         if (is_left_fired) {
           if (is_ab_equals) {
@@ -768,17 +772,6 @@ void ekg::ui::event(
           cursor.a = cursor.b;
         }
 
-        cursor_pos.y = textbox.widget.scrollbar_property.scroll.position.y + (cursor.a.y * textbox.widget.rect_text_size.h);
-        cursor_pos.y = static_cast<float>(static_cast<int32_t>(floorf(cursor_pos.y)));
-
-        if (cursor_pos.y + textbox.widget.rect_text_size.h > rect_abs.h) {
-          textbox.widget.scrollbar_property.scroll.position.w -=
-            ekg::min(cursor_pos.y + textbox.widget.rect_text_size.h - rect_abs.h, textbox.widget.rect_text_size.h);
-        } else if (cursor_pos.y <= 0.0f) {
-          textbox.widget.scrollbar_property.scroll.position.w +=
-            ekg::min(-cursor_pos.y, textbox.widget.rect_text_size.h);
-        }
-
         /**
          * While firstly we move cursor and check the right direction.
          * We need check again the right direction after moved.
@@ -788,19 +781,15 @@ void ekg::ui::event(
           if (cursor == cursor.delta && is_left_fired) {
             cursor.b = cursor.a;
             cursor.direction = ekg::dock::left;
-            ekg_log_low_level("a");
           } else if (cursor == cursor.delta && is_right_fired) {
             cursor.a = cursor.b;
             cursor.direction = ekg::dock::right;
-            ekg_log_low_level("b");
           } else if (cursor < cursor.delta) {
             cursor.a = cursor.b;
             cursor.direction = ekg::dock::right;
-            ekg_log_low_level("c");
           } else if (cursor > cursor.delta) {
             cursor.b = cursor.a;
             cursor.direction = ekg::dock::left;
-            ekg_log_low_level("d");
           }
 
           highest = cursor.highest_char_index;
@@ -819,9 +808,6 @@ void ekg::ui::event(
           } else if (is_right_fired) {
             cursor.highest_char_index = highest;
           }
-        } else {
-          cursor.delta = cursor.a;
-            ekg_log_low_level(cursor.delta.x << " xu " );
         }
 
         if (is_action_erase_fired) {
@@ -836,6 +822,25 @@ void ekg::ui::event(
               ? EKG_EOF_SYSTEM : input.typed
           );
         }
+
+        if (!is_action_selected_fired) {
+          cursor.delta = cursor.a;
+        }
+
+        cursor_pos.y = textbox.widget.scrollbar_property.scroll.position.y + (cursor.a.y * textbox.widget.rect_text_size.h);
+        cursor_pos.y = static_cast<float>(static_cast<int32_t>(floorf(cursor_pos.y)));
+
+        if (cursor_pos.y + textbox.widget.rect_text_size.h > rect_abs.h) {
+          textbox.widget.scrollbar_property.scroll.position.w -=
+            ekg::min(cursor_pos.y + textbox.widget.rect_text_size.h - rect_abs.h, textbox.widget.rect_text_size.h);
+        } else if (cursor_pos.y <= 0.0f) {
+          textbox.widget.scrollbar_property.scroll.position.w +=
+            ekg::min(-cursor_pos.y, textbox.widget.rect_text_size.h);
+        }
+      }
+
+      if (is_action_erase_fired || input.was_typed || is_textbox_action_break_line_fired) {
+        ekg::ui::refresh_scroll_sizes(textbox);
       }
 
       break;
