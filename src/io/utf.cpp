@@ -568,7 +568,8 @@ void ekg::text::insert(
     ekg::utf8_split_endings(lines, splitted);
   }
 
-  for (size_t it {}; it < this->loaded_chunks.size(); it++) {
+  size_t total_of_chunks {this->loaded_chunks.size()};
+  for (size_t it {}; it < total_of_chunks; it++) {
     ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
 
     previous_lines = current_lines;
@@ -597,6 +598,78 @@ void ekg::text::insert(
   ekg::io::chunk_t chunk {};
   chunk.push_back(std::string(line));
   this->insert(index, chunk);
+}
+
+std::string ekg::text::read(
+  ekg::vec2_t<size_t> &begin,
+  ekg::vec2_t<size_t> &end
+) {
+  size_t previous_lines {};
+  size_t chunk_size {};
+  size_t current_lines {};
+  size_t total_of_chunks {this->loaded_chunks.size()};
+  size_t line_index {};
+  size_t cut_length {end.y - begin.y};
+  size_t cut_count {};
+  size_t lines {};
+
+  size_t i {};
+  bool oka_begin {};
+  bool oka_end {};
+
+  std::string builder {};
+  for (size_t it {}; it < total_of_chunks; it++) {
+    ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+
+    previous_lines = current_lines;
+    current_lines += (chunk_size = chunk.size());
+
+    if (
+      begin.y > current_lines
+    ) {
+      continue;
+    }
+
+    i = 0;
+    if (!oka_begin) {
+      i = begin.y - previous_lines;
+      oka_begin = true;
+    }
+
+    if (end.y < previous_lines) {
+      return builder;
+    }
+
+    previous_lines += i;
+
+    for (; i < chunk_size; i++) {
+      std::string &line {chunk.at(i)};
+
+      if (
+        previous_lines == begin.y
+        &&
+        previous_lines == end.y
+      ) {
+        builder += ekg::utf8_substr(line, begin.x, end.x - begin.x);
+        return builder;
+      }
+
+      if (
+        previous_lines == begin.y
+      ) {
+        builder += ekg::utf8_substr(line, begin.x, UINT32_MAX) + EKG_EOF_SYSTEM;
+      } else if (
+        previous_lines == end.y
+      ) {
+        builder += ekg::utf8_substr(line, 0, end.x);
+        return builder;
+      } else {
+        builder += line + EKG_EOF_SYSTEM;
+      }
+
+      previous_lines++;
+    }
+  }
 }
 
 void ekg::text::erase(

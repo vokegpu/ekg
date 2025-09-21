@@ -247,6 +247,11 @@ namespace ekg {
     void push_back(std::string_view line);
     void set(size_t index, std::string_view line);
 
+    std::string read(
+      ekg::vec2_t<size_t> &begin,
+      ekg::vec2_t<size_t> &end
+    );
+
     void insert(
       size_t index,
       const ekg::io::chunk_t &to_insert_chunk

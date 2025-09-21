@@ -296,6 +296,10 @@ void ekg::ui::handle_erase(
   ekg::textbox_t &textbox,
   ekg::textbox_t::cursor_t &cursor
 ) {
+  if (cursor.a == cursor.b) {
+    return;
+  }
+
   if (cursor.a.y == cursor.b.y) {
     std::string line {textbox.text.at(cursor.a.y)};
     std::string concated {};
@@ -314,6 +318,7 @@ void ekg::ui::handle_erase(
 
     cursor.b = cursor.a;
     cursor.delta = cursor.a;
+    cursor.highest_char_index = cursor.a.x;
 
     return;
   }
@@ -338,6 +343,7 @@ void ekg::ui::handle_erase(
 
   cursor.b = cursor.a;
   cursor.delta = cursor.a;
+  cursor.highest_char_index = cursor.a.x;
 }
 
 void ekg::ui::handle_insert(
@@ -358,6 +364,7 @@ void ekg::ui::handle_insert(
     cursor.a.y++;
     cursor.a.x = 0;
     cursor.b = cursor.a;
+    cursor.highest_char_index = cursor.a.x;
     return;
   }
 
@@ -375,6 +382,7 @@ void ekg::ui::handle_insert(
   
   cursor.a.x += ekg::utf8_length(typed);
   cursor.b = cursor.a;
+  cursor.highest_char_index = cursor.a.x;
 }
 
 void ekg::ui::reload(
@@ -451,7 +459,7 @@ void ekg::ui::event(
 
   switch (stage) {
     default: {
-      ekg::input_info_t &input {ekg::p_core->handler_input.input};
+      ekg::input_info_t input {ekg::p_core->handler_input.input};
       ekg::vec2_t<float> interact {static_cast<ekg::vec2_t<float>>(input.interact)};
 
       /* focus part */
@@ -567,13 +575,40 @@ void ekg::ui::event(
         return;
       }
 
-      /* logic of cursors, for handling lot of curosrs we will use only one loop for improve performance */
+      /**
+       * logic of cursors:
+       *  for handling lot of cursors we will
+       *  use only one loop for improve performance
+       **/
+
+      bool is_action_selected_all_fired {ekg::fired("textbox-action-select-all")};
+      if (is_action_selected_all_fired) {
+        size_t lines {textbox.text.length_of_lines()};
+        if (lines > 0) {
+          lines -= 1;
+          std::string last_line {textbox.text.at(lines)};
+          textbox.widget.cursors.clear();
+          textbox.widget.cursors.push_back(
+            {
+              .a = {0, 0},
+              .b = {ekg::utf8_length(last_line), lines}
+            }
+          );
+        }
+
+        return;
+      }
+
+      bool is_action_copy {ekg::fired("clipboard-copy")};
+      bool is_action_paste {ekg::fired("clipboard-paste")};
+      bool is_action_cut {ekg::fired("clipboard-cut")};
 
       bool is_action_erase_right_fired {ekg::fired("textbox-action-erase-right")};
       bool is_action_erase_left_fired {ekg::fired("textbox-action-erase-left")};
       bool is_action_erase_fired {is_action_erase_left_fired || is_action_erase_right_fired};
       bool is_action_selected_keybind_fired {ekg::fired("textbox-action-select")};
       bool is_action_selected_fired {};
+      bool is_action_break_line_fired {ekg::fired("textbox-action-break-line")};
 
       bool is_modifier_fired {ekg::fired("textbox-action-modifier")};
       bool is_left_fired {ekg::fired("textbox-action-left")};
@@ -586,9 +621,31 @@ void ekg::ui::event(
       bool is_modifier_down_fired {is_down_fired && is_modifier_fired};
       bool is_arrows_fired {is_left_fired || is_right_fired || is_up_fired || is_down_fired};      
 
-      bool is_textbox_action_break_line_fired {ekg::fired("textbox-action-break-line")};
+      if (is_action_paste) {
+        input.was_typed = true;
+        input.typed = ekg::p_core->p_platform_base->get_clipboard_text();        
+      }
 
-      if (is_arrows_fired || is_action_erase_fired || input.was_typed || is_textbox_action_break_line_fired) {
+      std::string clipboard_builder {};
+      if (is_action_cut) {
+        input.was_typed = false;
+      }
+
+      if (
+        is_arrows_fired
+        ||
+        is_action_erase_fired
+        ||
+        input.was_typed
+        ||
+        is_action_break_line_fired
+        ||
+        is_action_copy
+        ||
+        is_action_cut
+        ||
+        is_action_paste
+      ) {
         textbox.widget.set_cursor_static = true;
       }
 
@@ -605,8 +662,11 @@ void ekg::ui::event(
       ekg::vec2_t<float> cursor_pos {};
       std::string line {};
 
+      size_t cursors_size {textbox.widget.cursors.size()};
+      size_t cursor_count {};
 
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
+        cursor_count++;
         is_ab_equals = cursor.a == cursor.b;
 
         is_action_selected_fired = (is_arrows_fired && is_action_selected_keybind_fired) || (is_action_erase_fired && is_ab_equals);
@@ -810,15 +870,24 @@ void ekg::ui::event(
           }
         }
 
-        if (is_action_erase_fired) {
+        if (is_action_cut || is_action_copy) {
+          clipboard_builder += textbox.text.read(
+            cursor.a,
+            cursor.b
+          )
+          +
+          (((cursors_size > 1) && !is_ab_equals && cursor_count != cursors_size) ? EKG_EOF_SYSTEM : "");
+        }
+
+        if (is_action_erase_fired || is_action_cut) {
           ekg::ui::handle_erase(textbox, cursor);
         }
 
-        if (input.was_typed || is_textbox_action_break_line_fired) {          
+        if (input.was_typed || is_action_break_line_fired) {
           ekg::ui::handle_insert(
             textbox,
             cursor,
-            is_textbox_action_break_line_fired
+            is_action_break_line_fired
               ? EKG_EOF_SYSTEM : input.typed
           );
         }
@@ -839,7 +908,11 @@ void ekg::ui::event(
         }
       }
 
-      if (is_action_erase_fired || input.was_typed || is_textbox_action_break_line_fired) {
+      if (is_action_cut || is_action_copy) {
+        ekg::p_core->p_platform_base->set_clipboard_text(clipboard_builder.c_str());
+      }
+
+      if (is_action_erase_fired || input.was_typed || is_action_break_line_fired) {
         ekg::ui::refresh_scroll_sizes(textbox);
       }
 

@@ -66,6 +66,7 @@ target_compile_options(
 target_compile_definitions(
   ekg PRIVATE
   EKG_VERSION="${EKG_VERSION}"
+  EKG_EOF_SYSTEM="${PLATFORM_EOF_SYSTEM}"
 )
 
 set_target_properties(
