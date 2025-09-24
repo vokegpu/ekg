@@ -583,7 +583,7 @@ void ekg::ui::event(
 
       bool is_action_selected_all_fired {ekg::fired("textbox-action-select-all")};
       if (is_action_selected_all_fired) {
-        size_t lines {textbox.text.length_of_lines()};
+        size_t lines {textbox.text.length_of_lines(true)};
         if (lines > 0) {
           lines -= 1;
           std::string last_line {textbox.text.at(lines)};
@@ -876,7 +876,16 @@ void ekg::ui::event(
             cursor.b
           )
           +
-          (((cursors_size > 1) && !is_ab_equals && cursor_count != cursors_size) ? EKG_EOF_SYSTEM : "");
+          (
+            (
+              (cursors_size > 1)
+              &&
+              !is_ab_equals
+              &&
+              cursor_count != cursors_size
+            )
+            ? EKG_EOF_SYSTEM : ""
+          );
         }
 
         if (is_action_erase_fired || is_action_cut) {
@@ -890,6 +899,10 @@ void ekg::ui::event(
             is_action_break_line_fired
               ? EKG_EOF_SYSTEM : input.typed
           );
+
+          if (is_action_break_line_fired || is_action_paste) {
+             text_total_lines = textbox.text.length_of_lines(true);    
+          }
         }
 
         if (!is_action_selected_fired) {
@@ -901,10 +914,10 @@ void ekg::ui::event(
 
         if (cursor_pos.y + textbox.widget.rect_text_size.h > rect_abs.h) {
           textbox.widget.scrollbar_property.scroll.position.w -=
-            ekg::min(cursor_pos.y + textbox.widget.rect_text_size.h - rect_abs.h, textbox.widget.rect_text_size.h);
+            ekg::max(cursor_pos.y + textbox.widget.rect_text_size.h - rect_abs.h, textbox.widget.rect_text_size.h);
         } else if (cursor_pos.y <= 0.0f) {
           textbox.widget.scrollbar_property.scroll.position.w +=
-            ekg::min(-cursor_pos.y, textbox.widget.rect_text_size.h);
+            ekg::max(-cursor_pos.y, textbox.widget.rect_text_size.h);
         }
       }
 
@@ -1353,6 +1366,7 @@ void ekg::ui::buffering(
     }
   }
 
+  draw_font.flush();
   data.hash = hash;
 
   ekg::draw::allocator::is_simple_shape = false;

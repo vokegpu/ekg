@@ -463,9 +463,37 @@ void ekg::handler::input::poll_event() {
       wheel_precise_interval = wheel_precise_interval + (static_cast<float>(wheel_precise_interval > 0.99) * 0.5f);
       wheel_precise_interval = ekg::clamp_min<float>(wheel_precise_interval, 0.2f);
 
-      this->input.interact.z = platform_event.mouse_wheel_precise_x * wheel_precise_interval;
-      this->input.interact.w = platform_event.mouse_wheel_precise_y * wheel_precise_interval;
-      
+      bool cooldown {ekg::reach(this->cooldown_wheel, 350)};
+      ekg::reset(this->cooldown_wheel);
+
+      if (
+        !cooldown
+        &&
+        (
+          (platform_event.mouse_wheel_precise_x < 0 && this->input.interact.z < 0)
+          ||
+          (platform_event.mouse_wheel_precise_x > 0 && this->input.interact.z > 0)
+        )
+      ) {
+        this->input.interact.z += platform_event.mouse_wheel_precise_x * wheel_precise_interval * 0.5f;       
+      } else {
+        this->input.interact.z = platform_event.mouse_wheel_precise_x * wheel_precise_interval;        
+      }
+
+      if (
+        !cooldown
+        &&
+        (
+          (platform_event.mouse_wheel_precise_y < 0 && this->input.interact.w < 0)
+          ||
+          (platform_event.mouse_wheel_precise_y > 0 && this->input.interact.w > 0)
+        )
+      ) {
+        this->input.interact.w += platform_event.mouse_wheel_precise_y * wheel_precise_interval * 0.5f; 
+      } else {
+        this->input.interact.w = platform_event.mouse_wheel_precise_y * wheel_precise_interval;        
+      }
+
       ekg::reset(this->last_time_wheel_was_fired);
       break;
     }

@@ -780,7 +780,14 @@ size_t ekg::text::length_of_chunks() {
   return this->loaded_chunks.size();
 }
 
-size_t ekg::text::length_of_lines() {
+size_t ekg::text::length_of_lines(bool force) {
+  if (force) {
+    this->total_lines = 0;
+    for (ekg::io::chunk_t &chunk : this->loaded_chunks) {
+      this->total_lines += chunk.size();
+    }
+  }
+
   return this->total_lines;
 }
 

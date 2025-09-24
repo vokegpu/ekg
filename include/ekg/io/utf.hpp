@@ -271,7 +271,7 @@ namespace ekg {
     size_t length_of_chunks();
 
     std::string at(size_t index);
-    size_t length_of_lines();
+    size_t length_of_lines(bool force = false);
     size_t length_of_chars();
 
     bool audited();
