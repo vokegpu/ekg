@@ -201,7 +201,7 @@ bool ekg::ui::find_index_by_interact(
   }
 
   return false;
-}
+} 
 
 void ekg::ui::handle_cursor_interact(
   ekg::property_t &property,
@@ -304,7 +304,6 @@ void ekg::ui::handle_erase(
     std::string line {textbox.text.at(cursor.a.y)};
     std::string concated {};
 
-
     ekg::utf8_concat(
       line,
       {0, cursor.a.x, cursor.b.x, line.size()},
@@ -378,9 +377,14 @@ void ekg::ui::handle_insert(
     typed.end()
   );
 
-  textbox.text.set(cursor.a.y, line);
-  
-  cursor.a.x += ekg::utf8_length(typed);
+  size_t added {textbox.text.set(cursor.a.y, line)};
+  if (added == 1) {
+    cursor.a.x += ekg::utf8_length(typed);
+  } else {
+    cursor.a.y += added-1;
+    cursor.a.x = ekg::utf8_length(textbox.text.at(cursor.a.y));
+  }
+
   cursor.b = cursor.a;
   cursor.highest_char_index = cursor.a.x;
 }
@@ -901,7 +905,7 @@ void ekg::ui::event(
           );
 
           if (is_action_break_line_fired || is_action_paste) {
-             text_total_lines = textbox.text.length_of_lines(true);    
+            text_total_lines = textbox.text.length_of_lines(true);    
           }
         }
 
@@ -928,6 +932,8 @@ void ekg::ui::event(
       if (is_action_erase_fired || input.was_typed || is_action_break_line_fired) {
         ekg::ui::refresh_scroll_sizes(textbox);
       }
+
+      ekg::gui.ui.redraw = true;
 
       break;
     }
@@ -1267,6 +1273,7 @@ void ekg::ui::buffering(
         }
 
         if (is_empty) {
+          hash += ekg_generate_hash(pos.x, c32, glyph.x++);
           continue;
         }
 

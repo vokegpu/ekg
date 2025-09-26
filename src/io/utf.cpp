@@ -490,7 +490,7 @@ void ekg::text::swizzle(
   }
 }
 
-void ekg::text::set(size_t index, std::string_view line) {
+size_t ekg::text::set(size_t index, std::string_view line) {
   size_t current_lines {};
   size_t previous_lines {};
   size_t chunk_size {};
@@ -520,6 +520,7 @@ void ekg::text::set(size_t index, std::string_view line) {
 
   if (!ok) throw std::out_of_range("ekg::text::set -> lines length: " + std::to_string(current_lines));
   this->total_lines = current_lines;
+  return ending_splitted.size();
 }
 
 std::string ekg::text::at(size_t index) {

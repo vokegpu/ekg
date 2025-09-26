@@ -245,7 +245,7 @@ namespace ekg {
     );
   public:
     void push_back(std::string_view line);
-    void set(size_t index, std::string_view line);
+    size_t set(size_t index, std::string_view line);
 
     std::string read(
       ekg::vec2_t<size_t> &begin,
