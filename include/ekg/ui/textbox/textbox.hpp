@@ -67,6 +67,7 @@ namespace ekg {
       ekg::vec2_t<size_t> b {};
       ekg::vec2_t<size_t> delta {};
       ekg::rect_t<float> rect {};
+      bool is_ignored {};
     public:
       bool operator == (const ekg::vec2_t<size_t> &index) {
         return index.x == this->a.x && index.y == this->a.y && index.x == this->b.x && index.y == this->b.y;
@@ -93,7 +94,11 @@ namespace ekg {
       }
 
       bool operator == (const ekg::textbox_t::cursor_t &cursor) {
-        return *this == cursor.a && *this == cursor.b;
+        return (this->a.x == cursor.a.x && this->a.y == cursor.a.y) && (this->b.x == cursor.b.x && this->b.y == cursor.b.y);
+      }
+
+      bool operator != (const ekg::textbox_t::cursor_t &cursor) {
+        return !(*this == cursor);
       }
     };
 

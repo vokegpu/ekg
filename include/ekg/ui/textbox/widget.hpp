@@ -28,6 +28,15 @@
 #include "textbox.hpp"
 
 namespace ekg::ui {
+  void refresh_cursors_pos(
+    ekg::textbox_t &textbox,
+    ekg::textbox_t::cursor_t &origin,
+    const ekg::vec2_t<size_t> &displacement_a,
+    const ekg::vec2_t<size_t> &displacement_b,
+    const ekg::vec2_t<size_t> &displacement_delta,
+    ekg::flags_t direction
+  );
+
   bool find_cursor(
     ekg::textbox_t &textbox,
     ekg::vec2_t<size_t> &index,
@@ -54,7 +63,7 @@ namespace ekg::ui {
     ekg::textbox_t::cursor_t &cursor
   );
 
-  void refresh_scroll_sizes(
+  void refresh_scroll_positions(
     ekg::textbox_t &textbox
   );
 

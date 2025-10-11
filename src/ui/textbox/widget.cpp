@@ -33,7 +33,74 @@
 #include "ekg/core/pools.hpp"
 #include "ekg/math/floating_point.hpp"
 
-void ekg::ui::refresh_scroll_sizes(
+void ekg::ui::refresh_cursors_pos(
+  ekg::textbox_t &textbox,
+  ekg::textbox_t::cursor_t &origin,
+  const ekg::vec2_t<size_t> &displacement_a,
+  const ekg::vec2_t<size_t> &displacement_b,
+  const ekg::vec2_t<size_t> &displacement_delta,
+  ekg::flags_t direction
+) {
+  bool is_resize {ekg::has<ekg::dock>(direction, ekg::dock::resize)};
+  for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
+    if (cursor.is_ignored) continue;
+    if (cursor.a.y < origin.a.y) continue;
+
+    if (!is_resize) {
+      if (
+        cursor.a.y == origin.a.y
+        &&
+        cursor.a.x > origin.a.x
+      ) {
+        cursor.a.x = ekg::has<ekg::dock>(direction, ekg::dock::left)
+          ? (cursor.a.x - displacement_a.x) : (cursor.a.x + displacement_a.x);
+      }
+
+      if (
+        cursor.b.y == origin.b.y
+        &&
+        cursor.b.x > origin.b.x
+      ) { 
+        cursor.b.x = ekg::has<ekg::dock>(direction, ekg::dock::left)
+          ? (cursor.b.x - displacement_b.x) : (cursor.b.x + displacement_b.x);
+      }
+
+      if (cursor.a.y >= origin.b.y) {
+        cursor.a.y -= displacement_a.y;
+        cursor.b.y -= displacement_b.y;
+      }
+    } else {
+      if (
+        cursor.a.y == origin.b.y
+        &&
+        cursor.a.x > origin.b.x
+      ) {
+        cursor.a.x = (origin.a.x < origin.b.x) ?
+          cursor.a.x - (origin.b.x - origin.a.x)
+          :
+          cursor.a.x + (origin.a.x - origin.b.x);
+      }
+
+     if (
+        cursor.b.y == origin.b.y
+        &&
+        cursor.b.x > origin.b.x
+      ) {
+        cursor.b.x = (origin.a.x < origin.b.x) ?
+          cursor.b.x- (origin.b.x - origin.a.x)
+          :
+          cursor.b.x + (origin.a.x - origin.b.x);
+      }
+
+      if (cursor.a.y >= origin.b.y) {
+        cursor.a.y -= displacement_a.y;
+        cursor.b.y -= displacement_b.y;
+      }
+    }
+  }
+}
+
+void ekg::ui::refresh_scroll_positions(
   ekg::textbox_t &textbox
 ) {
   size_t highest_size {};
@@ -211,6 +278,33 @@ void ekg::ui::handle_cursor_interact(
   ekg::input_info_t &input
 ) {
   if (input.was_released && !input.was_typed) {
+    if (
+      textbox.widget.current_cursor_index != UINT64_MAX
+      &&
+      textbox.widget.current_cursor_index < textbox.widget.cursors.size()
+    ) {
+      ekg::textbox_t::cursor_t cursor {
+        textbox.widget.cursors[textbox.widget.current_cursor_index]
+      };
+
+      std::vector<ekg::textbox_t::cursor_t> new_cursors {};
+      for (size_t i {}; i < textbox.widget.cursors.size(); i++) {
+        ekg::textbox_t::cursor_t cur {textbox.widget.cursors[i]};
+        if (cursor == cur) {
+          new_cursors.push_back(cur);
+          continue;
+        }
+
+        if (cursor >= cur.a && cursor <= cur.b) {
+          continue;
+        }
+
+        new_cursors.push_back(cur);
+      }
+
+      textbox.widget.cursors = new_cursors;
+    }
+
     textbox.widget.current_cursor_index = UINT64_MAX;
   }
 
@@ -304,6 +398,21 @@ void ekg::ui::handle_erase(
     std::string line {textbox.text.at(cursor.a.y)};
     std::string concated {};
 
+    ekg::textbox_t::cursor_t origin {cursor};
+    origin.a = origin.delta;
+    origin.b = origin.delta;
+
+    cursor.is_ignored = true;
+    ekg::ui::refresh_cursors_pos(
+      textbox,
+      origin,
+      {cursor.b.x - cursor.a.x, 0},
+      {cursor.b.x - cursor.a.x, 0},
+      {cursor.b.x - cursor.a.x, 0},
+      ekg::dock::left
+    );
+    cursor.is_ignored = false;
+
     ekg::utf8_concat(
       line,
       {0, cursor.a.x, cursor.b.x, line.size()},
@@ -322,6 +431,19 @@ void ekg::ui::handle_erase(
     return;
   }
 
+  ekg::textbox_t::cursor_t origin {cursor};
+
+  cursor.is_ignored = true;
+  ekg::ui::refresh_cursors_pos(
+    textbox,
+    origin,
+    {cursor.b.x, cursor.b.y - cursor.a.y},
+    {cursor.b.x, cursor.b.y - cursor.a.y},
+    {cursor.b.x, cursor.b.y - cursor.a.y},
+    ekg::dock::left | ekg::dock::resize
+  );
+
+  cursor.is_ignored = false;
   textbox.text.set(
     cursor.a.y,
     ekg::utf8_substr(
@@ -425,7 +547,6 @@ void ekg::ui::reload(
   textbox.widget.scrollbar.rect.x = rect_abs.x;
   textbox.widget.scrollbar.rect.y = rect_abs.y;
   textbox.widget.scrollbar.acceleration = {textbox.widget.rect_text_size.h, textbox.widget.rect_text_size.h};
-
   textbox.widget.scrollbar.color_scheme = ekg::p_core->handler_theme.get_current_theme().scrollbar_color_scheme;
 
   ekg::ui::reload(
@@ -436,7 +557,7 @@ void ekg::ui::reload(
     false
   );
 
-  ekg::ui::refresh_scroll_sizes(textbox);
+  ekg::ui::refresh_scroll_positions(textbox);
 }
 
 void ekg::ui::event(
@@ -704,6 +825,8 @@ void ekg::ui::event(
           }
 
           is_ab_equals = true;
+        } else {
+          cursor.delta = cursor.a;
         }
 
 
@@ -930,7 +1053,7 @@ void ekg::ui::event(
       }
 
       if (is_action_erase_fired || input.was_typed || is_action_break_line_fired) {
-        ekg::ui::refresh_scroll_sizes(textbox);
+        ekg::ui::refresh_scroll_positions(textbox);
       }
 
       ekg::gui.ui.redraw = true;
