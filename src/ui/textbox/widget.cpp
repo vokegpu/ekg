@@ -43,8 +43,7 @@ void ekg::ui::refresh_cursors_pos(
 ) {
   bool is_resize {ekg::has<ekg::dock>(direction, ekg::dock::resize)};
   for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
-    if (cursor.is_ignored) continue;
-    if (cursor.a.y < origin.a.y) continue;
+    if (cursor.is_ignored || cursor.a.y < origin.a.y) continue;
 
     if (!is_resize) {
       if (
@@ -479,6 +478,21 @@ void ekg::ui::handle_insert(
   if (typed == EKG_EOF_SYSTEM) {
     std::string line {textbox.text.at(cursor.a.y)};
 
+    ekg::textbox_t::cursor_t origin {cursor};
+    origin.a = origin.delta;
+    origin.b = origin.delta;
+
+    cursor.is_ignored = true;
+    ekg::ui::refresh_cursors_pos(
+      textbox,
+      origin,
+      {cursor.b.x - cursor.a.x, 0},
+      {cursor.b.x - cursor.a.x, 0},
+      {cursor.b.x - cursor.a.x, 0},
+      ekg::dock::left
+    );
+    cursor.is_ignored = false;
+
     textbox.text.set(cursor.a.y, ekg::utf8_substr(line, 0, cursor.a.x));
     textbox.text.insert(cursor.a.y, ekg::utf8_substr(line, cursor.a.x, UINT32_MAX));
 
@@ -734,17 +748,20 @@ void ekg::ui::event(
       bool is_action_selected_keybind_fired {ekg::fired("textbox-action-select")};
       bool is_action_selected_fired {};
       bool is_action_break_line_fired {ekg::fired("textbox-action-break-line")};
+      bool block_if_ab_diff_when_erased_is_fired {};
 
       bool is_modifier_fired {ekg::fired("textbox-action-modifier")};
       bool is_left_fired {ekg::fired("textbox-action-left")};
+      bool is_bind_left_fired {is_left_fired};
       bool is_modifier_left_fired {};
       bool is_right_fired {ekg::fired("textbox-action-right")};
+      bool is_bind_right_fired {is_right_fired};
       bool is_modifier_right_fired {};
       bool is_up_fired {ekg::fired("textbox-action-up")};
       bool is_modifier_up_fired {is_up_fired && is_modifier_fired};
       bool is_down_fired {ekg::fired("textbox-action-down")};
       bool is_modifier_down_fired {is_down_fired && is_modifier_fired};
-      bool is_arrows_fired {is_left_fired || is_right_fired || is_up_fired || is_down_fired};      
+      bool is_arrows_fired {is_left_fired || is_right_fired || is_up_fired || is_down_fired};
 
       if (is_action_paste) {
         input.was_typed = true;
@@ -795,8 +812,8 @@ void ekg::ui::event(
         is_ab_equals = cursor.a == cursor.b;
 
         is_action_selected_fired = (is_arrows_fired && is_action_selected_keybind_fired) || (is_action_erase_fired && is_ab_equals);
-        is_left_fired = is_left_fired || (is_action_erase_left_fired && is_ab_equals);
-        is_right_fired = is_right_fired || (is_action_erase_right_fired && is_ab_equals);
+        is_left_fired = is_bind_left_fired || (is_action_erase_left_fired && is_ab_equals);
+        is_right_fired = is_bind_right_fired || (is_action_erase_right_fired && is_ab_equals);
 
         is_modifier_left_fired = is_left_fired && is_modifier_fired;
         is_modifier_right_fired = is_right_fired && is_modifier_fired;
@@ -828,7 +845,6 @@ void ekg::ui::event(
         } else {
           cursor.delta = cursor.a;
         }
-
 
         if (is_left_fired) {
           if (is_ab_equals) {
@@ -960,7 +976,7 @@ void ekg::ui::event(
         }
 
         /**
-         * While firstly we move cursor and check the right direction.
+         * First we move cursor and check the right direction (first structure like this). Then.
          * We need check again the right direction after moved.
          * This will make possible modifier works with select from any direction.
          **/
