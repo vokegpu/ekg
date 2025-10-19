@@ -245,6 +245,7 @@ namespace ekg {
     );
   public:
     void push_back(std::string_view line);
+    size_t set(size_t index, std::string_view line, ekg::io::chunk_t &split_endings);
     size_t set(size_t index, std::string_view line);
 
     std::string read(

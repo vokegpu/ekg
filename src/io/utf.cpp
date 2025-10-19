@@ -491,12 +491,16 @@ void ekg::text::swizzle(
 }
 
 size_t ekg::text::set(size_t index, std::string_view line) {
+  ekg::io::chunk_t split_endings {};
+  return this->set(index, line, split_endings);
+}
+
+size_t ekg::text::set(size_t index, std::string_view line, ekg::io::chunk_t &split_endings) {
   size_t current_lines {};
   size_t previous_lines {};
   size_t chunk_size {};
 
-  std::vector<std::string> ending_splitted {};
-  ekg::utf8_split_endings(line, ending_splitted);
+  ekg::utf8_split_endings(line, split_endings);
 
   bool ok {};
   for (size_t it {}; it < this->loaded_chunks.size(); it++) {
@@ -512,7 +516,7 @@ size_t ekg::text::set(size_t index, std::string_view line) {
       &&
       (index - previous_lines) < chunk_size
     ) {
-      this->swizzle(it, (index - previous_lines), ending_splitted, true);
+      this->swizzle(it, (index - previous_lines), split_endings, true);
       this->was_audited = true;
       ok = true;
     }
@@ -520,7 +524,7 @@ size_t ekg::text::set(size_t index, std::string_view line) {
 
   if (!ok) throw std::out_of_range("ekg::text::set -> lines length: " + std::to_string(current_lines));
   this->total_lines = current_lines;
-  return ending_splitted.size();
+  return split_endings.size();
 }
 
 std::string ekg::text::at(size_t index) {

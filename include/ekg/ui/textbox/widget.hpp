@@ -28,13 +28,20 @@
 #include "textbox.hpp"
 
 namespace ekg::ui {
+  enum class textbox_operation {
+    insert_inline,
+    insert_multiline,
+    insert_line,
+    erase_inline,
+    erase_multiline
+  };
+
   void refresh_cursors_pos(
     ekg::textbox_t &textbox,
     ekg::textbox_t::cursor_t &origin,
     const ekg::vec2_t<size_t> &displacement_a,
     const ekg::vec2_t<size_t> &displacement_b,
-    const ekg::vec2_t<size_t> &displacement_delta,
-    ekg::flags_t direction
+    const ekg::ui::textbox_operation &operation
   );
 
   bool find_cursor(
