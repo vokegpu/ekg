@@ -30,7 +30,7 @@ void ekg::handler::theme::init() {
   ekg::theme_t light_pinky_theme {
     .tag = "light-pinky",
     .author = "Rina Wilk",
-    .description = "wasted love of my life, no love no more love no more"
+    .description = "amo vc amo vc"
   };
 
   light_pinky_theme.layout_offset = 2.0f;
@@ -89,7 +89,7 @@ void ekg::handler::theme::init() {
   ekg::theme_t black_light_pinky_theme {
     .tag = "black-light-pinky",
     .author = "Rina Wilk",
-    .description = "loved a shitty person God save me"
+    .description = "oiiiiiiiii eu amo vc serpa, lindo maravilhoso"
   };
 
   black_light_pinky_theme.layout_offset = 2.0f;
@@ -143,6 +143,65 @@ void ekg::handler::theme::init() {
 
   this->registry(black_light_pinky_theme.tag) = black_light_pinky_theme;
   //this->set_current_theme(black_light_pinky_theme.tag);
+
+  ekg::theme_t black_pinky {
+    .tag = "black-pinky",
+    .author = "serpa",
+    .description = "colors for show colors"
+  };
+
+  black_pinky.layout_offset = 2.0f;
+  black_pinky.layout_margin_thickness = 2;
+  black_pinky.frame_color_scheme.background = {242, 242, 242, 255};
+  black_pinky.frame_color_scheme.highlight = {242, 242, 242, 0};
+  black_pinky.frame_color_scheme.outline = {190, 190, 190, 0};
+  black_pinky.frame_color_scheme.active = {242, 242, 242, 0};
+  black_pinky.frame_color_scheme.focused_background = {242, 242, 242, 0};
+  black_pinky.frame_color_scheme.focused_outline = {242, 242, 242, 0};
+  black_pinky.frame_color_scheme.warning_outline = {242, 242, 0, 100};
+  black_pinky.frame_color_scheme.actions_margin_pixel_thickness = 18;
+
+  black_pinky.button_color_scheme.text_foreground = {141, 141, 141, 255};
+  black_pinky.button_color_scheme.background = {204, 204, 204, 50};
+  black_pinky.button_color_scheme.active = {245, 169, 184, 100};
+  black_pinky.button_color_scheme.outline = {202, 207, 222, 0};
+  black_pinky.button_color_scheme.highlight = {245, 169, 184, 50};
+  black_pinky.button_color_scheme.text_foreground = {141, 141, 141, 255};
+  black_pinky.button_color_scheme.box_outline = black_pinky.button_color_scheme.outline;
+  black_pinky.button_color_scheme.box_active = {245, 169, 184, 200};
+  black_pinky.button_color_scheme.box_highlight = {245, 169, 184, 50};
+  black_pinky.button_color_scheme.box_background = {202, 207, 222, 100};
+
+  black_pinky.label_color_scheme.background = {204, 204, 204, 0};
+  black_pinky.label_color_scheme.outline = {202, 207, 222, 0};
+  black_pinky.label_color_scheme.text_foreground = {141, 141, 141, 255};
+
+  black_pinky.scrollbar_color_scheme.background = {204, 204, 204, 30};
+  black_pinky.scrollbar_color_scheme.outline = {204, 204, 204, 0};
+  black_pinky.scrollbar_color_scheme.bar_background = {245, 169, 184, 100};
+  black_pinky.scrollbar_color_scheme.bar_highlight = {245, 169, 184, 50};
+  black_pinky.scrollbar_color_scheme.bar_active = {245, 169, 184, 100};
+
+  black_pinky.slider_color_scheme.outline = {204, 204, 204, 0};
+  black_pinky.slider_color_scheme.background = {204, 204, 204, 30};
+  black_pinky.slider_color_scheme.bar_background = {204, 204, 204, 50};
+  black_pinky.slider_color_scheme.bar_highlight = {245, 169, 184, 50};
+  black_pinky.slider_color_scheme.bar_active = {245, 169, 184, 100};
+  black_pinky.slider_color_scheme.text_foreground = {141, 141, 141, 255};
+
+  black_pinky.popup_color_scheme = black_pinky.frame_color_scheme;
+  black_pinky.popup_color_scheme.outline = {50, 50, 50, 100};
+  black_pinky.popup_color_scheme.popup_mode = true;
+
+  black_pinky.textbox_color_scheme.background = {20, 34, 21, 255};
+  black_pinky.textbox_color_scheme.outline = {190, 190, 190, 100};
+  black_pinky.textbox_color_scheme.text_foreground = {242, 242, 242, 255};
+  black_pinky.textbox_color_scheme.text_cursor_foreground = {141, 141, 141, 255};
+  black_pinky.textbox_color_scheme.text_select_foreground = {245, 169, 184, 50};
+  black_pinky.textbox_color_scheme.text_select_outline = {245, 169, 184, 100};
+
+  this->registry(black_pinky.tag) = black_pinky;
+  this->set_current_theme(black_pinky.tag);
 }
 
 void ekg::handler::theme::quit() {

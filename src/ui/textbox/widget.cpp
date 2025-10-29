@@ -45,36 +45,10 @@ void ekg::ui::refresh_cursors_pos(
     for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
       if (cursor.is_ignored || cursor.a.y < origin.a.y) continue;
 
-      if (cursor.a.y == origin.b.y && cursor.a.x > origin.b.x) {
-        cursor.a.x += displacement_a.x;
+      if (cursor.a.y > origin.b.y) {
+        cursor.a.y += displacement_a.y;
+        cursor.b.y += displacement_b.y;
       }
-
-      if (cursor.b.y == origin.b.y && cursor.b.x > origin.b.x) {
-        cursor.b.x += displacement_b.x;
-      }
-
-      if (cursor.a.y >= origin.b.y) {
-        cursor.a.y += displacement_a.y; 
-        cursor.b.y += displacement_b.y; 
-      }
-    }
-    break;
-  case ekg::ui::textbox_operation::insert_inline:
-    for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
-      if (cursor.is_ignored || cursor.a.y < origin.a.y) continue;
-
-      if (cursor.a.y == origin.b.y && cursor.a.x > origin.b.x) {
-        cursor.a.x += displacement_a.x;
-      }
-
-      if (cursor.b.y == origin.b.y && cursor.b.x > origin.b.x) {
-        cursor.b.x += displacement_b.x;
-      }
-    }
-    break;
-  case ekg::ui::textbox_operation::insert_multiline:
-    for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
-      if (cursor.is_ignored || cursor.a.y < origin.a.y) continue;
 
       if (cursor.a.y == origin.b.y && cursor.a.x > origin.b.x) {
         cursor.a.x += displacement_a.x;
@@ -85,22 +59,61 @@ void ekg::ui::refresh_cursors_pos(
         cursor.b.x += displacement_b.x;
         cursor.b.y += displacement_b.y;
       }
+    }
+    break;
+  case ekg::ui::textbox_operation::insert_inline:
+    for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
+      if (cursor.is_ignored || cursor.a.y < origin.a.y) continue;
 
-      if (cursor.a.y >= origin.b.y) {
+      if (cursor.a.y == origin.a.y && cursor.a.x > origin.a.x) {
+        cursor.a.x += displacement_a.x;
+      }
+
+      if (cursor.b.y == origin.a.y && cursor.b.x > origin.a.x) {
+        cursor.b.x += displacement_b.x;
+      }
+    }
+    break;
+  case ekg::ui::textbox_operation::insert_multiline:
+    for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
+      if (cursor.is_ignored || cursor.a.y < origin.a.y) continue;
+
+      if (cursor.a.y > origin.a.y) {
         cursor.a.y += displacement_a.y;
         cursor.b.y += displacement_b.y; 
+      }
+
+      if (cursor.a.y == origin.a.y && cursor.a.x > origin.a.x) {
+        cursor.a.x = (origin.b.x > origin.a.x)
+          ? cursor.a.x + (origin.b.x - origin.a.x) 
+          : cursor.a.x - (origin.a.x - origin.b.x);
+        cursor.a.y += displacement_a.y;
+      }
+
+      if (cursor.b.y == origin.a.y && cursor.b.x > origin.a.x) {
+        cursor.b.x = (origin.b.x > origin.a.x)
+          ? cursor.b.x + (origin.b.x - origin.a.x)
+          : cursor.b.x - (origin.a.x - origin.b.x);
+        cursor.b.y += displacement_b.y;
       }
     }
     break;
   case ekg::ui::textbox_operation::erase_inline:
     for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
       if (cursor.is_ignored || cursor.a.y < origin.a.y) continue;
+
+       if (cursor.a.y > origin.b.y) {
+         cursor.a.y -= displacement_a.y;
+         cursor.b.y -= displacement_b.y;
+       }
+
       if (
          cursor.a.y == origin.a.y
          &&
          cursor.a.x > origin.a.x
        ) {
          cursor.a.x = cursor.a.x - displacement_a.x;
+         cursor.a.y -= displacement_a.y;
        }
 
        if (
@@ -109,10 +122,6 @@ void ekg::ui::refresh_cursors_pos(
          cursor.b.x > origin.b.x
        ) { 
          cursor.b.x = cursor.b.x - displacement_b.x;
-       }
-
-       if (cursor.a.y >= origin.b.y) {
-         cursor.a.y -= displacement_a.y;
          cursor.b.y -= displacement_b.y;
        }
     }
@@ -120,6 +129,11 @@ void ekg::ui::refresh_cursors_pos(
   case ekg::ui::textbox_operation::erase_multiline:
     for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
       if (cursor.is_ignored || cursor.a.y < origin.a.y) continue;
+
+      if (cursor.a.y > origin.b.y) {
+        cursor.a.y -= displacement_a.y;
+        cursor.b.y -= displacement_b.y;
+      }
 
       if (
         cursor.a.y == origin.b.y
@@ -130,6 +144,7 @@ void ekg::ui::refresh_cursors_pos(
           cursor.a.x - (origin.b.x - origin.a.x)
           :
           cursor.a.x + (origin.a.x - origin.b.x);
+        cursor.a.y -= displacement_a.y;
       }
 
      if (
@@ -141,10 +156,6 @@ void ekg::ui::refresh_cursors_pos(
           cursor.b.x- (origin.b.x - origin.a.x)
           :
           cursor.b.x + (origin.a.x - origin.b.x);
-      }
-
-      if (cursor.a.y >= origin.b.y) {
-        cursor.a.y -= displacement_a.y;
         cursor.b.y -= displacement_b.y;
       }
     }
@@ -565,8 +576,6 @@ void ekg::ui::handle_insert(
   );
 
   ekg::textbox_t::cursor_t origin {cursor};
-  origin.b = origin.a;
-
   ekg::vec2_t<size_t> displacement_a {};
   ekg::vec2_t<size_t> displacement_b {};
 
@@ -591,6 +600,8 @@ void ekg::ui::handle_insert(
     displacement_b = displacement_a;
     cursor.a.x = displacement_a.x;
   }
+
+  origin.b = cursor.a;
 
   cursor.is_ignored = true;
   ekg::ui::refresh_cursors_pos(
