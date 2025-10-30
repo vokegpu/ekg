@@ -68,6 +68,7 @@ namespace ekg {
       ekg::vec2_t<size_t> delta {};
       ekg::rect_t<float> rect {};
       bool is_ignored {};
+      bool is_deleted {};
     public:
       bool operator == (const ekg::vec2_t<size_t> &index) {
         return index.x == this->a.x && index.y == this->a.y && index.x == this->b.x && index.y == this->b.y;
