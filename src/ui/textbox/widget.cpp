@@ -1527,7 +1527,7 @@ void ekg::ui::buffering(
           }
 
           if (is_ab_equals_selected) {
-            cursor.rect.x = pos.x + end_cursor_position;
+            cursor.rect.x = pos.x + glyph.left + end_cursor_position;
             cursor.rect.y = pos.y;
             cursor.rect.w = textbox.color_scheme.caret_cursor ? glyph_wsize : textbox.color_scheme.cursor_thickness;
             cursor.rect.h = textbox.widget.rect_text_size.h;
