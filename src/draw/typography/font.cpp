@@ -401,9 +401,11 @@ void ekg::draw::font::reload() {
     );
   }
 
+  this->is_monospaced = FT_IS_FIXED_WIDTH(text_font_face.ft_face);
+  this->space_wsize = this->text_height / 3.0f;
+
   FT_Vector space_char_metrics {};
   FT_Get_Kerning(text_font_face.ft_face, 32, 32, 0, &space_char_metrics);
-  this->space_wsize = static_cast<float>(space_char_metrics.x >> 6);
 
   this->text_height = static_cast<float>(this->font_size);
   this->offset_text_height = this->text_height / 6;

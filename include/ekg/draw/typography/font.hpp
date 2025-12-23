@@ -56,6 +56,7 @@ namespace ekg::draw {
     bool font_size_changed {};
     bool was_initialized {};
     bool is_any_functional_font_face_loaded {};
+    bool is_monospaced {};
   public:
     void init();
     void quit();

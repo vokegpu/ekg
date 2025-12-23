@@ -41,7 +41,7 @@ void ekg::ui::refresh_cursors_pos(
   const ekg::ui::textbox_operation &operation
 ) {
   for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
-    if (cursor.is_ignored || cursor.a.y < origin.a.y) continue;
+    if (cursor.is_ignored || cursor.is_deleted || cursor.a.y < origin.a.y) continue;
 
     switch (operation) {
     case ekg::ui::textbox_operation::insert_line:
@@ -891,6 +891,8 @@ void ekg::ui::event(
       bool should_clear_equals_repeated_cursors {};
 
       for (ekg::textbox_t::cursor_t &cursor : textbox.widget.cursors) {
+        if (cursor.is_deleted) continue; 
+
         cursor_count++;
         is_ab_equals = cursor.a == cursor.b;
 
@@ -1274,7 +1276,7 @@ void ekg::ui::buffering(
 
   ekg::rect_t<float> rect_select {};
   for (ekg::textbox_t::select_draw_layer_t &layer : textbox.widget.layers_select) {
-    if (layer.is_ab_equals && elapsed_mid_second) {
+    if (!layer.is_always_static && layer.is_ab_equals && elapsed_mid_second) {
       continue;
     }
 
@@ -1385,7 +1387,7 @@ void ekg::ui::buffering(
    * This technique works because the line height is fixed, ultimately, soon, should be re-worked
    * to support differents text-heights at same time, also, for widgets scrolling (I do not think
    * someone can write a GUI context with +5000000 heights from widgets without pages).
-   * []
+   *
    * - Rina - 11:39; 08/06/2025
    **/
   float visible_text_height {static_cast<float>(textbox.widget.view_line_index * textbox.widget.rect_text_size.h)};
@@ -1468,25 +1470,60 @@ void ekg::ui::buffering(
             )
           )
         ) {
-          glyph_wsize = glyph.wsize;
+          glyph_wsize =  glyph.wsize;
           end_cursor_position = glyph_wsize * is_cursor_at_end_of_line;
           is_ab_equals_selected = property.states.is_focused && cursor == index;
+
           is_inline_selected = cursor >= index && cursor < index && !is_ab_equals_selected;
           is_complete_line_selected = false;
 
           if (is_inline_selected) {
             if (
               (
-                cursor >= ekg::vec2_t<size_t>(0, index.y)
-              )
-              &&
-              (
-                cursor <= ekg::vec2_t<size_t>(text_len, index.y)
+                (
+                  cursor >= ekg::vec2_t<size_t>(0, index.y)
+                )
+                &&
+                (
+                  cursor <= ekg::vec2_t<size_t>(text_len, index.y)
+                )
               )
             ) {
               is_inline_selected = false;
             }
+
             is_complete_line_selected = !is_inline_selected;
+          }
+
+          ekg::textbox_t::cursor_t nearest_cursor {};
+          ekg::vec2_t<size_t> next_line_index(0, index.y + 1);
+          bool is_next_line_selected_in_some_way {};
+
+          if (
+            !is_complete_line_selected
+            &&
+            is_last_char_from_line
+            &&
+            (is_next_line_selected_in_some_way = ekg::ui::find_cursor(textbox, next_line_index, nearest_cursor))
+          ) {
+            glyph_wsize += draw_font.space_wsize;
+          }
+
+          ekg::vec2_t<size_t> next_char_index(next_line_index.x + 1, next_line_index.y);
+          if (
+            !textbox.color_scheme.caret_cursor
+            &&
+            is_next_line_selected_in_some_way
+            &&
+            is_inline_selected
+            &&
+            !ekg::ui::find_cursor(textbox, next_char_index, nearest_cursor)
+          ) {
+            cursor.rect.x = textbox.color_scheme.gutter_margin;
+            cursor.rect.y = pos.y + textbox.widget.rect_text_size.h;
+            cursor.rect.w = textbox.color_scheme.cursor_thickness;
+            cursor.rect.h = textbox.widget.rect_text_size.h;
+            textbox.widget.layers_select.push_back({.is_ab_equals = true, .is_always_static = true, .rect = cursor.rect});
           }
 
           if (is_ab_equals_selected) {
@@ -1494,7 +1531,7 @@ void ekg::ui::buffering(
             cursor.rect.y = pos.y;
             cursor.rect.w = textbox.color_scheme.caret_cursor ? glyph_wsize : textbox.color_scheme.cursor_thickness;
             cursor.rect.h = textbox.widget.rect_text_size.h;
-            textbox.widget.layers_select.push_back({true, cursor.rect});
+            textbox.widget.layers_select.push_back({.is_ab_equals = true, .rect = cursor.rect});
           }
 
           if (is_inline_selected) {
@@ -1502,7 +1539,7 @@ void ekg::ui::buffering(
             cursor.rect.y = pos.y;
             cursor.rect.w = glyph_wsize;
             cursor.rect.h = textbox.widget.rect_text_size.h;
-            textbox.widget.layers_select.push_back({false, cursor.rect});
+            textbox.widget.layers_select.push_back({.rect = cursor.rect});
           }
 
           if (
@@ -1516,6 +1553,8 @@ void ekg::ui::buffering(
           if (is_complete_line_selected && !is_empty) {
             line_wsize += glyph_wsize;
           }
+
+          is_cursor_at_end_of_line = false;
         }
 
         if (is_empty) {
@@ -1596,8 +1635,8 @@ void ekg::ui::buffering(
         cursor.rect.x = textbox.color_scheme.gutter_margin;
         cursor.rect.y = pos.y;
         cursor.rect.h = textbox.widget.rect_text_size.h;
-        cursor.rect.w = line_wsize + glyph_wsize;
-        textbox.widget.layers_select.push_back({false, cursor.rect});
+        cursor.rect.w = line_wsize + draw_font.space_wsize;
+        textbox.widget.layers_select.push_back({.rect = cursor.rect});
         is_complete_line_selected = false;
       }
 

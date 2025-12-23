@@ -56,6 +56,7 @@ namespace ekg {
     struct select_draw_layer_t {
     public:
       bool is_ab_equals {};
+      bool is_always_static {};
       ekg::rect_t<float> rect {};
     };
 
