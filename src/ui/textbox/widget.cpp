@@ -295,8 +295,8 @@ bool ekg::ui::find_index_by_interact(
         pos.x += rect.w;
 
         rect.w = rect_abs.w;
-        if (index.x == text_len && ekg::rect_collide_vec2(rect, interact)) {
-          index.x = is_empty ? 0 : text_len;
+        if (it+1 == text_len && ekg::rect_collide_vec2(rect, interact)) {
+          index.x *= !is_empty; // if line is empty then last utf8 index is 0
           return true;
         }
       }
@@ -1399,6 +1399,8 @@ void ekg::ui::buffering(
   bool is_empty {};
   bool was_empty_before {};
 
+  //ekg_log_low_level("-----------------------");
+
   textbox.widget.layers_select.clear();
   for (size_t ic {}; ic < chunks_size; ic++) {
     ekg::io::chunk_t &chunk {chunks.at(ic)};
@@ -1543,8 +1545,6 @@ void ekg::ui::buffering(
           }
 
           if (
-            is_complete_line_selected
-            &&
             it == 0
           ) {
             line_wsize = 0;
@@ -1552,6 +1552,8 @@ void ekg::ui::buffering(
 
           if (is_complete_line_selected && !is_empty) {
             line_wsize += glyph_wsize;
+            //ekg_log_low_level(index.x << " ; " << index.y);
+            //ekg_log_low_level(glyph_wsize << " | " << line_wsize);
           }
 
           is_cursor_at_end_of_line = false;

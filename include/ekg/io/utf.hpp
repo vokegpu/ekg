@@ -33,23 +33,21 @@
 
 namespace ekg {
   /**
-   * @brief:
-   *  check utf8 sequence and add to `it` index.
+   * Check utf8 sequence and add to `it` index; checking for the first byte of a char utf8 encoded:
+   * 
+   * * - If first char fit less than 127; 1 byte utf8 char.
+   * * - If first char fit equals 192~224; 2 byte utf8 char.
+   * * - If first char fit equals 224~240; 3 byte utf8 char.
+   * * - If first char fit equals 240~248; 4 byte utf8 char.
    *
+   * By the amount of bytes per-char it is added to `it` e.g:
+   * * - If 224~240; then `it + 2`  (`it` already counts as 1 byte)
+   * 
    * @param `uc8` the current char to be checked.
    * @param `c32` the post utf32 char converted.
    * @param `utf8_str` the utf8 encoded text.
    * @param `it` the current `utf8_str` index.
    *
-   * @description:
-   *  this function check the first byte of a char utf8 encoded:
-   *  if first char fit less than 127; 1 byte utf8 char.
-   *  if first char fit equals 192~224; 2 byte utf8 char.
-   *  if first char fit equals 224~240; 3 byte utf8 char.
-   *  if first char fit equals 240~248; 4 byte utf8 char.
-   * 
-   *  by the amount of bytes per-char it is added to `it` e.g:
-   *  if 224~240; then `it + 2`  (`it` already counts as 1 byte)
    **/
   void utf8_sequence(
     uint8_t &uc8,
@@ -59,17 +57,15 @@ namespace ekg {
   );
 
   /**
-   * @brief
-   *  find for a aligned utf position by byte position
+   * Find for an aligned utf position by byte position:
+   *
+   * * - If no utf position was found then `utf_pos` keeps unchanged.
+   * * - If an invalid byte position is passed, e.g a position inside a
+   *   utf sequence, it return atuomatically `false`.
    * 
    * @param `string` string for find utf position
    * @param `byte_pos` byte pos used for find utf position
    * @param `utf_pos` utf position relative to byte position
-   * 
-   * @description
-   *   if no utf position was found then `utf_pos` keeps unchanged.
-   *   if a invalid byte position is passed, e.g a position inside a
-   *   utf sequence, it return atuomatically `false`.
    * 
    * @return `true` if a valid utf position was found else `false` if was not found
    **/
@@ -80,15 +76,12 @@ namespace ekg {
   );
 
   /**
-   * @brief
-   *  find for a byte pos from an aligned utf position
+   * Find for a byte pos from an aligned utf position:
+   * * - If no byte position was found then `utf_byte` keeps unchanged.
    * 
    * @param `string` string for find utf position
    * @param `utf_pos` utf pos used for find byte pos
    * @param `byte_pos` byte pos relative to utf position
-   * 
-   * @description
-   *   if no byte position was found then `utf_byte` keeps unchanged.
    * 
    * @return `true` if a valid byte position was found else `false` if was not found
    **/
@@ -99,19 +92,15 @@ namespace ekg {
   );
 
   /**
-   * @brief
-   *  align utf position and byute-position by the next byte-position
+   * Align utf position and byte-position by the next byte-position:
+   * * - If next byte pos is greater than unaligned byte pos, then move to left; if not move to right.
+   * 
+   * May output be corrupted if current unaligned byte-pos is an invalid utf position.
    * 
    * @param `string` string for be used in alignment
    * @param `unaligned_byte_pos` byte pos to be aligned
    * @param `unaligned_utf_pos` utf pos to be aligned
    * @param `next_byte_pos` next byte pos to align byte-pos and utf-pos
-   * 
-   * @description
-   *  if next byte pos is greater than unaligned byte pos, then move to left
-   *  if not move to right
-   *  
-   *  may output be corrupted if current unaligned byte-pos is an invalid utf position
    * 
    * @return true if could align, else false if could not
    **/
@@ -123,16 +112,13 @@ namespace ekg {
   );
 
   /**
-   * @brief
-   *  get the first nearest group matched byte-position
+   * Get the first nearest group matched byte-position:
+   * * - For left dock the first matched group position is assigned;
+   * * - For right dock the last matched group position is assigned.
    * 
    * @param `begin` const string iterator to begin regex matching
    * @param `end` const string iterator to end regex matching
    * @param `nearest_byte_pos` first group matched bidirectional byte-position
-   * 
-   * @description
-   *  for left dock the first matched group position is assigned,
-   *  for right dock the last matched group position is assigned
    *
    * @return true if matched else false if not matched
    **/
@@ -142,6 +128,34 @@ namespace ekg {
     size_t &nearest_byte_pos,
     std::regex &pattern,
     const ekg::dock &dock
+  );
+
+  /**
+   * Check if current index is last index by the last utf char size.
+   * 
+   * @param `byte_index` the current index in byte to be checked
+   * @param `last_char_bytes` the utf size (1 | 2 | 3 | 4 bytes per utf char)
+   * @param `string_bytes_size` the string size in bytes
+   * 
+   * @return true if is last index else false if not last index
+   **/
+  bool utf8_is_last_index(
+    size_t byte_index,
+    size_t last_char_bytes,
+    size_t string_bytes_size
+  );
+
+  /**
+   * Check for last char utf8 bytes sequence.
+   * 
+   * @param `utf8_str` the utf8 valid string to find
+   * @param `bytes` the last char utf8 bytes output
+   * 
+   * @return true if found-valid else false if not found
+   **/
+  bool utf8_check_last_char_byte_sequence(
+    std::string &utf8_str,
+    size_t &bytes
   );
 
   /**

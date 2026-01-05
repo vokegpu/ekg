@@ -27,6 +27,14 @@
 #include <sstream>
 #include <ostream>
 
+bool ekg::utf8_is_last_index(
+  size_t byte_index,
+  size_t last_char_bytes,
+  size_t string_bytes_size
+) {
+  return byte_index == (string_bytes_size - last_char_bytes);
+}
+
 bool ekg::utf8_align_utf_pos_by_byte_pos(
   std::string &string,
   size_t &unaligned_byte_pos,
@@ -140,6 +148,54 @@ void ekg::utf8_sequence(
     c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
     c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
   }
+}
+
+bool ekg::utf8_check_last_char_byte_sequence(
+  std::string &utf8_str,
+  size_t &bytes
+) {
+  if (utf8_str.empty()) {
+    return false;
+  }
+
+  size_t byte {utf8_str.size()};
+
+  /**
+   * Reversing find by byte pos is efficient,
+   * since we want to reduce the index utf8 check.
+   * 
+   * It cost many CPU iterations instructions for calculating
+   * the string size by utf8 sequence. 
+   **/
+
+  return (
+    byte
+    &&
+    (
+      (
+        byte >= (bytes = 4)
+        &&
+        (static_cast<uint8_t>(utf8_str.at(byte - 4)) & 0xF8) == 0xF0
+      )
+      ||
+      (
+        byte >= (bytes = 3)
+        &&
+        (static_cast<uint8_t>(utf8_str.at(byte - 3)) & 0xF0) == 0xE0
+      )
+      ||
+      (
+        byte >= (bytes = 2)
+        &&
+        (static_cast<uint8_t>(utf8_str.at(byte - 2)) & 0xE0) == 0xC0)
+      ||
+      (
+        byte >= (bytes = 1)
+        &&
+        (static_cast<uint8_t>(utf8_str.at(byte - 1))) <= 0xE0
+      )
+    )
+  );
 }
 
 bool ekg::utf8_find_utf_pos_by_byte_pos(
