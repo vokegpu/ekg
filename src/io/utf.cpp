@@ -133,16 +133,18 @@ void ekg::utf8_sequence(
   std::string_view utf8_str,
   size_t &it
 ) {
-  if (uc8 <= 0x7F) {
+  size_t size {utf8_str.size()};
+
+  if (size >= 1 && uc8 <= 0x7F) {
     c32 = static_cast<char32_t>(uc8);
-  } else if ((uc8 & 0xE0) == 0xC0) {
+  } else if ((size >= 2 && it + 1 < size) && (uc8 & 0xE0) == 0xC0) {
     c32 = uc8 & 0x1F;
     c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
-  } else if ((uc8 & 0xF0) == 0xE0) {
+  } else if ((size >= 3 && it + 2 < size) && (uc8 & 0xF0) == 0xE0) {
     c32 = uc8 & 0x0F;
     c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
     c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
-  } else if ((uc8 & 0xF8) == 0xF0) {
+  } else if ((size >= 4 && it + 3 < size) && (uc8 & 0xF8) == 0xF0) {
     c32 = uc8 & 0x07;
     c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
     c32 = (c32 << 6) | (utf8_str.at(++it) & 0x3F);
