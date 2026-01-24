@@ -88,6 +88,7 @@ void ekg::ui::refresh_cursors_pos(
           : cursor.b.x - (origin.a.x - origin.b.x);
         cursor.b.y += displacement_b.y;
       }
+
       break;
     case ekg::ui::textbox_operation::erase_inline:
       if (cursor.a.y > origin.b.y) {
@@ -1500,11 +1501,11 @@ void ekg::ui::buffering(
           bool is_next_line_selected_in_some_way {};
 
           if (
-            !is_complete_line_selected
-            &&
             is_last_char_from_line
             &&
             (is_next_line_selected_in_some_way = ekg::ui::find_cursor(textbox, next_line_index, nearest_cursor))
+            &&
+            !is_complete_line_selected
           ) {
             glyph_wsize += draw_font.space_wsize;
           }
@@ -1514,8 +1515,6 @@ void ekg::ui::buffering(
             !textbox.color_scheme.caret_cursor
             &&
             is_next_line_selected_in_some_way
-            &&
-            is_inline_selected
             &&
             !ekg::ui::find_cursor(textbox, next_char_index, nearest_cursor)
           ) {
@@ -1535,7 +1534,7 @@ void ekg::ui::buffering(
           }
 
           if (is_inline_selected) {
-            cursor.rect.x = pos.x + end_cursor_position;
+            cursor.rect.x = pos.x;
             cursor.rect.y = pos.y;
             cursor.rect.w = glyph_wsize;
             cursor.rect.h = textbox.widget.rect_text_size.h;

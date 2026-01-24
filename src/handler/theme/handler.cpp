@@ -89,7 +89,7 @@ void ekg::handler::theme::init() {
   ekg::theme_t black_light_pinky_theme {
     .tag = "black-light-pinky",
     .author = "Rina Wilk",
-    .description = "oiiiiiiiii eu amo vc serpa, lindo maravilhoso"
+    .description = "misses"
   };
 
   black_light_pinky_theme.layout_offset = 2.0f;
@@ -146,7 +146,7 @@ void ekg::handler::theme::init() {
 
   ekg::theme_t black_pinky {
     .tag = "black-pinky",
-    .author = "serpa",
+    .author = "weasted",
     .description = "colors for show colors"
   };
 
@@ -193,7 +193,7 @@ void ekg::handler::theme::init() {
   black_pinky.popup_color_scheme.outline = {50, 50, 50, 100};
   black_pinky.popup_color_scheme.popup_mode = true;
 
-  black_pinky.textbox_color_scheme.background = {20, 34, 21, 255};
+  black_pinky.textbox_color_scheme.background = {0, 0, 0, 255};
   black_pinky.textbox_color_scheme.outline = {190, 190, 190, 100};
   black_pinky.textbox_color_scheme.text_foreground = {242, 242, 242, 255};
   black_pinky.textbox_color_scheme.text_cursor_foreground = {141, 141, 141, 255};
