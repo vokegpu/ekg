@@ -1507,7 +1507,7 @@ void ekg::ui::buffering(
             &&
             !is_complete_line_selected
           ) {
-            glyph_wsize += draw_font.space_wsize;
+            glyph_wsize = (glyph_wsize * !is_cursor_at_end_of_line) + draw_font.space_wsize;
           }
 
           ekg::vec2_t<size_t> next_char_index(next_line_index.x + 1, next_line_index.y);
@@ -1534,7 +1534,7 @@ void ekg::ui::buffering(
           }
 
           if (is_inline_selected) {
-            cursor.rect.x = pos.x;
+            cursor.rect.x = pos.x + end_cursor_position;
             cursor.rect.y = pos.y;
             cursor.rect.w = glyph_wsize;
             cursor.rect.h = textbox.widget.rect_text_size.h;
