@@ -60,7 +60,7 @@ bool ekg::utf8_align_utf_pos_by_byte_pos(
     while (byte_pos < next_byte_pos) {
       char &c8 {string.at(byte_pos)};
       utf_sequence_size = 1;
-      utf_sequence_size += ((c8 & 0xE0) == 0xC0);
+      utf_sequence_size += 1 * ((c8 & 0xE0) == 0xC0);
       utf_sequence_size += 2 * ((c8 & 0xF0) == 0xE0);
       utf_sequence_size += 3 * ((c8 & 0xF8) == 0xF0);
       byte_pos += utf_sequence_size;
@@ -75,7 +75,7 @@ bool ekg::utf8_align_utf_pos_by_byte_pos(
     while (byte_pos < unaligned_byte_pos) {
       char &c8 {string.at(byte_pos)};
       utf_sequence_size = 1;
-      utf_sequence_size += ((c8 & 0xE0) == 0xC0);
+      utf_sequence_size += 1 * ((c8 & 0xE0) == 0xC0);
       utf_sequence_size += 2 * ((c8 & 0xF0) == 0xE0);
       utf_sequence_size += 3 * ((c8 & 0xF8) == 0xF0);
       byte_pos += utf_sequence_size;

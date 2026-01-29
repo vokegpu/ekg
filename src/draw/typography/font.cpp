@@ -1,5 +1,3 @@
-#include "ekg/draw/typography/font.hpp"
-
 /**
  * MIT License
  * 

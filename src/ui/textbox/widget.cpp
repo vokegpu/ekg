@@ -962,8 +962,8 @@ void ekg::ui::event(
             &&
             ekg::utf8_align_utf_pos_by_byte_pos(
               line,
-              cursor.a.x,
               cursor_byte_pos,
+              cursor.a.x,
               nearest_byte_pos
             )
           );
@@ -984,7 +984,7 @@ void ekg::ui::event(
             }
           }
 
-          (
+          if (
             is_modifier_right_fired
             &&
             ekg::utf8_find_byte_pos_by_utf_pos(
@@ -1003,8 +1003,8 @@ void ekg::ui::event(
             &&
             ekg::utf8_align_utf_pos_by_byte_pos(
               line,
-              cursor.b.x,
               cursor_byte_pos,
+              cursor.b.x,
               cursor_byte_pos + nearest_byte_pos
             )
           );
@@ -1346,6 +1346,8 @@ void ekg::ui::buffering(
   float end_cursor_position {};
   float extra_rect_height {rect_abs.h + textbox.widget.rect_text_size.h};
   float glyph_wsize {};
+  float previous_fitting_glyph {};
+  float previous_kerning {};
 
   size_t current_line_for_cursor_complete {UINT64_MAX};
   size_t text_total_chars {textbox.text.length_of_chars()};
@@ -1451,10 +1453,11 @@ void ekg::ui::buffering(
           }
 
           FT_Get_Kerning(ft_face, ft_uint_previous, c32, 0, &ft_vector_previous_char);
-          pos.x += static_cast<float>(ft_vector_previous_char.x >> 6);
+          pos.x += (previous_kerning = static_cast<float>(ft_vector_previous_char.x >> 6));
         }
 
         ekg::io::glyph_t &glyph {draw_font.mapped_glyph[c32]};
+        glyph.kerning = previous_kerning;
 
         is_last_char_from_line = it+1 == text_len;
         if (
@@ -1471,7 +1474,7 @@ void ekg::ui::buffering(
             )
           )
         ) {
-          glyph_wsize =  glyph.wsize;
+          glyph_wsize = glyph.wsize;
           end_cursor_position = glyph_wsize * is_cursor_at_end_of_line;
           is_ab_equals_selected = property.states.is_focused && cursor == index;
 
@@ -1618,6 +1621,7 @@ void ekg::ui::buffering(
 
         pos.x += glyph.wsize;
         ft_uint_previous = c32;
+        previous_fitting_glyph = glyph.wsize - (glyph.left + glyph.w);
 
         /** 
          * Peek `ekg/io/memory.hpp` for better hash definition and purpose.
@@ -1644,6 +1648,7 @@ void ekg::ui::buffering(
       index.y++;
       hash += pos.y * 32;
       index.x += is_empty;
+      previous_fitting_glyph = 0.0f;
     
       if (rendered.y > extra_rect_height) {
         get_out = true;
