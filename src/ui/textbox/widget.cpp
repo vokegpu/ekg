@@ -205,7 +205,7 @@ bool ekg::ui::find_index_by_interact(
 
   size_t chunk_size {};
   size_t il {};
-  size_t addition_chunk_index {};
+  size_t sum_chunk_sizes {};
   size_t text_total_lines {textbox.text.length_of_lines()};
 
   ekg::vec2_t<float> rendered {};
@@ -216,7 +216,7 @@ bool ekg::ui::find_index_by_interact(
   uint8_t uc8 {};
   char32_t c32 {};
 
-  std::vector<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
+  std::list<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
   size_t chunks_size {chunks.size()};
 
   index.y += textbox.widget.view_line_index;
@@ -234,13 +234,9 @@ bool ekg::ui::find_index_by_interact(
   std::string empty {"\n"};
   bool is_empty {};
 
-  for (size_t ic {textbox.widget.view_chunk_index}; ic < chunks_size; ic++) {
-    ekg::io::chunk_t &chunk {chunks.at(ic)};
-
-    il = 0;
-    if (ic == textbox.widget.view_chunk_index) {
-      il = textbox.widget.view_chunk_line_index;
-    }
+  il = textbox.widget.view_chunk_line_index;
+  for (std::list<ekg::io::chunk_t>::iterator ic {textbox.widget.view_chunk_it}; ic != chunks.end(); ic++) {
+    ekg::io::chunk_t &chunk {*ic};
 
     chunk_size = chunk.size();
     for (;il < chunk_size; il++) {
@@ -302,6 +298,7 @@ bool ekg::ui::find_index_by_interact(
         }
       }
 
+      il = 0;
       index.x = 0;
       pos.x = textbox.color_scheme.gutter_margin;
 
@@ -634,7 +631,7 @@ void ekg::ui::reload(
   textbox.rect.h = aligned_dimension.h * textbox.rect.scaled_height;
 
   size_t highest_size {};
-  std::vector<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
+  std::list<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
 
   ekg::rect_t<float> &rect_abs {
     ekg::ui::get_abs_rect(property, textbox.rect)
@@ -1353,13 +1350,13 @@ void ekg::ui::buffering(
   size_t text_total_chars {textbox.text.length_of_chars()};
   size_t text_total_lines {textbox.text.length_of_lines()};
   size_t il {};
-  size_t addition_chunk_index {};
+  size_t sum_chunk_sizes {};
   size_t chunk_size {};
   ekg::vec2_t<size_t> index {};
 
   ekg::pixel_t line_wsize {};
   ekg::textbox_t::cursor_t cursor {};
-  std::vector<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
+  std::list<ekg::io::chunk_t> &chunks {textbox.text.chunks_data()};
   size_t chunks_size {chunks.size()};
   bool is_renderable {};
 
@@ -1403,26 +1400,26 @@ void ekg::ui::buffering(
   bool was_empty_before {};
 
   textbox.widget.layers_select.clear();
-  for (size_t ic {}; ic < chunks_size; ic++) {
-    ekg::io::chunk_t &chunk {chunks.at(ic)};
+  for (std::list<ekg::io::chunk_t>::iterator ic {chunks.begin()}; ic != chunks.end(); ic++) {
+    ekg::io::chunk_t &chunk {*ic};
     chunk_size = chunk.size();
-    if (addition_chunk_index + chunk_size < textbox.widget.view_line_index) {
+    if (sum_chunk_sizes + chunk_size < textbox.widget.view_line_index) {
       pos.x = 0.0f;
       index.y += chunk_size;
-      addition_chunk_index += chunk_size;
+      sum_chunk_sizes += chunk_size;
       continue;
     }
 
     il = 0;
     if (!oka_found_visual_index) {
-      textbox.widget.view_chunk_index = ic;
-      il = textbox.widget.view_line_index - addition_chunk_index;
+      textbox.widget.view_chunk_it = ic;
+      il = textbox.widget.view_line_index - sum_chunk_sizes;
       textbox.widget.view_chunk_line_index = il;
       index.y += il;
       oka_found_visual_index = true;
     }
 
-    addition_chunk_index += chunk_size;
+    sum_chunk_sizes += chunk_size;
     for (;il < chunk_size; il++) {
       std::string &chunk_line {chunk.at(il)};
       std::string &line {(is_empty = chunk_line.empty()) ? empty : chunk_line};

@@ -483,16 +483,15 @@ void ekg::utf8_concat(
 }
 
 void ekg::text::swizzle(
-  size_t chunk_index,
+  std::list<ekg::io::chunk_t>::iterator chunk_it,
   size_t line_index,
   std::vector<std::string> &to_swizzle,
   bool skip_first_line
 ) {
   this->was_audited = true;
-
   bool is_empty {to_swizzle.empty()};
-  ekg::io::chunk_t &chunk {this->loaded_chunks.at(chunk_index)};
 
+  ekg::io::chunk_t &chunk {*chunk_it};
   if (skip_first_line) {
     chunk.at(line_index) = is_empty ? "" : to_swizzle.at(0);
   }
@@ -528,18 +527,20 @@ void ekg::text::swizzle(
 
   for (size_t jt {}; jt < newly_chunks; jt++) {
     this->loaded_chunks.insert(
-      this->loaded_chunks.begin() + chunk_index + jt + 1,
+      chunk_it,
       ekg::io::chunk_t {
         to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 0)),
         to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 1))
       }
     );
+
+    chunk_it++;
   }
 
   size_t rest {to_swizzle_chunk_size - (this->lines_per_chunk_limit * newly_chunks)};
   if (rest > 0) {
     this->loaded_chunks.insert(
-      this->loaded_chunks.begin() + chunk_index + newly_chunks + 1,
+      chunk_it,
       ekg::io::chunk_t {
         to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (newly_chunks + 0)),
         to_swizzle_chunk.end()
@@ -561,8 +562,8 @@ size_t ekg::text::set(size_t index, std::string_view line, ekg::io::chunk_t &spl
   ekg::utf8_split_endings(line, split_endings);
 
   bool ok {};
-  for (size_t it {}; it < this->loaded_chunks.size(); it++) {
-    ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+  for (std::list<ekg::io::chunk_t>::iterator it {this->loaded_chunks.begin()}; it != this->loaded_chunks.end(); it++) {
+    ekg::io::chunk_t &chunk {*it};
 
     previous_lines = current_lines;
     current_lines += (chunk_size = chunk.size());
@@ -591,8 +592,8 @@ std::string ekg::text::at(size_t index) {
   size_t previous_lines {};
   size_t chunk_size {};
 
-  for (size_t it {}; it < chunks_size; it++) {
-    ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+  for (std::list<ekg::io::chunk_t>::iterator it {this->loaded_chunks.begin()}; it != this->loaded_chunks.end(); it++) {
+    ekg::io::chunk_t &chunk {*it};
     previous_lines = current_lines;
     current_lines += (chunk_size = chunk.size());
 
@@ -632,8 +633,8 @@ void ekg::text::insert(
   }
 
   size_t total_of_chunks {this->loaded_chunks.size()};
-  for (size_t it {}; it < total_of_chunks; it++) {
-    ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+  for (std::list<ekg::io::chunk_t>::iterator it {this->loaded_chunks.begin()}; it != this->loaded_chunks.end(); it++) {
+    ekg::io::chunk_t &chunk {*it};
 
     previous_lines = current_lines;
     current_lines += (chunk_size = chunk.size());
@@ -681,8 +682,8 @@ std::string ekg::text::read(
   bool oka_end {};
 
   std::string builder {};
-  for (size_t it {}; it < total_of_chunks; it++) {
-    ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+  for (std::list<ekg::io::chunk_t>::iterator it {this->loaded_chunks.begin()}; it != this->loaded_chunks.end(); it++) {
+    ekg::io::chunk_t &chunk {*it};
 
     previous_lines = current_lines;
     current_lines += (chunk_size = chunk.size());
@@ -767,8 +768,8 @@ void ekg::text::erase(
   bool empty_chunk {};
   bool goto_next_chunk {};
 
-  for (size_t it {}; it < this->loaded_chunks.size(); it++) {
-    ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+  for (std::list<ekg::io::chunk_t>::iterator it {this->loaded_chunks.begin()}; it != this->loaded_chunks.end(); it++) {
+    ekg::io::chunk_t &chunk {*it};
 
     previous_lines = lines;
     lines += (chunk_size = chunk.size());
@@ -778,7 +779,7 @@ void ekg::text::erase(
       begin = begin - previous_lines;
 
       while (remains_lines != 0) {
-        ekg::io::chunk_t &chunk {this->loaded_chunks.at(it)};
+        ekg::io::chunk_t &chunk {*it};
 
         chunk_size = chunk.size();
         goto_next_chunk = begin + remains_lines > chunk.size();
@@ -791,12 +792,12 @@ void ekg::text::erase(
         empty_chunk = chunk.empty();
         if (empty_chunk) {
           this->loaded_chunks.erase(
-            this->loaded_chunks.begin() + it
+            it
           );
         }
 
         if (goto_next_chunk) {
-          it += !empty_chunk;
+          if (!empty_chunk) it++;
           remains_lines -= chunk_size - begin;
           begin = 0;
           continue;
@@ -819,23 +820,24 @@ void ekg::text::push_back(std::string_view line) {
 
   if (this->loaded_chunks.empty()) {
     this->loaded_chunks.emplace_back().emplace_back();
-    this->swizzle(0, 0, splitted, true);
+    this->swizzle(this->loaded_chunks.begin(), 0, splitted, true);
     return;
   }
 
+  std::list<ekg::io::chunk_t>::iterator last_it {--this->loaded_chunks.end()};
   ekg::io::chunk_t &last_chunk {
-    this->loaded_chunks.back()
+    *last_it
   };
 
   this->swizzle(
-    this->loaded_chunks.size() - 1,
+    last_it,
     last_chunk.size() - !last_chunk.empty(),
     splitted,
     false
   );
 }
 
-std::vector<ekg::io::chunk_t> &ekg::text::chunks_data() {
+std::list<ekg::io::chunk_t> &ekg::text::chunks_data() {
   return this->loaded_chunks;
 }
 

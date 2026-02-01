@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <regex>
+#include <list>
 
 namespace ekg {
   /**
@@ -241,7 +242,7 @@ namespace ekg::io {
 namespace ekg {
   class text {
   protected:
-    std::vector<ekg::io::chunk_t> loaded_chunks {};
+    std::list<ekg::io::chunk_t> loaded_chunks {};
     size_t lines_per_chunk_limit {100000};
     size_t total_lines {};
     size_t total_chars {};
@@ -252,7 +253,7 @@ namespace ekg {
     bool should_count {};
   protected:
     void swizzle(
-      size_t chunk_index,
+      std::list<ekg::io::chunk_t>::iterator chunk_it,
       size_t line_index,
       std::vector<std::string> &to_swizzle,
       bool skip_first_line
@@ -282,7 +283,7 @@ namespace ekg {
       size_t end
     );
 
-    std::vector<ekg::io::chunk_t> &chunks_data();
+    std::list<ekg::io::chunk_t> &chunks_data();
     size_t length_of_chunks();
 
     std::string at(size_t index);
@@ -291,6 +292,7 @@ namespace ekg {
 
     bool audited();
     void unset_audited();
+    void gc();
   };
 }
 

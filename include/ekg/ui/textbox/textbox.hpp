@@ -114,7 +114,7 @@ namespace ekg {
 
       size_t last_layers_select_size {};
       size_t view_line_index {UINT64_MAX};
-      size_t view_chunk_index {UINT64_MAX};
+      std::list<ekg::io::chunk_t>::iterator view_chunk_it {};
       size_t view_chunk_line_index {UINT64_MAX};
 
       ekg::vec2_t<size_t> picked_left {UINT64_MAX, UINT64_MAX};
