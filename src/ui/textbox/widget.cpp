@@ -138,7 +138,7 @@ void ekg::ui::refresh_cursors_pos(
         cursor.b.x > origin.b.x
       ) {
         cursor.b.x = (origin.a.x < origin.b.x) ?
-          cursor.b.x- (origin.b.x - origin.a.x)
+          cursor.b.x - (origin.b.x - origin.a.x)
           :
           cursor.b.x + (origin.a.x - origin.b.x);
         cursor.b.y -= displacement_b.y;
@@ -287,7 +287,7 @@ bool ekg::ui::find_index_by_interact(
           index.x++;
           return true;
         }
-
+ 
         index.x++;
         pos.x += rect.w;
 
@@ -298,7 +298,6 @@ bool ekg::ui::find_index_by_interact(
         }
       }
 
-      il = 0;
       index.x = 0;
       pos.x = textbox.color_scheme.gutter_margin;
 
@@ -310,6 +309,8 @@ bool ekg::ui::find_index_by_interact(
         return false;
       }
     }
+
+    il = 0;
   }
 
   return false;
@@ -1181,6 +1182,8 @@ void ekg::ui::event(
 
       ekg::gui.ui.redraw = true;
 
+      ekg_log_low_level(textbox.text.length_of_chunks())
+
       break;
     }
   case ekg::io::stage::pre:
@@ -1336,7 +1339,7 @@ void ekg::ui::buffering(
   bool is_ab_equals_selected {};
   bool is_cursor_at_end_of_line {};
   bool cursors_going_on {!textbox.widget.cursors.empty()};
-  bool oka_found_visual_index {};
+  bool reached_renderable_state {};
   bool get_out {};
   bool is_last_char_from_line {};
 
@@ -1411,12 +1414,12 @@ void ekg::ui::buffering(
     }
 
     il = 0;
-    if (!oka_found_visual_index) {
-      textbox.widget.view_chunk_it = ic;
+    if (!reached_renderable_state) {
       il = textbox.widget.view_line_index - sum_chunk_sizes;
-      textbox.widget.view_chunk_line_index = il;
       index.y += il;
-      oka_found_visual_index = true;
+      textbox.widget.view_chunk_line_index = il;
+      textbox.widget.view_chunk_it = ic;
+      reached_renderable_state = true;
     }
 
     sum_chunk_sizes += chunk_size;

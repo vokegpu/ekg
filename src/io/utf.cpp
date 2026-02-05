@@ -527,20 +527,18 @@ void ekg::text::swizzle(
 
   for (size_t jt {}; jt < newly_chunks; jt++) {
     this->loaded_chunks.insert(
-      chunk_it,
+      ++chunk_it,
       ekg::io::chunk_t {
         to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 0)),
         to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 1))
       }
     );
-
-    chunk_it++;
   }
 
   size_t rest {to_swizzle_chunk_size - (this->lines_per_chunk_limit * newly_chunks)};
   if (rest > 0) {
     this->loaded_chunks.insert(
-      chunk_it,
+      ++chunk_it,
       ekg::io::chunk_t {
         to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (newly_chunks + 0)),
         to_swizzle_chunk.end()
@@ -632,6 +630,8 @@ void ekg::text::insert(
     ekg::utf8_split_endings(lines, splitted);
   }
 
+  size_t b {};
+
   size_t total_of_chunks {this->loaded_chunks.size()};
   for (std::list<ekg::io::chunk_t>::iterator it {this->loaded_chunks.begin()}; it != this->loaded_chunks.end(); it++) {
     ekg::io::chunk_t &chunk {*it};
@@ -650,6 +650,8 @@ void ekg::text::insert(
       this->total_lines += splitted.size();
       return;
     }
+
+    b++;
   }
 
   throw std::out_of_range("ekg::text::insert -> lines length: " + std::to_string(current_lines));
@@ -879,4 +881,12 @@ bool ekg::text::audited() {
 
 void ekg::text::unset_audited() {
   this->was_audited = false;
+}
+
+void ekg::text::set_lines_per_chunk_limit(size_t limit) {
+  this->lines_per_chunk_limit = limit;
+}
+
+size_t ekg::text::get_lines_per_chunk_limit() {
+  return this->lines_per_chunk_limit;
 }
