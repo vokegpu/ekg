@@ -64,12 +64,6 @@ add_library(
 
 ### here
 
-target_include_directories(
-  ekg PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  ${FREETYPE_INCLUDE_DIRS}
-)
 
 ###
 
