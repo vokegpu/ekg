@@ -43,10 +43,26 @@ file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
 # exclude_files_by_regex(SOURCE_FILES /* regex */)
 
+###
+##
+## This is a "hacky" for git clone fetching from
+## other CMakeLists that use `FetchContent_MakeAvailable`.
+##
+###
+
+### here
+
+include_directories(include)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+
+###
+
 add_library(
   ekg STATIC
   ${SOURCE_FILES}
 )
+
+### here
 
 target_include_directories(
   ekg PUBLIC
@@ -54,6 +70,8 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>
   ${FREETYPE_INCLUDE_DIRS}
 )
+
+###
 
 target_compile_options(
   ekg PRIVATE
