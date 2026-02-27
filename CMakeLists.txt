@@ -52,6 +52,9 @@ file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
 ### here
 
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+
 ###
 
 add_library(
@@ -61,6 +64,12 @@ add_library(
 
 ### here
 
+target_include_directories(
+  ekg PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  ${FREETYPE_INCLUDE_DIRS}
+)
 
 ###
 
