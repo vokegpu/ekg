@@ -52,7 +52,7 @@ file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
 ### here
 
-include_directories(include)
+include_directories($<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
 include_directories(${FREETYPE_INCLUDE_DIRS})
 
 ###
