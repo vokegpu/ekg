@@ -52,9 +52,6 @@ file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
 ### here
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(${FREETYPE_INCLUDE_DIRS})
-
 ###
 
 add_library(
