@@ -293,6 +293,7 @@ namespace ekg {
     bool audited();
     void unset_audited();
     void gc();
+    void sanitize();
   
     void set_lines_per_chunk_limit(size_t limit);
     size_t get_lines_per_chunk_limit();

@@ -488,15 +488,18 @@ void ekg::text::swizzle(
   std::vector<std::string> &to_swizzle,
   bool skip_first_line
 ) {
+  ekg_log_low_level("swizzle...")
+
+  ekg::io::chunk_t &chunk {*chunk_it};
+
   this->was_audited = true;
   bool is_empty {to_swizzle.empty()};
 
-  ekg::io::chunk_t &chunk {*chunk_it};
   if (skip_first_line) {
     chunk.at(line_index) = is_empty ? "" : to_swizzle.at(0);
   }
 
-  if (to_swizzle.empty()) {
+  if (is_empty) {
     to_swizzle.emplace_back();
   }
 
@@ -506,7 +509,7 @@ void ekg::text::swizzle(
     to_swizzle.end()
   );
 
-  if (chunk.size() < this->lines_per_chunk_limit) {
+  if (chunk.size() <= this->lines_per_chunk_limit) {
     return;
   }
 
@@ -521,30 +524,61 @@ void ekg::text::swizzle(
   );
 
   size_t to_swizzle_chunk_size {to_swizzle_chunk.size()};
-  size_t newly_chunks {
-    to_swizzle_chunk_size / this->lines_per_chunk_limit          
+
+  if (++chunk_it == this->loaded_chunks.end()) {
+    size_t newly_chunks {
+      to_swizzle_chunk_size / this->lines_per_chunk_limit          
+    };
+
+    ekg_log_low_level("insert at end if necessary")
+
+    for (size_t jt {}; jt < newly_chunks; jt++) {
+      chunk_it = this->loaded_chunks.insert(
+        chunk_it,
+        ekg::io::chunk_t {
+          to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 0)),
+          to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 1))
+        }
+      );
+    }
+
+    size_t rest {to_swizzle_chunk_size - (this->lines_per_chunk_limit * newly_chunks)};
+    if (rest > 0) {
+      chunk_it = this->loaded_chunks.insert(
+        chunk_it,
+        ekg::io::chunk_t {
+          to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (newly_chunks + 0)),
+          to_swizzle_chunk.end()
+        }
+      );
+    }
+
+    return;
+  }
+
+  ekg::io::chunk_t &next_chunk {
+    *chunk_it
   };
 
-  for (size_t jt {}; jt < newly_chunks; jt++) {
-    this->loaded_chunks.insert(
-      ++chunk_it,
-      ekg::io::chunk_t {
-        to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 0)),
-        to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (jt + 1))
-      }
+  if (to_swizzle_chunk_size + next_chunk.size() > this->lines_per_chunk_limit) {
+    chunk_it = this->loaded_chunks.insert(chunk_it, {});
+    ekg_log_low_level("insert if next chunk too large for this")
+    this->swizzle(
+      chunk_it,
+      0,
+      to_swizzle_chunk,
+      false
     );
+    return;
   }
 
-  size_t rest {to_swizzle_chunk_size - (this->lines_per_chunk_limit * newly_chunks)};
-  if (rest > 0) {
-    this->loaded_chunks.insert(
-      ++chunk_it,
-      ekg::io::chunk_t {
-        to_swizzle_chunk.begin() + (this->lines_per_chunk_limit * (newly_chunks + 0)),
-        to_swizzle_chunk.end()
-      }
-    );
-  }
+  next_chunk.insert(
+    next_chunk.begin(),
+    to_swizzle_chunk.begin(),
+    to_swizzle_chunk.end()
+  );
+
+  ekg_log_low_level("insert if next chunk allows")
 }
 
 size_t ekg::text::set(size_t index, std::string_view line) {
@@ -776,36 +810,38 @@ void ekg::text::erase(
     previous_lines = lines;
     lines += (chunk_size = chunk.size());
 
-    if (begin <= lines) {
+    if (begin < lines) {
       remains_lines = end - begin;
       begin = begin - previous_lines;
 
-      while (remains_lines != 0) {
+      ekg_log_low_level(remains_lines << " x " << begin)
+
+      while (remains_lines != 0 && it != this->loaded_chunks.end()) {
         ekg::io::chunk_t &chunk {*it};
-
         chunk_size = chunk.size();
-        goto_next_chunk = begin + remains_lines > chunk.size();
 
-        chunk.erase(
-          chunk.begin() + begin,
-          chunk.begin() + begin + (!goto_next_chunk * remains_lines)
-        );
+        if (chunk_size != 0) {
+          lines = (remains_lines + begin) >= (chunk_size) ? (chunk_size - begin) : (remains_lines);
 
-        empty_chunk = chunk.empty();
-        if (empty_chunk) {
-          this->loaded_chunks.erase(
-            it
+          ekg_log_low_level(remains_lines << " " << begin << " | " << lines)
+
+          chunk.erase(
+            chunk.begin() + begin, // 5
+            chunk.begin() + begin + remains_lines // 5 + 1 = 6
           );
-        }
 
-        if (goto_next_chunk) {
-          if (!empty_chunk) it++;
-          remains_lines -= chunk_size - begin;
+          ekg_log_low_level(remains_lines << " vv " << lines)
+          remains_lines *= lines != 0;
+          remains_lines -= lines;
+
           begin = 0;
-          continue;
         }
 
-        remains_lines = 0; 
+        if (chunk.empty()) {
+          it = this->loaded_chunks.erase(it);
+        }
+
+        it++;
       }
 
       break;
@@ -889,4 +925,16 @@ void ekg::text::set_lines_per_chunk_limit(size_t limit) {
 
 size_t ekg::text::get_lines_per_chunk_limit() {
   return this->lines_per_chunk_limit;
+}
+
+void ekg::text::sanitize() {
+  if (this->loaded_chunks.empty()) {
+    this->loaded_chunks.emplace_back();
+  }
+
+  ekg::io::chunk_t &chunk {*this->loaded_chunks.begin()};
+
+  if (chunk.empty()) {
+    chunk.emplace_back();
+  }
 }

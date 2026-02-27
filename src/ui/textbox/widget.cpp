@@ -440,6 +440,8 @@ void ekg::ui::handle_erase(
     return;
   }
 
+  ekg_log_low_level("begin")
+
   if (cursor.a.y == cursor.b.y) {
     std::string line {textbox.text.at(cursor.a.y)};
     std::string concated {};
@@ -506,9 +508,13 @@ void ekg::ui::handle_erase(
     cursor.b.y + 1
   );
 
+  textbox.text.sanitize();
+
   cursor.b = cursor.a;
   cursor.delta = cursor.a;
   cursor.highest_char_index = cursor.a.x;
+
+  ekg_log_low_level("ended")
 }
 
 void ekg::ui::handle_insert(
@@ -845,7 +851,7 @@ void ekg::ui::event(
 
       if (is_action_paste) {
         input.was_typed = true;
-        input.typed = ekg::p_core->p_platform_base->get_clipboard_text();        
+        input.typed = ekg::p_core->p_platform_base->get_clipboard_text();
       }
 
       std::string clipboard_builder {};
