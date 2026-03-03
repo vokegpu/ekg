@@ -84,9 +84,8 @@ namespace ekg {
  **/
 namespace ekg {
   /**
-   * Broken heart hash..........
    **/
-  constexpr ekg::id_t not_found {2942656639};
+  constexpr ekg::id_t not_found {283233071866};
 
   struct at_t {
   public:

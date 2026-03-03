@@ -74,6 +74,8 @@ namespace ekg {
     std::string_view typed {};
   };
 
+  using input_bind_function_t = ekg::result (*)(std::string_view, bool);
+
   struct input_key_t {
   public:
     int32_t key {};

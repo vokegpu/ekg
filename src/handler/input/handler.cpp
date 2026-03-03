@@ -670,6 +670,10 @@ void ekg::handler::input::set_input_state(
 ) {
   this->input_map[key.data()] = state;
 
+  if (!this->input_bind_listener_function) {
+    this->input_bind_listener_function(key, state);
+  }
+
   for (bool *p_address : this->input_bindings_map[key.data()]) {
     if (!p_address) {
       continue;
@@ -731,4 +735,10 @@ bool ekg::handler::input::get_input_bind_state(
   std::string_view tag
 ) {
   return this->input_bind_map[tag.data()].state;
+}
+
+void ekg::handler::input::set_input_bind_listener(
+  ekg::input_bind_function_t input_bind_listener_function
+) {
+  this->input_bind_listener_function = input_bind_listener_function;
 }
