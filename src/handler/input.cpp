@@ -45,3 +45,7 @@ void ekg::bind(std::string_view tag, std::vector<std::string_view> inputs) {
     ekg::bind(tag, inputs);
   }
 }
+
+void ekg::listener(ekg::input_bind_function_t input_bind_listener_function) {
+  ekg::p_core->handler_input.set_input_bind_listener(input_bind_listener_function);
+}

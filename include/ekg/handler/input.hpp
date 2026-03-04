@@ -96,6 +96,7 @@ namespace ekg {
   bool input(std::string_view input);
   void bind(std::string_view tag, std::string_view input);
   void bind(std::string_view tag, std::vector<std::string_view> inputs);
+  void listener(ekg::input_bind_function_t input_bind_listener_function);
 }
 
 #endif
