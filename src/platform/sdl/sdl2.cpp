@@ -212,7 +212,7 @@ void ekg::sdl2_poll_event(SDL_Event &sdl_event) {
     ekg::p_core->p_platform_base->event.text_input = sdl_event.text.text;
     must_poll_events = true;
     break;
-  case SDL_MOUSEBUTTONUP:
+   case SDL_MOUSEBUTTONUP:
     ekg::p_core->p_platform_base->event.type = ekg::io::event_type::mouse_button_up;
     ekg::p_core->p_platform_base->event.mouse_button = sdl_event.button.button;
     must_poll_events = true;

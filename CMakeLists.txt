@@ -42,14 +42,13 @@ file(GLOB_RECURSE HEADER_FILES "include/*.hpp")
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
 add_library(
-  ekg STATIC
-  ${SOURCE_FILES}
+  ekg STATIC ${SOURCE_FILES}
 )
 
 target_include_directories(
-  ekg PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
+  ekg PRIVATE
+  ./include
+  ./include
   ${FREETYPE_INCLUDE_DIRS}
 )
 

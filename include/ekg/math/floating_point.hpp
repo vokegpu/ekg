@@ -1,4 +1,4 @@
-/**
+ /**
  * MIT License
  * 
  * Copyright (c) 2022-2025 Rina Wilk / vokegpu@gmail.com
