@@ -240,7 +240,11 @@ void ekg::core::poll_event() {
     return;
   }
 
+  ekg_log_low_level("poll-event-1");
+
   ekg::p_core->handler_input.poll_event();
+
+  ekg_log_low_level("poll-event-2");
 
   ekg::input_info_t &input {
     ekg::p_core->handler_input.input
@@ -274,6 +278,8 @@ void ekg::core::poll_event() {
 
     return;
   }
+
+  ekg_log_low_level("poll-event-3");
 
   if (is_on_scrolling_timeout) {
     return;
