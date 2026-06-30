@@ -317,12 +317,12 @@ void ekg::handler::input::poll_event() {
 
         this->string_builder += "abs-";
         this->string_builder += this->key_name;
-        this->set_input_state(this->string_builder, true);
   ekg_log_low_level("input::poll_event-13");
+        this->set_input_state(this->string_builder, true);
+  ekg_log_low_level("input::poll_event-14");
 
         this->input_released_list.push_back(this->string_builder);
 
-  ekg_log_low_level("input::poll_event-14");
 
         this->string_builder.clear();
   ekg_log_low_level("input::poll_event-15");
