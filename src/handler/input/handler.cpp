@@ -297,6 +297,7 @@ void ekg::handler::input::poll_event() {
       if (special_key != ekg::special_key::unknown) {
         this->special_keys[static_cast<uint64_t>(special_key)][0] = this->key_name[0];
 
+
         this->string_builder += "abs-";
         this->string_builder += this->key_name;
         this->set_input_state(this->string_builder, true);
@@ -307,23 +308,41 @@ void ekg::handler::input::poll_event() {
         this->set_input_state(this->string_builder, true);
         this->is_special_keys_released = true;
       } else {
+  ekg_log_low_level("input::poll_event-9");
+
         std::transform(this->key_name.begin(), this->key_name.end(), this->key_name.begin(), ::tolower);
+
+  ekg_log_low_level("input::poll_event-11");
+
+
         this->string_builder += "abs-";
         this->string_builder += this->key_name;
         this->set_input_state(this->string_builder, true);
+  ekg_log_low_level("input::poll_event-13");
+
         this->input_released_list.push_back(this->string_builder);
 
+  ekg_log_low_level("input::poll_event-14");
+
         this->string_builder.clear();
+  ekg_log_low_level("input::poll_event-15");
+
         this->complete_with_units(this->string_builder, this->key_name);
+  ekg_log_low_level("input::poll_event-16");
+
         this->set_input_state(this->string_builder, true);
+  ekg_log_low_level("input::poll_event-17");
+
         this->input_released_list.push_back(this->string_builder);
 
         if (this->string_builder != this->key_name && !this->contains_unit(this->string_builder)) {
           this->special_keys_unit_pressed.push_back(this->string_builder);
         }
-      }
 
-  ekg_log_low_level("input::poll_event-9");
+  ekg_log_low_level("input::poll_event-18");
+
+
+      }
 
 
       break;
