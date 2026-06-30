@@ -199,8 +199,6 @@ void ekg::handler::input::quit() {
 }
 
 void ekg::handler::input::poll_event() {
-  ekg_log_low_level("input::poll_event-1");
-
   if (this->input.was_wheel) {
     this->set_input_state("mouse-wheel", false);
     this->set_input_state("mouse-wheel-up", false);
@@ -208,16 +206,12 @@ void ekg::handler::input::poll_event() {
     this->input.was_wheel = false;
   }
 
-  ekg_log_low_level("input::poll_event-2");
-
   if (this->finger_swipe_event) {
     this->set_input_state("finger-swipe", false);
     this->set_input_state("finger-swipe-up", false);
     this->set_input_state("finger-swipe-down", false);
     this->finger_swipe_event = false;
   }
-
-  ekg_log_low_level("input::poll_event-3");
 
   this->finger_hold_event = false;
 
@@ -230,8 +224,6 @@ void ekg::handler::input::poll_event() {
     this->is_special_keys_released = false;
   }
 
-  ekg_log_low_level("input::poll_event-4");
-
   if (!this->input_released_list.empty()) {
     for (std::string &inputs: this->input_released_list) {
       this->set_input_state(inputs, false);
@@ -239,8 +231,6 @@ void ekg::handler::input::poll_event() {
 
     this->input_released_list.clear();
   }
-
-  ekg_log_low_level("input::poll_event-5");
 
   if (!this->just_fired_input_bind.empty()) {
     for (bool *p_input_bind_state_address : this->just_fired_input_bind) {
@@ -253,8 +243,6 @@ void ekg::handler::input::poll_event() {
 
     this->just_fired_input_bind.clear();
   }
-
-  ekg_log_low_level("input::poll_event-6");
 
   this->input.was_pressed = false;
   this->input.was_released = false;
@@ -282,8 +270,6 @@ void ekg::handler::input::poll_event() {
 
       this->string_builder.clear();
 
-  ekg_log_low_level("input::poll_event-7");
-
       ekg::p_core->p_platform_base->get_key_name(
         platform_event.key,
         this->key_name
@@ -292,11 +278,8 @@ void ekg::handler::input::poll_event() {
       ekg::special_key special_key {ekg::special_key::unknown};
       ekg::p_core->p_platform_base->get_special_key(platform_event.key, special_key);
 
-  ekg_log_low_level("input::poll_event-8");
-
       if (special_key != ekg::special_key::unknown) {
         this->special_keys[static_cast<uint64_t>(special_key)][0] = this->key_name[0];
-
 
         this->string_builder += "abs-";
         this->string_builder += this->key_name;
@@ -308,42 +291,21 @@ void ekg::handler::input::poll_event() {
         this->set_input_state(this->string_builder, true);
         this->is_special_keys_released = true;
       } else {
-  ekg_log_low_level("input::poll_event-9");
-
         std::transform(this->key_name.begin(), this->key_name.end(), this->key_name.begin(), ::tolower);
-
-  ekg_log_low_level("input::poll_event-11");
-
-
         this->string_builder += "abs-";
         this->string_builder += this->key_name;
-  ekg_log_low_level("input::poll_event-13");
         this->set_input_state(this->string_builder, true);
-  ekg_log_low_level("input::poll_event-14");
-
         this->input_released_list.push_back(this->string_builder);
 
-
         this->string_builder.clear();
-  ekg_log_low_level("input::poll_event-15");
-
         this->complete_with_units(this->string_builder, this->key_name);
-  ekg_log_low_level("input::poll_event-16");
-
         this->set_input_state(this->string_builder, true);
-  ekg_log_low_level("input::poll_event-17");
-
         this->input_released_list.push_back(this->string_builder);
 
         if (this->string_builder != this->key_name && !this->contains_unit(this->string_builder)) {
           this->special_keys_unit_pressed.push_back(this->string_builder);
         }
-
-  ekg_log_low_level("input::poll_event-18");
-
-
       }
-
 
       break;
     }
@@ -700,34 +662,24 @@ void ekg::handler::input::erase_input_bind(
 
   // input_bind.registry.clear();
   this->input_bind_map.erase(tag.data());
-}
+} 
 
 void ekg::handler::input::set_input_state(
   std::string_view key,
   bool state
 ) {
-  ekg_log_low_level("input::set_input_state-1");
   this->input_map[key.data()] = state;
-  ekg_log_low_level("input::set_input_state-2");
 
   if (this->input_bind_listener_function) {
-  ekg_log_low_level("input::set_input_state-3");
     this->input_bind_listener_function(key, state);
   }
 
-  ekg_log_low_level("input::set_input_state-4");
-
   for (bool *p_address : this->input_bindings_map[key.data()]) {
-  ekg_log_low_level("input::set_input_state-5");
     if (!p_address) {
       continue;
     }
 
-  ekg_log_low_level("input::set_input_state-6");
-
     *p_address = state;
-
-  ekg_log_low_level("input::set_input_state-7");
   }
 }
 
