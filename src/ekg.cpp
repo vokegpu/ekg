@@ -125,8 +125,6 @@ void ekg::update() {
   ekg::p_core->handler_callback.update();
   ekg::p_core->p_platform_base->update();
   ekg::p_core->p_platform_base->event.type = ekg::io::event_type::none;
-
-  ekg::log::flush();
 }
 
 void ekg::render() {
