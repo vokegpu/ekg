@@ -48,7 +48,6 @@ add_library(
 target_include_directories(
   ekg PRIVATE
   ./include
-  ./include
   ${FREETYPE_INCLUDE_DIRS}
 )
 
