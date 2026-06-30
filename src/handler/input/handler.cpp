@@ -706,18 +706,28 @@ void ekg::handler::input::set_input_state(
   std::string_view key,
   bool state
 ) {
+  ekg_log_low_level("input::set_input_state-1");
   this->input_map[key.data()] = state;
+  ekg_log_low_level("input::set_input_state-2");
 
   if (!this->input_bind_listener_function) {
+  ekg_log_low_level("input::set_input_state-3");
     this->input_bind_listener_function(key, state);
   }
 
+  ekg_log_low_level("input::set_input_state-4");
+
   for (bool *p_address : this->input_bindings_map[key.data()]) {
+  ekg_log_low_level("input::set_input_state-5");
     if (!p_address) {
       continue;
     }
 
+  ekg_log_low_level("input::set_input_state-6");
+
     *p_address = state;
+
+  ekg_log_low_level("input::set_input_state-7");
   }
 }
 
