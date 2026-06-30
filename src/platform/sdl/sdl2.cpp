@@ -259,6 +259,8 @@ void ekg::sdl2_poll_event(SDL_Event &sdl_event) {
   }
 
   if (must_poll_events) {
+    ekg_log_low_level("meow");
+
     ekg::p_core->p_platform_base->system_cursor = ekg::system_cursor::arrow;
     ekg::core::poll_event();
   }

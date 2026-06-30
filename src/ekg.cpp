@@ -40,16 +40,11 @@ bool ekg::log::buffered {};
 
 ekg::flags_t ekg::init(
   ekg::runtime_properties_info_t &runtime_properties_info,
-  ekg::runtime_t *p_runtime
+  ekg::runtime_t &runtime
 ) {
-  if (p_runtime == nullptr) {
-    ekg::log("~ERROR~ invalid (?) `ekg::runtime_t` pointer address: nullptr");
-    return ekg::result::failed;
-  }
-
   ekg::log() << "Initializing EKG version " << EKG_VERSION;
 
-  ekg::p_core = p_runtime;
+  ekg::p_core = &runtime;
 
   ekg::p_core->p_platform_base = runtime_properties_info.p_platform_base;
   ekg::p_core->p_gpu_api = runtime_properties_info.p_gpu_api;
