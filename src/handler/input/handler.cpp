@@ -710,7 +710,7 @@ void ekg::handler::input::set_input_state(
   this->input_map[key.data()] = state;
   ekg_log_low_level("input::set_input_state-2");
 
-  if (!this->input_bind_listener_function) {
+  if (this->input_bind_listener_function) {
   ekg_log_low_level("input::set_input_state-3");
     this->input_bind_listener_function(key, state);
   }
